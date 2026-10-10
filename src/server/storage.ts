@@ -9,19 +9,10 @@ import {
   SourcePost,
   ExtractionResult,
   ActiveCollectionRun,
-  QueryCatalogueItem,
-  QueryCatalogueConfig,
-  TimeWindow,
 } from '../types/index.ts';
 import { getInitialDemoDatabase, initialSamplePosts } from './sampleData.ts';
-import { extractCandidateFromPost, runSimulatedFallbackExtraction } from './gemini.ts';
+import { extractCandidateFromPost } from './gemini.ts';
 import { fetchLinkedInPostsViaApify, isApifyConfigured, mapTimeToPostedLimit } from './apify.ts';
-import {
-  DEFAULT_QUERY_CATALOGUE,
-  INITIAL_QUERY_CONFIG,
-  selectRotatedQueries,
-  recordQueryStats,
-} from './queryCatalogue.ts';
 
 const DATA_DIR = path.resolve(process.cwd(), 'data');
 
@@ -52,6 +43,8 @@ function getInitialLiveDatabase(): AppDatabase {
       ...demo.criteria,
       targetCountry: 'India',
       allowBankingIndustry: true,
+      matchAnySector: true,
+      matchAnyRole: true,
       excludedIndustries: [], // Allow any industry including banking as per prompt
     },
     schedule: demo.schedule,
@@ -88,18 +81,6 @@ export function getDatabase(mode: 'demo' | 'live' = 'demo'): AppDatabase {
       parsed.connections.apify.isConfigured = isApifyConfigured();
       parsed.connections.apify.status = isApifyConfigured() ? 'connected' : 'setup_required';
     }
-
-    if (
-      !parsed.queryCatalogue ||
-      parsed.queryCatalogue.length === 0 ||
-      !parsed.queryCatalogue.some((q: any) => q.id === 'q_all_india_01')
-    ) {
-      parsed.queryCatalogue = JSON.parse(JSON.stringify(DEFAULT_QUERY_CATALOGUE));
-    }
-    if (!parsed.queryConfig) {
-      parsed.queryConfig = { ...INITIAL_QUERY_CONFIG };
-    }
-
     return parsed;
   } catch (err) {
     console.error(`Error reading ${filepath}, resetting to initial`, err);
@@ -183,11 +164,10 @@ export function getLatestRunForMode(mode: 'demo' | 'live'): ActiveCollectionRun 
  */
 export async function startCandidateCollectionRun(
   options: {
-    timeWindow: TimeWindow;
+    timeWindow: '24h' | '7d';
     limit: number;
     mode: 'demo' | 'live';
     useSmallTestQuery?: boolean;
-    searchQueries?: string[];
   }
 ): Promise<{ runId: string }> {
   // Check if a run is already active
@@ -232,24 +212,6 @@ export async function startCandidateCollectionRun(
     try {
       let postsToProcess: Array<Partial<SourcePost> & { content: string }> = [];
 
-      // Rotate queries across runs per requirements
-      if (!db.queryCatalogue) db.queryCatalogue = JSON.parse(JSON.stringify(DEFAULT_QUERY_CATALOGUE));
-      if (!db.queryConfig) db.queryConfig = { ...INITIAL_QUERY_CONFIG };
-
-      const { selectedQueries, nextConfig } = selectRotatedQueries(db.queryCatalogue, db.queryConfig);
-      db.queryConfig = nextConfig;
-      saveDatabase(db, mode);
-
-      const activeSearchQueries = options.useSmallTestQuery
-        ? ['sales AND "open to work"']
-        : options.searchQueries && options.searchQueries.length > 0
-        ? options.searchQueries
-        : selectedQueries.map(q => q.compiledQuery);
-
-      activeRun.logs.push(
-        `[${new Date().toLocaleTimeString()}] Query rotation batch (rotation index ${nextConfig.rotationIndex}): ${activeSearchQueries.map(q => `"${q}"`).join(', ')}`
-      );
-
       if (mode === 'demo') {
         // DEMO SANDBOX MODE: Use clearly labelled sample data, NEVER call Apify!
         activeRun.status = 'fetching_posts';
@@ -287,7 +249,6 @@ export async function startCandidateCollectionRun(
             timeWindow: options.timeWindow,
             limit: maxPosts,
             useSmallTestQuery: options.useSmallTestQuery,
-            searchQueries: activeSearchQueries,
           },
           msg => {
             activeRun.logs.push(`[${new Date().toLocaleTimeString()}] ${msg}`);
@@ -422,30 +383,9 @@ export async function startCandidateCollectionRun(
           limit: maxPosts,
           postedLimit,
           maxPosts,
-          searchQueries: activeSearchQueries,
           useSmallTestQuery: options.useSmallTestQuery,
         },
       };
-
-      // Record query performance stats in catalogue
-      if (selectedQueries && selectedQueries.length > 0) {
-        const perQueryPosts = Math.ceil(activeRun.fetchedPostsCount / selectedQueries.length);
-        const perQueryDuplicates = Math.ceil(activeRun.duplicatesCount / selectedQueries.length);
-        const perQueryMatched = Math.ceil(activeRun.analyzedCandidatesCount / selectedQueries.length);
-        const perQueryRejected = Math.ceil((activeRun.rejectedPostsCount || 0) / selectedQueries.length);
-
-        selectedQueries.forEach(sq => {
-          const item = db.queryCatalogue?.find(q => q.id === sq.id);
-          if (item) {
-            recordQueryStats(item, {
-              retrieved: perQueryPosts,
-              duplicates: perQueryDuplicates,
-              matched: perQueryMatched,
-              rejected: perQueryRejected,
-            });
-          }
-        });
-      }
 
       db.scanRuns.unshift(scanRun);
       if (db.scanRuns.length > 50) db.scanRuns = db.scanRuns.slice(0, 50);
@@ -965,7 +905,7 @@ export async function reprocessExistingPosts(mode: 'demo' | 'live' = 'demo'): Pr
 
   for (const post of posts) {
     try {
-      const meta = {
+      const extraction = await extractCandidateFromPost(post.content, db.criteria, {
         platform: post.platform,
         sourceUrl: post.sourceUrl || undefined,
         authorIdentifier: post.authorIdentifier || undefined,
@@ -974,12 +914,7 @@ export async function reprocessExistingPosts(mode: 'demo' | 'live' = 'demo'): Pr
         authorLocation: post.authorLocation || undefined,
         authorProfileUrl: post.authorProfileUrl || undefined,
         postedAt: post.postedAt || undefined,
-      };
-
-      const extraction =
-        mode === 'demo'
-          ? runSimulatedFallbackExtraction(post.content, db.criteria, meta)
-          : await extractCandidateFromPost(post.content, db.criteria, meta);
+      });
 
       post.authorIntent = extraction.authorIntent;
       post.intentEvidence = extraction.intentEvidence;
@@ -1002,6 +937,17 @@ export async function reprocessExistingPosts(mode: 'demo' | 'live' = 'demo'): Pr
         const mergeResult = mergeOrInsertCandidate(db, post, extraction);
         post.extractedCandidateId = mergeResult.candidateId;
 
+        // Ensure candidate tag, explanation, checks, and contact details reflect latest criteria
+        const cand = db.candidates.find(c => c.id === mergeResult.candidateId);
+        if (cand && !cand.isManuallyCorrected) {
+          cand.criteriaTag = extraction.criteriaTag;
+          cand.matchingExplanation = extraction.matchingExplanation;
+          cand.validationChecks = extraction.validationChecks;
+          if (extraction.email && (!cand.email || !cand.isManuallyCorrected)) cand.email = extraction.email;
+          if (extraction.phone && (!cand.phone || !cand.isManuallyCorrected)) cand.phone = extraction.phone;
+          cand.lastUpdatedAt = new Date().toISOString();
+        }
+
         if (extraction.criteriaTag === 'Matches Criteria') {
           matchedCount++;
         } else if (extraction.criteriaTag === 'Needs Review') {
@@ -1020,7 +966,7 @@ export async function reprocessExistingPosts(mode: 'demo' | 'live' = 'demo'): Pr
         rejectionReason: extraction.rejectionReason ?? null,
       });
     } catch (err: any) {
-      console.warn(`[Reprocess Warning] Post ${post.id}:`, err?.message || err);
+      console.error(`Error reprocessing post ${post.id}:`, err);
     }
   }
 
@@ -1116,8 +1062,8 @@ export async function runCanonicalVerificationSuite(): Promise<{
       expectedIntent: 'SELF_JOB_SEEKING',
     },
     {
-      name: 'A tech engineer with no sales responsibilities',
-      content: 'After 4 years building distributed backend systems in Go and Python at TechStack, I am open to work and seeking new software engineering opportunities in Bengaluru. No sales or marketing experience. Contact: rahul.tech@devmail.io',
+      name: 'A tech engineer seeking a job (non-sales role, tech sector)',
+      content: 'After 4 years building distributed backend systems in Go and Python at TechStack, I am open to work and seeking new software engineering opportunities in Bengaluru. Contact: rahul.tech@devmail.io | +91 98450 12345',
       metadata: {
         authorName: 'Rahul Verma',
         authorHeadline: 'Senior Backend Software Engineer at TechStack | Python & Go | Bengaluru, India',
@@ -1162,7 +1108,7 @@ export async function runCanonicalVerificationSuite(): Promise<{
   const results = [];
 
   for (const s of scenarios) {
-    const ext = runSimulatedFallbackExtraction(s.content, db.criteria, s.metadata);
+    const ext = await extractCandidateFromPost(s.content, db.criteria, s.metadata);
     const passedIntent = ext.authorIntent === s.expectedIntent;
     const passedTag = ext.criteriaTag === s.expectedTag;
     const scenarioSuccess = passedIntent && passedTag;
@@ -1215,6 +1161,8 @@ export function generateCandidatesCsv(candidates: Candidate[], posts: SourcePost
     'Employer',
     'Sector',
     'Current Work Location',
+    'Email',
+    'Phone Number',
     'Experience (Years)',
     'Experience Type',
     'Job Seeking Statement',
@@ -1222,7 +1170,7 @@ export function generateCandidatesCsv(candidates: Candidate[], posts: SourcePost
     'Profile Link',
     'Post Link',
     'Author Personally Seeking Check',
-    'Sales Role Check',
+    'Role & Function Check',
     'India Check',
     'Experience 1-10y Check',
     'Target Sector Check',
@@ -1234,7 +1182,7 @@ export function generateCandidatesCsv(candidates: Candidate[], posts: SourcePost
 
   function escapeCsvCell(val: any): string {
     if (val === null || val === undefined) return 'Not Provided';
-    const str = String(val).replace(/"/g, '""');
+    const str = String(val).replace(/\r?\n/g, ' ').replace(/"/g, '""').trim();
     return `"${str}"`;
   }
 
@@ -1251,6 +1199,8 @@ export function generateCandidatesCsv(candidates: Candidate[], posts: SourcePost
       escapeCsvCell(c.employer),
       escapeCsvCell(c.sector),
       escapeCsvCell(c.currentWorkLocation),
+      escapeCsvCell(c.email),
+      escapeCsvCell(c.phone),
       escapeCsvCell(c.totalExperienceYears !== null ? c.totalExperienceYears : 'Not Provided'),
       escapeCsvCell(c.experienceType || 'unknown'),
       escapeCsvCell(c.jobSeekingStatement),
@@ -1271,61 +1221,3 @@ export function generateCandidatesCsv(candidates: Candidate[], posts: SourcePost
 
   return [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
 }
-
-export function getQueryCatalogue(mode: 'demo' | 'live' = 'demo'): {
-  catalogue: QueryCatalogueItem[];
-  config: QueryCatalogueConfig;
-} {
-  const db = getDatabase(mode);
-  if (!db.queryCatalogue || db.queryCatalogue.length === 0) {
-    db.queryCatalogue = JSON.parse(JSON.stringify(DEFAULT_QUERY_CATALOGUE));
-    saveDatabase(db, mode);
-  }
-  if (!db.queryConfig) {
-    db.queryConfig = { ...INITIAL_QUERY_CONFIG };
-    saveDatabase(db, mode);
-  }
-  return {
-    catalogue: db.queryCatalogue || DEFAULT_QUERY_CATALOGUE,
-    config: db.queryConfig || INITIAL_QUERY_CONFIG,
-  };
-}
-
-export function updateQueryCatalogue(
-  mode: 'demo' | 'live' = 'demo',
-  updates: {
-    catalogue?: QueryCatalogueItem[];
-    config?: Partial<QueryCatalogueConfig>;
-  }
-): { catalogue: QueryCatalogueItem[]; config: QueryCatalogueConfig } {
-  const db = getDatabase(mode);
-  if (updates.catalogue) {
-    db.queryCatalogue = updates.catalogue;
-  }
-  if (updates.config) {
-    db.queryConfig = {
-      ...(db.queryConfig || INITIAL_QUERY_CONFIG),
-      ...updates.config,
-    };
-  }
-  saveDatabase(db, mode);
-  return {
-    catalogue: db.queryCatalogue || DEFAULT_QUERY_CATALOGUE,
-    config: db.queryConfig || INITIAL_QUERY_CONFIG,
-  };
-}
-
-export function resetQueryCatalogue(mode: 'demo' | 'live' = 'demo'): {
-  catalogue: QueryCatalogueItem[];
-  config: QueryCatalogueConfig;
-} {
-  const db = getDatabase(mode);
-  db.queryCatalogue = JSON.parse(JSON.stringify(DEFAULT_QUERY_CATALOGUE));
-  db.queryConfig = { ...INITIAL_QUERY_CONFIG };
-  saveDatabase(db, mode);
-  return {
-    catalogue: db.queryCatalogue || DEFAULT_QUERY_CATALOGUE,
-    config: db.queryConfig || INITIAL_QUERY_CONFIG,
-  };
-}
-

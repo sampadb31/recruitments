@@ -18,7 +18,7 @@
       "postUrl": "https://www.linkedin.com/feed/update/urn:li:activity:7247000002",
       "profileUrl": "https://www.linkedin.com/in/rohit-deshmukh-pharma",
       "email": "rohit.deshmukh@pharmamail.com",
-      "phone": null,
+      "phone": "+91 98201 54321",
       "profileUrlOrTelegramId": "https://www.linkedin.com/in/rohit-deshmukh-pharma",
       "authorIntent": "SELF_JOB_SEEKING",
       "intentEvidence": "Author personally states: \"I am actively seeking a new role in Mumbai or Pune.\"",
@@ -57,7 +57,7 @@
         "post_verify_02_pharma"
       ],
       "firstSeenAt": "2026-10-03T14:35:00.000Z",
-      "lastUpdatedAt": "2026-10-10T06:28:46.234Z",
+      "lastUpdatedAt": "2026-10-03T14:35:00.000Z",
       "isManuallyCorrected": false,
       "manuallyCorrectedFields": [],
       "evidence": {
@@ -89,7 +89,7 @@
       "postUrl": "https://www.linkedin.com/feed/update/urn:li:activity:7247000007",
       "profileUrl": "https://www.linkedin.com/in/priyasharma-sales",
       "email": "priya.sharma91@example.com",
-      "phone": null,
+      "phone": "+91 97110 88234",
       "profileUrlOrTelegramId": "https://www.linkedin.com/in/priyasharma-sales",
       "authorIntent": "SELF_JOB_SEEKING",
       "intentEvidence": "Author is personally seeking a job (\"Please connect me with hiring managers\" does not indicate recruiter hiring).",
@@ -128,7 +128,7 @@
         "post_verify_07_hiring_managers"
       ],
       "firstSeenAt": "2026-10-03T09:20:00.000Z",
-      "lastUpdatedAt": "2026-10-10T06:28:46.237Z",
+      "lastUpdatedAt": "2026-10-03T09:20:00.000Z",
       "isManuallyCorrected": false,
       "manuallyCorrectedFields": [],
       "evidence": {
@@ -160,7 +160,7 @@
       "postUrl": "https://www.linkedin.com/feed/update/urn:li:activity:7247000008",
       "profileUrl": "https://www.linkedin.com/in/karthik-raman-nbfc",
       "email": "karthik.raman@nbfcmail.in",
-      "phone": null,
+      "phone": "+91 94440 19283",
       "profileUrlOrTelegramId": "https://www.linkedin.com/in/karthik-raman-nbfc",
       "authorIntent": "SELF_JOB_SEEKING",
       "intentEvidence": "Author personally seeks a role: \"Seeking a new role in commercial vehicle finance and lending!\"",
@@ -199,7 +199,7 @@
         "post_verify_08_nbfc"
       ],
       "firstSeenAt": "2026-10-03T11:25:00.000Z",
-      "lastUpdatedAt": "2026-10-10T06:28:46.238Z",
+      "lastUpdatedAt": "2026-10-03T11:25:00.000Z",
       "isManuallyCorrected": false,
       "manuallyCorrectedFields": []
     },
@@ -221,7 +221,7 @@
       "postUrl": "https://www.linkedin.com/feed/update/urn:li:activity:7247000004",
       "profileUrl": "https://www.linkedin.com/in/amit-verma-paints",
       "email": "amit.verma@paintmail.com",
-      "phone": null,
+      "phone": "+91 98102 33445",
       "profileUrlOrTelegramId": "https://www.linkedin.com/in/amit-verma-paints",
       "authorIntent": "SELF_JOB_SEEKING",
       "intentEvidence": "Author personally seeks a role: \"I am exploring new sales opportunities in the paints and decorative coatings sector.\"",
@@ -260,7 +260,7 @@
         "post_verify_04_unknown_exp"
       ],
       "firstSeenAt": "2026-10-03T16:25:00.000Z",
-      "lastUpdatedAt": "2026-10-10T06:28:46.237Z",
+      "lastUpdatedAt": "2026-10-03T16:25:00.000Z",
       "isManuallyCorrected": false,
       "manuallyCorrectedFields": []
     },
@@ -269,10 +269,8 @@
       "name": "Rahul Verma",
       "currentOrPreviousRole": "Senior Backend Software Engineer",
       "employer": "TechStack",
-      "sector": null,
+      "sector": "technology sales",
       "currentWorkLocation": "Bengaluru, Karnataka, India",
-      "currentCity": "Bengaluru",
-      "currentStateOrUT": "Karnataka",
       "industry": "Software Engineering",
       "salesExperienceSummary": null,
       "totalExperienceYears": 4,
@@ -284,15 +282,12 @@
       "postUrl": "https://www.linkedin.com/feed/update/urn:li:activity:7247000005",
       "profileUrl": "https://www.linkedin.com/in/rahul-verma-dev",
       "email": "rahul.tech@devmail.io",
-      "phone": null,
+      "phone": "+91 98450 12345",
       "profileUrlOrTelegramId": "https://www.linkedin.com/in/rahul-verma-dev",
       "authorIntent": "SELF_JOB_SEEKING",
-      "intentEvidence": "Author seeks an engineering job (\"seeking new software engineering opportunities in Bengaluru\").",
-      "author_seeking_job": true,
-      "author_based_in_india": true,
-      "location_evidence": "Profile location: Bengaluru, Karnataka, India.",
+      "intentEvidence": "Author seeks a software engineering job (\"seeking new software engineering opportunities in Bengaluru\").",
       "criteriaTag": "Matches Criteria",
-      "matchingExplanation": "Confirmed Match: Individual job-seeker in Bengaluru, Karnataka, India with 4 years experience. Any role and sector accepted.",
+      "matchingExplanation": "Confirmed Match: Self job-seeking software engineering professional in Bengaluru, India with 4 years experience (expanded search: all roles & sectors eligible).",
       "isRecruiterAd": false,
       "validationChecks": {
         "authorIsPersonallySeekingJob": {
@@ -301,7 +296,7 @@
         },
         "currentlyEmployedInSalesRole": {
           "passed": true,
-          "evidence": "Senior Backend Software Engineer. Working in any role is accepted."
+          "evidence": "Senior Backend Software Engineer at TechStack (Eligible under Any Role policy: Sales & Non-Sales functions eligible)."
         },
         "currentlyWorkingInIndia": {
           "passed": true,
@@ -309,27 +304,24 @@
         },
         "totalExperience1To10Years": {
           "passed": true,
-          "evidence": "4 years backend engineering stated in post (within 1–10 years).",
+          "evidence": "4 years backend engineering stated in post.",
           "experienceType": "stated"
         },
         "currentEmployerInTargetSector": {
           "passed": true,
-          "evidence": "TechStack. Working in any sector is accepted."
+          "evidence": "TechStack operates in the Technology sector (Eligible under Any Sector policy).",
+          "detectedSector": "technology"
         },
         "postDateWithinSelectedPeriod": {
           "passed": true,
           "evidence": "Posted Oct 2, 2026."
-        },
-        "author_seeking_job": true,
-        "author_based_in_india": true,
-        "currentCity": "Bengaluru",
-        "currentStateOrUT": "Karnataka"
+        }
       },
       "sourcePostIds": [
         "post_verify_05_tech_engineer"
       ],
       "firstSeenAt": "2026-10-02T13:50:00.000Z",
-      "lastUpdatedAt": "2026-10-10T06:28:46.237Z",
+      "lastUpdatedAt": "2026-10-02T13:50:00.000Z",
       "isManuallyCorrected": false,
       "manuallyCorrectedFields": []
     },
@@ -390,352 +382,7 @@
         "post_verify_06_outside_india"
       ],
       "firstSeenAt": "2026-10-03T10:50:00.000Z",
-      "lastUpdatedAt": "2026-10-10T06:28:46.237Z",
-      "isManuallyCorrected": false,
-      "manuallyCorrectedFields": []
-    },
-    {
-      "id": "cand_demo_09_engineer",
-      "name": "Divya Nair",
-      "currentOrPreviousRole": "Fullstack Engineer (React & Node.js)",
-      "employer": "FinTechWorks",
-      "sector": "technology sales",
-      "currentWorkLocation": "Bengaluru, Karnataka, India",
-      "currentCity": "Bengaluru",
-      "currentStateOrUT": "Karnataka",
-      "industry": "Software Engineering",
-      "salesExperienceSummary": null,
-      "totalExperienceYears": 4,
-      "experienceType": "stated",
-      "preferredLocation": "Bengaluru, India",
-      "jobSeekingStatement": "I am open to work! ... actively looking for my next software engineering role.",
-      "statedAvailability": "Immediate Joiner",
-      "originalPostDate": "2026-10-04T08:30:00.000Z",
-      "postUrl": "https://www.linkedin.com/feed/update/urn:li:activity:7247000009",
-      "profileUrl": "https://www.linkedin.com/in/divya-nair-dev",
-      "email": "divya.nair@devmail.in",
-      "phone": null,
-      "profileUrlOrTelegramId": "https://www.linkedin.com/in/divya-nair-dev",
-      "authorIntent": "SELF_JOB_SEEKING",
-      "intentEvidence": "I am open to work! ... actively looking for my next software engineering role.",
-      "author_seeking_job": true,
-      "author_based_in_india": true,
-      "location_evidence": "Bengaluru, Karnataka, India",
-      "criteriaTag": "Matches Criteria",
-      "matchingExplanation": "Confirmed Match: Self job-seeking engineer based in Bengaluru, Karnataka, India with 4 years experience. Any role and sector accepted.",
-      "isRecruiterAd": false,
-      "validationChecks": {
-        "authorIsPersonallySeekingJob": {
-          "passed": true,
-          "evidence": "Actively looking for next software engineering role."
-        },
-        "currentlyEmployedInSalesRole": {
-          "passed": true,
-          "evidence": "Fullstack Engineer (React & Node.js). Any role accepted."
-        },
-        "currentlyWorkingInIndia": {
-          "passed": true,
-          "evidence": "Bengaluru, Karnataka, India."
-        },
-        "totalExperience1To10Years": {
-          "passed": true,
-          "evidence": "4 years experience stated in post.",
-          "experienceType": "stated"
-        },
-        "currentEmployerInTargetSector": {
-          "passed": true,
-          "evidence": "FinTechWorks. Any sector accepted."
-        },
-        "postDateWithinSelectedPeriod": {
-          "passed": true,
-          "evidence": "Posted Oct 4, 2026."
-        },
-        "author_seeking_job": true,
-        "author_based_in_india": true,
-        "currentCity": "Bengaluru",
-        "currentStateOrUT": "Karnataka"
-      },
-      "sourcePostIds": [
-        "post_demo_09_engineer"
-      ],
-      "firstSeenAt": "2026-10-04T08:35:00.000Z",
-      "lastUpdatedAt": "2026-10-10T06:28:46.238Z",
-      "isManuallyCorrected": false,
-      "manuallyCorrectedFields": []
-    },
-    {
-      "id": "cand_demo_11_marketing",
-      "name": "Sneha Iyer",
-      "currentOrPreviousRole": "Growth Marketing Manager",
-      "employer": "BrandScale India",
-      "sector": "FMCG",
-      "currentWorkLocation": "Mumbai, Maharashtra, India",
-      "currentCity": "Mumbai",
-      "currentStateOrUT": "Maharashtra",
-      "industry": "Marketing & Advertising",
-      "salesExperienceSummary": null,
-      "totalExperienceYears": 4,
-      "experienceType": "stated",
-      "preferredLocation": "Mumbai, India",
-      "jobSeekingStatement": "Seeking a new role in growth marketing! #OpenToWork",
-      "statedAvailability": "30 days",
-      "originalPostDate": "2026-10-04T10:00:00.000Z",
-      "postUrl": "https://www.linkedin.com/feed/update/urn:li:activity:7247000011",
-      "profileUrl": "https://www.linkedin.com/in/sneha-iyer-growth",
-      "email": "sneha.mkt@inboxmail.in",
-      "phone": null,
-      "profileUrlOrTelegramId": "https://www.linkedin.com/in/sneha-iyer-growth",
-      "authorIntent": "SELF_JOB_SEEKING",
-      "intentEvidence": "Seeking a new role in growth marketing!",
-      "author_seeking_job": true,
-      "author_based_in_india": true,
-      "location_evidence": "Mumbai, Maharashtra, India",
-      "criteriaTag": "Matches Criteria",
-      "matchingExplanation": "Confirmed Match: Self job-seeking growth marketer based in Mumbai, Maharashtra, India with 4 years experience. Any role and sector accepted.",
-      "isRecruiterAd": false,
-      "validationChecks": {
-        "authorIsPersonallySeekingJob": {
-          "passed": true,
-          "evidence": "Seeking a new role in growth marketing."
-        },
-        "currentlyEmployedInSalesRole": {
-          "passed": true,
-          "evidence": "Growth Marketing Manager. Any role accepted."
-        },
-        "currentlyWorkingInIndia": {
-          "passed": true,
-          "evidence": "Mumbai, Maharashtra, India."
-        },
-        "totalExperience1To10Years": {
-          "passed": true,
-          "evidence": "4 years experience stated in post.",
-          "experienceType": "stated"
-        },
-        "currentEmployerInTargetSector": {
-          "passed": true,
-          "evidence": "BrandScale India. Any sector accepted."
-        },
-        "postDateWithinSelectedPeriod": {
-          "passed": true,
-          "evidence": "Posted Oct 4, 2026."
-        },
-        "author_seeking_job": true,
-        "author_based_in_india": true,
-        "currentCity": "Mumbai",
-        "currentStateOrUT": "Maharashtra"
-      },
-      "sourcePostIds": [
-        "post_demo_11_marketing"
-      ],
-      "firstSeenAt": "2026-10-04T10:05:00.000Z",
-      "lastUpdatedAt": "2026-10-10T06:28:46.238Z",
-      "isManuallyCorrected": false,
-      "manuallyCorrectedFields": []
-    },
-    {
-      "id": "cand_demo_12_finance",
-      "name": "Manish Aggarwal",
-      "currentOrPreviousRole": "Senior Financial Analyst",
-      "employer": "Apex Capital Advisors",
-      "sector": "fintech",
-      "currentWorkLocation": "New Delhi, Delhi, India",
-      "currentCity": "Delhi",
-      "currentStateOrUT": "Delhi",
-      "industry": "Financial Services",
-      "salesExperienceSummary": null,
-      "totalExperienceYears": 6,
-      "experienceType": "stated",
-      "preferredLocation": "Delhi NCR, India",
-      "jobSeekingStatement": "I am looking for a new opportunity in financial planning and corporate accounts in Delhi NCR.",
-      "statedAvailability": "Open to discussions",
-      "originalPostDate": "2026-10-04T11:45:00.000Z",
-      "postUrl": "https://www.linkedin.com/feed/update/urn:li:activity:7247000012",
-      "profileUrl": "https://www.linkedin.com/in/manish-aggarwal-fin",
-      "email": "manish.aggarwal@inboxmail.in",
-      "phone": null,
-      "profileUrlOrTelegramId": "https://www.linkedin.com/in/manish-aggarwal-fin",
-      "authorIntent": "SELF_JOB_SEEKING",
-      "intentEvidence": "I am looking for a new opportunity in financial planning and corporate accounts.",
-      "author_seeking_job": true,
-      "author_based_in_india": true,
-      "location_evidence": "New Delhi, Delhi, India",
-      "criteriaTag": "Matches Criteria",
-      "matchingExplanation": "Confirmed Match: Self job-seeking financial analyst based in New Delhi, India with 6 years experience. Any role and sector accepted.",
-      "isRecruiterAd": false,
-      "validationChecks": {
-        "authorIsPersonallySeekingJob": {
-          "passed": true,
-          "evidence": "Looking for a new opportunity in financial planning."
-        },
-        "currentlyEmployedInSalesRole": {
-          "passed": true,
-          "evidence": "Senior Financial Analyst. Any role accepted."
-        },
-        "currentlyWorkingInIndia": {
-          "passed": true,
-          "evidence": "New Delhi, Delhi, India."
-        },
-        "totalExperience1To10Years": {
-          "passed": true,
-          "evidence": "6 years experience stated in post.",
-          "experienceType": "stated"
-        },
-        "currentEmployerInTargetSector": {
-          "passed": true,
-          "evidence": "Apex Capital Advisors. Any sector accepted."
-        },
-        "postDateWithinSelectedPeriod": {
-          "passed": true,
-          "evidence": "Posted Oct 4, 2026."
-        },
-        "author_seeking_job": true,
-        "author_based_in_india": true,
-        "currentCity": "Delhi",
-        "currentStateOrUT": "Delhi"
-      },
-      "sourcePostIds": [
-        "post_demo_12_finance"
-      ],
-      "firstSeenAt": "2026-10-04T11:50:00.000Z",
-      "lastUpdatedAt": "2026-10-10T06:28:46.238Z",
-      "isManuallyCorrected": false,
-      "manuallyCorrectedFields": []
-    },
-    {
-      "id": "cand_demo_13_hr",
-      "name": "Preeti Saxena",
-      "currentOrPreviousRole": "Human Resources Generalist",
-      "employer": "TalentPeak Solutions",
-      "sector": "hospitality",
-      "currentWorkLocation": "Gurgaon, Haryana, India",
-      "currentCity": "Gurgaon",
-      "currentStateOrUT": "Haryana",
-      "industry": "Human Resources",
-      "salesExperienceSummary": null,
-      "totalExperienceYears": 3,
-      "experienceType": "stated",
-      "preferredLocation": "Delhi NCR or Remote India",
-      "jobSeekingStatement": "Open to work as HR Generalist or Talent Partner in Delhi NCR or remote India.",
-      "statedAvailability": "Immediate Joiner",
-      "originalPostDate": "2026-10-04T12:10:00.000Z",
-      "postUrl": "https://www.linkedin.com/feed/update/urn:li:activity:7247000013",
-      "profileUrl": "https://www.linkedin.com/in/preeti-saxena-hr",
-      "email": "preeti.hr@workmail.in",
-      "phone": null,
-      "profileUrlOrTelegramId": "https://www.linkedin.com/in/preeti-saxena-hr",
-      "authorIntent": "SELF_JOB_SEEKING",
-      "intentEvidence": "Open to work as HR Generalist or Talent Partner.",
-      "author_seeking_job": true,
-      "author_based_in_india": true,
-      "location_evidence": "Gurgaon, Haryana, India",
-      "criteriaTag": "Matches Criteria",
-      "matchingExplanation": "Confirmed Match: Self job-seeking HR professional based in Gurgaon, Haryana, India with 3 years experience. Any role and sector accepted.",
-      "isRecruiterAd": false,
-      "validationChecks": {
-        "authorIsPersonallySeekingJob": {
-          "passed": true,
-          "evidence": "Open to work as HR Generalist."
-        },
-        "currentlyEmployedInSalesRole": {
-          "passed": true,
-          "evidence": "HR Generalist. Any role accepted."
-        },
-        "currentlyWorkingInIndia": {
-          "passed": true,
-          "evidence": "Gurgaon, Haryana, India."
-        },
-        "totalExperience1To10Years": {
-          "passed": true,
-          "evidence": "3 years experience stated in post.",
-          "experienceType": "stated"
-        },
-        "currentEmployerInTargetSector": {
-          "passed": true,
-          "evidence": "TalentPeak Solutions. Any sector accepted."
-        },
-        "postDateWithinSelectedPeriod": {
-          "passed": true,
-          "evidence": "Posted Oct 4, 2026."
-        },
-        "author_seeking_job": true,
-        "author_based_in_india": true,
-        "currentCity": "Gurgaon",
-        "currentStateOrUT": "Haryana"
-      },
-      "sourcePostIds": [
-        "post_demo_13_hr"
-      ],
-      "firstSeenAt": "2026-10-04T12:15:00.000Z",
-      "lastUpdatedAt": "2026-10-10T06:28:46.239Z",
-      "isManuallyCorrected": false,
-      "manuallyCorrectedFields": []
-    },
-    {
-      "id": "cand_demo_14_data",
-      "name": "Vikram Rao",
-      "currentOrPreviousRole": "Data Analyst (SQL & BI)",
-      "employer": "InsightMatrix Analytics",
-      "sector": "technology sales",
-      "currentWorkLocation": "Hyderabad, Telangana, India",
-      "currentCity": "Hyderabad",
-      "currentStateOrUT": "Telangana",
-      "industry": "Data & Analytics",
-      "salesExperienceSummary": null,
-      "totalExperienceYears": 3,
-      "experienceType": "stated",
-      "preferredLocation": "Hyderabad, India",
-      "jobSeekingStatement": "Seeking my next role as a Data Analyst in Hyderabad or remote.",
-      "statedAvailability": "Immediate Joiner",
-      "originalPostDate": "2026-10-04T13:00:00.000Z",
-      "postUrl": "https://www.linkedin.com/feed/update/urn:li:activity:7247000014",
-      "profileUrl": "https://www.linkedin.com/in/vikram-rao-data",
-      "email": "vikram.rao.data@analystmail.in",
-      "phone": null,
-      "profileUrlOrTelegramId": "https://www.linkedin.com/in/vikram-rao-data",
-      "authorIntent": "SELF_JOB_SEEKING",
-      "intentEvidence": "Seeking my next role as a Data Analyst in Hyderabad or remote.",
-      "author_seeking_job": true,
-      "author_based_in_india": true,
-      "location_evidence": "Hyderabad, Telangana, India",
-      "criteriaTag": "Matches Criteria",
-      "matchingExplanation": "Confirmed Match: Self job-seeking data analyst based in Hyderabad, Telangana, India with 3 years experience. Any role and sector accepted.",
-      "isRecruiterAd": false,
-      "validationChecks": {
-        "authorIsPersonallySeekingJob": {
-          "passed": true,
-          "evidence": "Seeking my next role as a Data Analyst."
-        },
-        "currentlyEmployedInSalesRole": {
-          "passed": true,
-          "evidence": "Data Analyst (SQL & BI). Any role accepted."
-        },
-        "currentlyWorkingInIndia": {
-          "passed": true,
-          "evidence": "Hyderabad, Telangana, India."
-        },
-        "totalExperience1To10Years": {
-          "passed": true,
-          "evidence": "3 years experience stated in post.",
-          "experienceType": "stated"
-        },
-        "currentEmployerInTargetSector": {
-          "passed": true,
-          "evidence": "InsightMatrix Analytics. Any sector accepted."
-        },
-        "postDateWithinSelectedPeriod": {
-          "passed": true,
-          "evidence": "Posted Oct 4, 2026."
-        },
-        "author_seeking_job": true,
-        "author_based_in_india": true,
-        "currentCity": "Hyderabad",
-        "currentStateOrUT": "Telangana"
-      },
-      "sourcePostIds": [
-        "post_demo_14_data"
-      ],
-      "firstSeenAt": "2026-10-04T13:05:00.000Z",
-      "lastUpdatedAt": "2026-10-10T06:28:46.239Z",
+      "lastUpdatedAt": "2026-10-03T10:50:00.000Z",
       "isManuallyCorrected": false,
       "manuallyCorrectedFields": []
     }
@@ -757,8 +404,8 @@
       "receivedAt": "2026-10-03T19:05:00.000Z",
       "extractionState": "recruiter_ad",
       "authorIntent": "RECRUITER_OR_EMPLOYER_HIRING",
-      "intentEvidence": "Post is an agency, recruiter, or employer post offering jobs / soliciting CVs.",
-      "rejectionReason": "Rejected: Offering jobs or vacancy advertisement."
+      "intentEvidence": "Post is a recruiter advertisement soliciting candidate CVs for a corporate vacancy (\"We are hiring... Send updated CV to\").",
+      "rejectionReason": "Rejected Post: Recruiter vacancy advertisement."
     },
     {
       "id": "post_verify_02_pharma",
@@ -771,14 +418,13 @@
       "authorHeadline": "Area Sales Manager at Sun Pharma | Medical Representative | Mumbai, India",
       "authorLocation": "Mumbai, Maharashtra, India",
       "authorProfileUrl": "https://www.linkedin.com/in/rohit-deshmukh-pharma",
-      "content": "I have 5 years in pharmaceutical sales as a Medical Representative and Area Sales Manager at Sun Pharma, and I am actively seeking a new role in Mumbai or Pune. Consistently exceeded sales targets by 115%. Contact: rohit.deshmukh@pharmamail.com",
+      "content": "I have 5 years in pharmaceutical sales as a Medical Representative and Area Sales Manager at Sun Pharma, and I am actively seeking a new role in Mumbai or Pune. Consistently exceeded sales targets by 115%. Contact: rohit.deshmukh@pharmamail.com | Phone: +91 98201 54321",
       "postedAt": "2026-10-03T14:30:00.000Z",
       "receivedAt": "2026-10-03T14:35:00.000Z",
       "extractionState": "extracted",
       "extractedCandidateId": "cand_verify_02_pharma",
       "authorIntent": "SELF_JOB_SEEKING",
-      "intentEvidence": "Author explicitly states personal job search: \"actively seeking a new role\".",
-      "rejectionReason": null
+      "intentEvidence": "Author explicitly states personal job search: \"I am actively seeking a new role in Mumbai or Pune.\""
     },
     {
       "id": "post_verify_03_unrelated",
@@ -796,8 +442,8 @@
       "receivedAt": "2026-10-02T11:05:00.000Z",
       "extractionState": "rejected_post",
       "authorIntent": "UNRELATED",
-      "intentEvidence": "Post consists of sales tips, thought leadership, or industry commentary.",
-      "rejectionReason": "Rejected: Unrelated sales advice or industry thought leadership."
+      "intentEvidence": "Post consists of thought leadership and market analysis (\"Five ways to improve FMCG sales distribution\").",
+      "rejectionReason": "Rejected Post: Unrelated sales advice or industry thought leadership."
     },
     {
       "id": "post_verify_04_unknown_exp",
@@ -810,14 +456,13 @@
       "authorHeadline": "Territory Sales Executive at Berger Paints | Delhi NCR, India",
       "authorLocation": "New Delhi, Delhi, India",
       "authorProfileUrl": "https://www.linkedin.com/in/amit-verma-paints",
-      "content": "I am exploring new sales opportunities in the paints and decorative coatings sector across Delhi NCR. Open to work as Territory Sales Executive. Please connect or reach out at amit.verma@paintmail.com #OpenToWork",
+      "content": "I am exploring new sales opportunities in the paints and decorative coatings sector across Delhi NCR. Open to work as Territory Sales Executive. Please connect or reach out at amit.verma@paintmail.com | Mob: +91 98102 33445 #OpenToWork",
       "postedAt": "2026-10-03T16:20:00.000Z",
       "receivedAt": "2026-10-03T16:25:00.000Z",
       "extractionState": "extracted",
       "extractedCandidateId": "cand_verify_04_unknown_exp",
       "authorIntent": "SELF_JOB_SEEKING",
-      "intentEvidence": "Author explicitly states personal job search: \"I am exploring new sales opportunities\".",
-      "rejectionReason": null
+      "intentEvidence": "Author explicitly states: \"I am exploring new sales opportunities in the paints and decorative coatings sector... Open to work as Territory Sales Executive.\""
     },
     {
       "id": "post_verify_05_tech_engineer",
@@ -830,14 +475,13 @@
       "authorHeadline": "Senior Backend Software Engineer at TechStack | Python & Go | Bengaluru, India",
       "authorLocation": "Bengaluru, Karnataka, India",
       "authorProfileUrl": "https://www.linkedin.com/in/rahul-verma-dev",
-      "content": "After 4 years building distributed backend microservices and databases in Go and Python at TechStack, I am open to work and seeking new software engineering opportunities in Bengaluru. No sales experience. Email: rahul.tech@devmail.io",
+      "content": "After 4 years building distributed backend microservices and databases in Go and Python at TechStack, I am open to work and seeking new software engineering opportunities in Bengaluru. Email: rahul.tech@devmail.io | WhatsApp: +91 98450 12345",
       "postedAt": "2026-10-02T13:45:00.000Z",
       "receivedAt": "2026-10-02T13:50:00.000Z",
       "extractionState": "extracted",
       "extractedCandidateId": "cand_verify_05_tech_engineer",
       "authorIntent": "SELF_JOB_SEEKING",
-      "intentEvidence": "Author explicitly states personal job search: \"I am open to work\".",
-      "rejectionReason": null
+      "intentEvidence": "Author is personally seeking software engineering roles: \"seeking new software engineering opportunities in Bengaluru.\""
     },
     {
       "id": "post_verify_06_outside_india",
@@ -856,8 +500,7 @@
       "extractionState": "extracted",
       "extractedCandidateId": "cand_verify_06_outside_india",
       "authorIntent": "SELF_JOB_SEEKING",
-      "intentEvidence": "Author explicitly states personal job search: \"I'm officially on the market\".",
-      "rejectionReason": "Outside current India-location requirement: Candidate is currently based outside India (Author is currently based outside India according to profile location: \"Singapore\".)."
+      "intentEvidence": "Author states: \"I'm officially on the market! ... Seeking new sales opportunities based in Singapore.\""
     },
     {
       "id": "post_verify_07_hiring_managers",
@@ -870,14 +513,13 @@
       "authorHeadline": "Senior Sales Executive at NatureFresh Foods | FMCG Sales | Mumbai, India",
       "authorLocation": "Mumbai, Maharashtra, India",
       "authorProfileUrl": "https://www.linkedin.com/in/priyasharma-sales",
-      "content": "After a rewarding 4 years driving B2B sales in retail distribution at NatureFresh Foods, I am exploring new opportunities in Mumbai. Please connect me with hiring managers in the FMCG sector! Reach me at priya.sharma91@example.com",
+      "content": "After a rewarding 4 years driving B2B sales in retail distribution at NatureFresh Foods, I am exploring new opportunities in Mumbai. Please connect me with hiring managers in the FMCG sector! Reach me at priya.sharma91@example.com or +91 97110 88234",
       "postedAt": "2026-10-03T09:15:00.000Z",
       "receivedAt": "2026-10-03T09:20:00.000Z",
       "extractionState": "extracted",
       "extractedCandidateId": "cand_verify_07_hiring_managers",
       "authorIntent": "SELF_JOB_SEEKING",
-      "intentEvidence": "Author explicitly states personal job search: \"I am exploring new opportunities\".",
-      "rejectionReason": null
+      "intentEvidence": "Author personally seeks a job and asks network: \"I am exploring new opportunities in Mumbai. Please connect me with hiring managers in the FMCG sector!\""
     },
     {
       "id": "post_verify_08_nbfc",
@@ -890,134 +532,13 @@
       "authorHeadline": "Loan Sales Manager at Shriram Finance | NBFC Commercial Vehicle Loans | Chennai, India",
       "authorLocation": "Chennai, Tamil Nadu, India",
       "authorProfileUrl": "https://www.linkedin.com/in/karthik-raman-nbfc",
-      "content": "Seeking a new role in commercial vehicle finance and lending! 3 years experience at Shriram Finance (NBFC) in Chennai as a Loan Sales Manager. Achieved 130% sales quota. Available in 30 days. Contact: karthik.raman@nbfcmail.in",
+      "content": "Seeking a new role in commercial vehicle finance and lending! 3 years experience at Shriram Finance (NBFC) in Chennai as a Loan Sales Manager. Achieved 130% sales quota. Available in 30 days. Contact: karthik.raman@nbfcmail.in | Call: +91 94440 19283",
       "postedAt": "2026-10-03T11:20:00.000Z",
       "receivedAt": "2026-10-03T11:25:00.000Z",
       "extractionState": "extracted",
       "extractedCandidateId": "cand_verify_08_nbfc",
       "authorIntent": "SELF_JOB_SEEKING",
-      "intentEvidence": "Author explicitly states personal job search: \"Seeking a new role\".",
-      "rejectionReason": null
-    },
-    {
-      "id": "post_demo_09_engineer",
-      "platform": "LinkedIn",
-      "collectionMethod": "Demo",
-      "externalId": "urn:li:activity:7247000009",
-      "sourceUrl": "https://www.linkedin.com/feed/update/urn:li:activity:7247000009",
-      "authorIdentifier": "https://www.linkedin.com/in/divya-nair-dev",
-      "authorName": "Divya Nair",
-      "authorHeadline": "Fullstack Engineer (React & Node.js) | Bengaluru, India",
-      "authorLocation": "Bengaluru, Karnataka, India",
-      "authorProfileUrl": "https://www.linkedin.com/in/divya-nair-dev",
-      "content": "I am open to work! After 4 years building scalable web platforms at FinTechWorks in Bengaluru, I am actively looking for my next software engineering role. Immediate joiner. Email: divya.nair@devmail.in",
-      "postedAt": "2026-10-04T08:30:00.000Z",
-      "receivedAt": "2026-10-04T08:35:00.000Z",
-      "extractionState": "extracted",
-      "extractedCandidateId": "cand_demo_09_engineer",
-      "authorIntent": "SELF_JOB_SEEKING",
-      "intentEvidence": "Author explicitly states personal job search: \"I am open to work\".",
-      "rejectionReason": null
-    },
-    {
-      "id": "post_demo_10_operations",
-      "platform": "LinkedIn",
-      "collectionMethod": "Demo",
-      "externalId": "urn:li:activity:7247000010",
-      "sourceUrl": "https://www.linkedin.com/feed/update/urn:li:activity:7247000010",
-      "authorIdentifier": "https://www.linkedin.com/in/ankit-joshi-ops",
-      "authorName": "Ankit Joshi",
-      "authorHeadline": "Operations & Supply Chain Manager | Pune, India",
-      "authorLocation": "Pune, Maharashtra, India",
-      "authorProfileUrl": "https://www.linkedin.com/in/ankit-joshi-ops",
-      "content": "Exploring new career opportunities in supply chain operations. 5 years experience managing warehouse logistics and inventory distribution in Pune. Open to discussions. Reach me at ankit.ops@mailhub.in",
-      "postedAt": "2026-10-04T09:15:00.000Z",
-      "receivedAt": "2026-10-04T09:20:00.000Z",
-      "extractionState": "rejected_post",
-      "extractedCandidateId": null,
-      "authorIntent": "UNCLEAR",
-      "intentEvidence": "No explicit first-person job-seeking statement found in post text.",
-      "rejectionReason": "Rejected: Lacks personal first-person job seeking statement."
-    },
-    {
-      "id": "post_demo_11_marketing",
-      "platform": "LinkedIn",
-      "collectionMethod": "Demo",
-      "externalId": "urn:li:activity:7247000011",
-      "sourceUrl": "https://www.linkedin.com/feed/update/urn:li:activity:7247000011",
-      "authorIdentifier": "https://www.linkedin.com/in/sneha-iyer-growth",
-      "authorName": "Sneha Iyer",
-      "authorHeadline": "Growth Marketing Manager | Performance Ads | Mumbai, India",
-      "authorLocation": "Mumbai, Maharashtra, India",
-      "authorProfileUrl": "https://www.linkedin.com/in/sneha-iyer-growth",
-      "content": "Seeking a new role in growth marketing! 4 years experience leading paid acquisition, SEO, and retention campaigns across India. Available within 30 days. Contact: sneha.mkt@inboxmail.in #OpenToWork",
-      "postedAt": "2026-10-04T10:00:00.000Z",
-      "receivedAt": "2026-10-04T10:05:00.000Z",
-      "extractionState": "extracted",
-      "extractedCandidateId": "cand_demo_11_marketing",
-      "authorIntent": "SELF_JOB_SEEKING",
-      "intentEvidence": "Author explicitly states personal job search: \"Seeking a new role\".",
-      "rejectionReason": null
-    },
-    {
-      "id": "post_demo_12_finance",
-      "platform": "LinkedIn",
-      "collectionMethod": "Demo",
-      "externalId": "urn:li:activity:7247000012",
-      "sourceUrl": "https://www.linkedin.com/feed/update/urn:li:activity:7247000012",
-      "authorIdentifier": "https://www.linkedin.com/in/manish-aggarwal-fin",
-      "authorName": "Manish Aggarwal",
-      "authorHeadline": "Senior Financial Analyst & Corporate Accounts | New Delhi, India",
-      "authorLocation": "New Delhi, Delhi, India",
-      "authorProfileUrl": "https://www.linkedin.com/in/manish-aggarwal-fin",
-      "content": "I am looking for a new opportunity in financial planning and corporate accounts in Delhi NCR. 6 years hands-on experience in financial modeling, audits, and MIS reporting. Connect or DM me!",
-      "postedAt": "2026-10-04T11:45:00.000Z",
-      "receivedAt": "2026-10-04T11:50:00.000Z",
-      "extractionState": "extracted",
-      "extractedCandidateId": "cand_demo_12_finance",
-      "authorIntent": "SELF_JOB_SEEKING",
-      "intentEvidence": "Author explicitly states personal job search: \"I am looking for a new opportunity\".",
-      "rejectionReason": null
-    },
-    {
-      "id": "post_demo_13_hr",
-      "platform": "LinkedIn",
-      "collectionMethod": "Demo",
-      "externalId": "urn:li:activity:7247000013",
-      "sourceUrl": "https://www.linkedin.com/feed/update/urn:li:activity:7247000013",
-      "authorIdentifier": "https://www.linkedin.com/in/preeti-saxena-hr",
-      "authorName": "Preeti Saxena",
-      "authorHeadline": "Human Resources Generalist & Talent Lead | Gurgaon, India",
-      "authorLocation": "Gurgaon, Haryana, India",
-      "authorProfileUrl": "https://www.linkedin.com/in/preeti-saxena-hr",
-      "content": "Open to work as HR Generalist or Talent Partner in Delhi NCR or remote India. 3 years experience in end-to-end recruitment, onboarding, and employee engagement. Immediate joiner. Reach out at preeti.hr@workmail.in",
-      "postedAt": "2026-10-04T12:10:00.000Z",
-      "receivedAt": "2026-10-04T12:15:00.000Z",
-      "extractionState": "extracted",
-      "extractedCandidateId": "cand_demo_13_hr",
-      "authorIntent": "SELF_JOB_SEEKING",
-      "intentEvidence": "Author explicitly states personal job search: \"open to work\".",
-      "rejectionReason": null
-    },
-    {
-      "id": "post_demo_14_data",
-      "platform": "LinkedIn",
-      "collectionMethod": "Demo",
-      "externalId": "urn:li:activity:7247000014",
-      "sourceUrl": "https://www.linkedin.com/feed/update/urn:li:activity:7247000014",
-      "authorIdentifier": "https://www.linkedin.com/in/vikram-rao-data",
-      "authorName": "Vikram Rao",
-      "authorHeadline": "Data Analyst (SQL, Python, PowerBI) | Hyderabad, India",
-      "authorLocation": "Hyderabad, Telangana, India",
-      "authorProfileUrl": "https://www.linkedin.com/in/vikram-rao-data",
-      "content": "Seeking my next role as a Data Analyst in Hyderabad or remote. 3 years experience building BI dashboards, ETL pipelines, and business insights. Immediate joiner. Reach out via email: vikram.rao.data@analystmail.in",
-      "postedAt": "2026-10-04T13:00:00.000Z",
-      "receivedAt": "2026-10-04T13:05:00.000Z",
-      "extractionState": "extracted",
-      "extractedCandidateId": "cand_demo_14_data",
-      "authorIntent": "SELF_JOB_SEEKING",
-      "intentEvidence": "Author explicitly states personal job search: \"Seeking my next role\".",
-      "rejectionReason": null
+      "intentEvidence": "Author personally seeks a new job: \"Seeking a new role in commercial vehicle finance and lending!\""
     }
   ],
   "scanRuns": [
@@ -1027,13 +548,13 @@
       "triggerType": "find_candidates",
       "mode": "demo",
       "receivedPostsCount": 8,
-      "extractedCandidatesCount": 3,
+      "extractedCandidatesCount": 4,
       "rejectedPostsCount": 2,
       "duplicatesFoundCount": 0,
       "failuresCount": 0,
       "durationMs": 3450,
       "status": "success",
-      "message": "[Demo Sandbox] Verification run completed: 8 posts ingested, 2 rejected (recruiter ad & unrelated), 3 matched criteria, 1 needing review, 2 outside target.",
+      "message": "[Demo Sandbox] Verification run completed: 8 posts ingested, 2 rejected (recruiter ad & unrelated), 4 matched criteria, 1 needing review, 1 outside target.",
       "queryConfig": {
         "timeWindow": "7d",
         "limit": 20,
@@ -1052,6 +573,7 @@
       "software sales"
     ],
     "targetSectors": [
+      "any",
       "pharma",
       "FMCG",
       "manufacturing",
@@ -1060,8 +582,10 @@
       "technology sales",
       "fintech",
       "NBFC",
-      "banking",
-      "insurance"
+      "wealthtech",
+      "automotive",
+      "retail",
+      "logistics"
     ],
     "excludedIndustries": [],
     "minExperienceYears": 1,
@@ -1070,7 +594,9 @@
     "strictRecruiterAdFiltering": true,
     "locationFilter": "India",
     "targetCountry": "India",
-    "allowBankingIndustry": true
+    "allowBankingIndustry": true,
+    "matchAnySector": true,
+    "matchAnyRole": true
   },
   "schedule": {
     "scheduledTimes": [
@@ -1109,731 +635,5 @@
       "status": "connected",
       "lastSyncAt": null
     }
-  },
-  "queryCatalogue": [
-    {
-      "id": "q_all_india_01",
-      "category": "all_roles_india",
-      "categoryLabel": "All Roles & Job Seekers Across India",
-      "sectorTag": "all",
-      "roleTerms": [
-        "any role",
-        "job seeker",
-        "open to work"
-      ],
-      "phraseTerms": [
-        "open to work",
-        "India"
-      ],
-      "compiledQuery": "\"open to work\" India",
-      "enabled": true,
-      "stats": {
-        "runsCount": 0,
-        "retrievedCount": 0,
-        "duplicatesCount": 0,
-        "matchedCount": 0,
-        "rejectedCount": 0
-      }
-    },
-    {
-      "id": "q_all_india_02",
-      "category": "all_roles_india",
-      "categoryLabel": "All Roles & Job Seekers Across India",
-      "sectorTag": "all",
-      "roleTerms": [
-        "looking for new opportunities",
-        "India"
-      ],
-      "phraseTerms": [
-        "looking for new opportunities",
-        "India"
-      ],
-      "compiledQuery": "\"looking for new opportunities\" India",
-      "enabled": true,
-      "stats": {
-        "runsCount": 0,
-        "retrievedCount": 0,
-        "duplicatesCount": 0,
-        "matchedCount": 0,
-        "rejectedCount": 0
-      }
-    },
-    {
-      "id": "q_all_india_03",
-      "category": "all_roles_india",
-      "categoryLabel": "All Roles & Job Seekers Across India",
-      "sectorTag": "all",
-      "roleTerms": [
-        "immediate joiner",
-        "India"
-      ],
-      "phraseTerms": [
-        "immediate joiner",
-        "looking for job"
-      ],
-      "compiledQuery": "\"immediate joiner\" India",
-      "enabled": true,
-      "stats": {
-        "runsCount": 0,
-        "retrievedCount": 0,
-        "duplicatesCount": 0,
-        "matchedCount": 0,
-        "rejectedCount": 0
-      }
-    },
-    {
-      "id": "q_all_india_04",
-      "category": "all_roles_india",
-      "categoryLabel": "All Roles & Job Seekers Across India",
-      "sectorTag": "all",
-      "roleTerms": [
-        "actively looking for job",
-        "India"
-      ],
-      "phraseTerms": [
-        "actively looking for job",
-        "India"
-      ],
-      "compiledQuery": "\"actively looking for job\" India",
-      "enabled": true,
-      "stats": {
-        "runsCount": 0,
-        "retrievedCount": 0,
-        "duplicatesCount": 0,
-        "matchedCount": 0,
-        "rejectedCount": 0
-      }
-    },
-    {
-      "id": "q_all_india_05",
-      "category": "all_roles_india",
-      "categoryLabel": "All Roles & Job Seekers Across India",
-      "sectorTag": "all",
-      "roleTerms": [
-        "seeking my next role",
-        "India"
-      ],
-      "phraseTerms": [
-        "seeking my next role",
-        "India"
-      ],
-      "compiledQuery": "\"seeking my next role\" India",
-      "enabled": true,
-      "stats": {
-        "runsCount": 0,
-        "retrievedCount": 0,
-        "duplicatesCount": 0,
-        "matchedCount": 0,
-        "rejectedCount": 0
-      }
-    },
-    {
-      "id": "q_tech_eng_01",
-      "category": "tech_engineering",
-      "categoryLabel": "Technology, Software & Engineering",
-      "sectorTag": "technology sales",
-      "roleTerms": [
-        "software engineer",
-        "developer",
-        "tech lead"
-      ],
-      "phraseTerms": [
-        "open to work",
-        "India"
-      ],
-      "compiledQuery": "(\"software engineer\" OR \"developer\") AND \"open to work\" India",
-      "enabled": true,
-      "stats": {
-        "runsCount": 0,
-        "retrievedCount": 0,
-        "duplicatesCount": 0,
-        "matchedCount": 0,
-        "rejectedCount": 0
-      }
-    },
-    {
-      "id": "q_tech_eng_02",
-      "category": "tech_engineering",
-      "categoryLabel": "Technology, Software & Engineering",
-      "sectorTag": "technology sales",
-      "roleTerms": [
-        "data analyst",
-        "data engineer",
-        "analyst"
-      ],
-      "phraseTerms": [
-        "open to work",
-        "looking for a change"
-      ],
-      "compiledQuery": "(\"data analyst\" OR \"data engineer\") AND \"open to work\" India",
-      "enabled": true,
-      "stats": {
-        "runsCount": 0,
-        "retrievedCount": 0,
-        "duplicatesCount": 0,
-        "matchedCount": 0,
-        "rejectedCount": 0
-      }
-    },
-    {
-      "id": "q_ops_mkt_01",
-      "category": "operations_hr_marketing",
-      "categoryLabel": "Operations, Marketing, HR & Finance",
-      "sectorTag": "all",
-      "roleTerms": [
-        "operations manager",
-        "supply chain",
-        "logistics"
-      ],
-      "phraseTerms": [
-        "open to work",
-        "India"
-      ],
-      "compiledQuery": "(\"operations manager\" OR \"supply chain\") AND \"open to work\" India",
-      "enabled": true,
-      "stats": {
-        "runsCount": 0,
-        "retrievedCount": 0,
-        "duplicatesCount": 0,
-        "matchedCount": 0,
-        "rejectedCount": 0
-      }
-    },
-    {
-      "id": "q_ops_mkt_02",
-      "category": "operations_hr_marketing",
-      "categoryLabel": "Operations, Marketing, HR & Finance",
-      "sectorTag": "all",
-      "roleTerms": [
-        "marketing manager",
-        "digital marketing",
-        "brand"
-      ],
-      "phraseTerms": [
-        "open to work",
-        "seeking a new role"
-      ],
-      "compiledQuery": "(\"marketing\" OR \"digital marketing\") AND \"open to work\" India",
-      "enabled": true,
-      "stats": {
-        "runsCount": 0,
-        "retrievedCount": 0,
-        "duplicatesCount": 0,
-        "matchedCount": 0,
-        "rejectedCount": 0
-      }
-    },
-    {
-      "id": "q_ops_mkt_03",
-      "category": "operations_hr_marketing",
-      "categoryLabel": "Operations, Marketing, HR & Finance",
-      "sectorTag": "all",
-      "roleTerms": [
-        "finance",
-        "accounts manager",
-        "accounting"
-      ],
-      "phraseTerms": [
-        "open to work",
-        "India"
-      ],
-      "compiledQuery": "(\"finance\" OR \"accounting\") AND \"open to work\" India",
-      "enabled": true,
-      "stats": {
-        "runsCount": 0,
-        "retrievedCount": 0,
-        "duplicatesCount": 0,
-        "matchedCount": 0,
-        "rejectedCount": 0
-      }
-    },
-    {
-      "id": "q_ops_mkt_04",
-      "category": "operations_hr_marketing",
-      "categoryLabel": "Operations, Marketing, HR & Finance",
-      "sectorTag": "all",
-      "roleTerms": [
-        "HR manager",
-        "human resources",
-        "talent acquisition"
-      ],
-      "phraseTerms": [
-        "open to work",
-        "seeking opportunities"
-      ],
-      "compiledQuery": "(\"human resources\" OR \"HR manager\") AND \"open to work\" India",
-      "enabled": true,
-      "stats": {
-        "runsCount": 0,
-        "retrievedCount": 0,
-        "duplicatesCount": 0,
-        "matchedCount": 0,
-        "rejectedCount": 0
-      }
-    },
-    {
-      "id": "q_gen_sales_01",
-      "category": "general_sales",
-      "categoryLabel": "General Sales & Business Development",
-      "sectorTag": "all",
-      "roleTerms": [
-        "sales executive",
-        "sales officer"
-      ],
-      "phraseTerms": [
-        "open to work",
-        "seeking a new role"
-      ],
-      "compiledQuery": "(\"sales executive\" OR \"sales officer\") AND \"open to work\" India",
-      "enabled": true,
-      "stats": {
-        "runsCount": 0,
-        "retrievedCount": 0,
-        "duplicatesCount": 0,
-        "matchedCount": 0,
-        "rejectedCount": 0
-      }
-    },
-    {
-      "id": "q_gen_sales_02",
-      "category": "general_sales",
-      "categoryLabel": "General Sales & Business Development",
-      "sectorTag": "all",
-      "roleTerms": [
-        "business development executive",
-        "BDE",
-        "business development manager"
-      ],
-      "phraseTerms": [
-        "open to work",
-        "looking for a change"
-      ],
-      "compiledQuery": "(\"business development executive\" OR \"BDE\") AND \"open to work\" India",
-      "enabled": true,
-      "stats": {
-        "runsCount": 0,
-        "retrievedCount": 0,
-        "duplicatesCount": 0,
-        "matchedCount": 0,
-        "rejectedCount": 0
-      }
-    },
-    {
-      "id": "q_gen_sales_03",
-      "category": "general_sales",
-      "categoryLabel": "General Sales & Business Development",
-      "sectorTag": "all",
-      "roleTerms": [
-        "area sales manager",
-        "territory sales manager",
-        "ASM"
-      ],
-      "phraseTerms": [
-        "exploring opportunities",
-        "open to work"
-      ],
-      "compiledQuery": "(\"area sales manager\" OR \"territory sales manager\" OR \"ASM sales\") AND (\"exploring opportunities\" OR \"open to work\")",
-      "enabled": true,
-      "stats": {
-        "runsCount": 0,
-        "retrievedCount": 0,
-        "duplicatesCount": 0,
-        "matchedCount": 0,
-        "rejectedCount": 0
-      }
-    },
-    {
-      "id": "q_gen_sales_04",
-      "category": "general_sales",
-      "categoryLabel": "General Sales & Business Development",
-      "sectorTag": "all",
-      "roleTerms": [
-        "account executive",
-        "key account manager"
-      ],
-      "phraseTerms": [
-        "looking for my next role",
-        "open to work"
-      ],
-      "compiledQuery": "(\"account executive\" OR \"key account manager\") AND (\"looking for my next role\" OR \"open to work\")",
-      "enabled": true,
-      "stats": {
-        "runsCount": 0,
-        "retrievedCount": 0,
-        "duplicatesCount": 0,
-        "matchedCount": 0,
-        "rejectedCount": 0
-      }
-    },
-    {
-      "id": "q_fmcg_01",
-      "category": "fmcg_manufacturing_paints",
-      "categoryLabel": "FMCG, Manufacturing & Paints",
-      "sectorTag": "FMCG",
-      "roleTerms": [
-        "territory sales officer",
-        "general trade sales",
-        "modern trade sales"
-      ],
-      "phraseTerms": [
-        "open to work",
-        "looking for a change"
-      ],
-      "compiledQuery": "(\"territory sales officer\" OR \"FMCG sales\") AND (\"open to work\" OR \"looking for a change\")",
-      "enabled": true,
-      "stats": {
-        "runsCount": 0,
-        "retrievedCount": 0,
-        "duplicatesCount": 0,
-        "matchedCount": 0,
-        "rejectedCount": 0
-      }
-    },
-    {
-      "id": "q_fmcg_02",
-      "category": "fmcg_manufacturing_paints",
-      "categoryLabel": "FMCG, Manufacturing & Paints",
-      "sectorTag": "paints",
-      "roleTerms": [
-        "paints sales",
-        "coatings sales",
-        "dealer sales"
-      ],
-      "phraseTerms": [
-        "seeking a new role",
-        "open to work"
-      ],
-      "compiledQuery": "(\"paints sales\" OR \"coatings sales\" OR \"dealer sales\") AND (\"seeking a new role\" OR \"open to work\")",
-      "enabled": true,
-      "stats": {
-        "runsCount": 0,
-        "retrievedCount": 0,
-        "duplicatesCount": 0,
-        "matchedCount": 0,
-        "rejectedCount": 0
-      }
-    },
-    {
-      "id": "q_mfg_01",
-      "category": "fmcg_manufacturing_paints",
-      "categoryLabel": "FMCG, Manufacturing & Paints",
-      "sectorTag": "manufacturing",
-      "roleTerms": [
-        "industrial sales",
-        "technical sales",
-        "project sales"
-      ],
-      "phraseTerms": [
-        "exploring new opportunities",
-        "open to work"
-      ],
-      "compiledQuery": "(\"industrial sales\" OR \"manufacturing sales\") AND (\"exploring new opportunities\" OR \"open to work\")",
-      "enabled": true,
-      "stats": {
-        "runsCount": 0,
-        "retrievedCount": 0,
-        "duplicatesCount": 0,
-        "matchedCount": 0,
-        "rejectedCount": 0
-      }
-    },
-    {
-      "id": "q_pharma_01",
-      "category": "pharma_healthcare",
-      "categoryLabel": "Pharma & Healthcare Sales",
-      "sectorTag": "pharma",
-      "roleTerms": [
-        "medical representative",
-        "MR",
-        "medical sales representative"
-      ],
-      "phraseTerms": [
-        "looking for a change",
-        "open to work"
-      ],
-      "compiledQuery": "(\"medical representative\" OR \"medical sales\") AND (\"looking for a change\" OR \"open to work\")",
-      "enabled": true,
-      "stats": {
-        "runsCount": 0,
-        "retrievedCount": 0,
-        "duplicatesCount": 0,
-        "matchedCount": 0,
-        "rejectedCount": 0
-      }
-    },
-    {
-      "id": "q_pharma_02",
-      "category": "pharma_healthcare",
-      "categoryLabel": "Pharma & Healthcare Sales",
-      "sectorTag": "pharma",
-      "roleTerms": [
-        "territory business manager",
-        "area business manager",
-        "ABM pharma"
-      ],
-      "phraseTerms": [
-        "seeking opportunities",
-        "open to work"
-      ],
-      "compiledQuery": "(\"territory business manager\" OR \"pharma sales\") AND (\"seeking opportunities\" OR \"open to work\")",
-      "enabled": true,
-      "stats": {
-        "runsCount": 0,
-        "retrievedCount": 0,
-        "duplicatesCount": 0,
-        "matchedCount": 0,
-        "rejectedCount": 0
-      }
-    },
-    {
-      "id": "q_tech_01",
-      "category": "technology_sales",
-      "categoryLabel": "Technology Sales (Software/SaaS)",
-      "sectorTag": "technology sales",
-      "roleTerms": [
-        "software sales",
-        "SaaS sales",
-        "cloud sales"
-      ],
-      "phraseTerms": [
-        "seeking opportunities",
-        "open to work"
-      ],
-      "compiledQuery": "(\"software sales\" OR \"SaaS sales\" OR \"cloud sales\") AND (\"seeking opportunities\" OR \"open to work\")",
-      "enabled": true,
-      "stats": {
-        "runsCount": 0,
-        "retrievedCount": 0,
-        "duplicatesCount": 0,
-        "matchedCount": 0,
-        "rejectedCount": 0
-      }
-    },
-    {
-      "id": "q_tech_02",
-      "category": "technology_sales",
-      "categoryLabel": "Technology Sales (Software/SaaS)",
-      "sectorTag": "technology sales",
-      "roleTerms": [
-        "sales development representative",
-        "SDR",
-        "BDR software"
-      ],
-      "phraseTerms": [
-        "looking for a new role",
-        "open to work"
-      ],
-      "compiledQuery": "(\"SDR\" OR \"sales development representative\" OR \"BDR\") AND \"tech\" AND (\"open to work\" OR \"new role\")",
-      "enabled": true,
-      "stats": {
-        "runsCount": 0,
-        "retrievedCount": 0,
-        "duplicatesCount": 0,
-        "matchedCount": 0,
-        "rejectedCount": 0
-      }
-    },
-    {
-      "id": "q_tech_03",
-      "category": "technology_sales",
-      "categoryLabel": "Technology Sales (Software/SaaS)",
-      "sectorTag": "technology sales",
-      "roleTerms": [
-        "enterprise account executive",
-        "IT sales",
-        "cybersecurity sales"
-      ],
-      "phraseTerms": [
-        "exploring opportunities",
-        "open to work"
-      ],
-      "compiledQuery": "(\"enterprise sales\" OR \"IT sales\" OR \"solution sales\") AND (\"exploring opportunities\" OR \"open to work\")",
-      "enabled": true,
-      "stats": {
-        "runsCount": 0,
-        "retrievedCount": 0,
-        "duplicatesCount": 0,
-        "matchedCount": 0,
-        "rejectedCount": 0
-      }
-    },
-    {
-      "id": "q_fin_01",
-      "category": "banking_nbfc_fintech",
-      "categoryLabel": "Banking, NBFC & Fintech Sales",
-      "sectorTag": "banking",
-      "roleTerms": [
-        "relationship manager",
-        "relationship officer",
-        "branch sales"
-      ],
-      "phraseTerms": [
-        "looking for a job change",
-        "open to work"
-      ],
-      "compiledQuery": "(\"relationship manager\" OR \"relationship officer\") AND \"banking\" AND (\"looking for a job change\" OR \"open to work\")",
-      "enabled": true,
-      "stats": {
-        "runsCount": 0,
-        "retrievedCount": 0,
-        "duplicatesCount": 0,
-        "matchedCount": 0,
-        "rejectedCount": 0
-      }
-    },
-    {
-      "id": "q_fin_02",
-      "category": "banking_nbfc_fintech",
-      "categoryLabel": "Banking, NBFC & Fintech Sales",
-      "sectorTag": "banking",
-      "roleTerms": [
-        "CASA sales",
-        "retail banking sales",
-        "liabilities sales"
-      ],
-      "phraseTerms": [
-        "seeking a new role",
-        "open to work"
-      ],
-      "compiledQuery": "(\"CASA sales\" OR \"retail banking sales\" OR \"branch sales\") AND (\"seeking a new role\" OR \"open to work\")",
-      "enabled": true,
-      "stats": {
-        "runsCount": 0,
-        "retrievedCount": 0,
-        "duplicatesCount": 0,
-        "matchedCount": 0,
-        "rejectedCount": 0
-      }
-    },
-    {
-      "id": "q_fin_03",
-      "category": "banking_nbfc_fintech",
-      "categoryLabel": "Banking, NBFC & Fintech Sales",
-      "sectorTag": "NBFC",
-      "roleTerms": [
-        "loan sales",
-        "vehicle finance",
-        "home loan sales",
-        "mortgage sales",
-        "MSME sales"
-      ],
-      "phraseTerms": [
-        "exploring opportunities",
-        "open to work"
-      ],
-      "compiledQuery": "(\"loan sales\" OR \"vehicle finance\" OR \"mortgage sales\") AND (\"exploring opportunities\" OR \"open to work\")",
-      "enabled": true,
-      "stats": {
-        "runsCount": 0,
-        "retrievedCount": 0,
-        "duplicatesCount": 0,
-        "matchedCount": 0,
-        "rejectedCount": 0
-      }
-    },
-    {
-      "id": "q_fin_04",
-      "category": "banking_nbfc_fintech",
-      "categoryLabel": "Banking, NBFC & Fintech Sales",
-      "sectorTag": "fintech",
-      "roleTerms": [
-        "merchant acquisition",
-        "POS sales",
-        "payments sales",
-        "fintech sales"
-      ],
-      "phraseTerms": [
-        "seeking new opportunities",
-        "open to work"
-      ],
-      "compiledQuery": "(\"merchant acquisition\" OR \"payments sales\" OR \"fintech sales\") AND (\"seeking new opportunities\" OR \"open to work\")",
-      "enabled": true,
-      "stats": {
-        "runsCount": 0,
-        "retrievedCount": 0,
-        "duplicatesCount": 0,
-        "matchedCount": 0,
-        "rejectedCount": 0
-      }
-    },
-    {
-      "id": "q_ins_01",
-      "category": "insurance",
-      "categoryLabel": "Insurance Sales",
-      "sectorTag": "insurance",
-      "roleTerms": [
-        "bancassurance executive",
-        "bancassurance manager",
-        "banca sales"
-      ],
-      "phraseTerms": [
-        "open to work",
-        "looking for a new role"
-      ],
-      "compiledQuery": "(\"bancassurance\" OR \"banca sales\") AND (\"open to work\" OR \"looking for a new role\")",
-      "enabled": true,
-      "stats": {
-        "runsCount": 0,
-        "retrievedCount": 0,
-        "duplicatesCount": 0,
-        "matchedCount": 0,
-        "rejectedCount": 0
-      }
-    },
-    {
-      "id": "q_ins_02",
-      "category": "insurance",
-      "categoryLabel": "Insurance Sales",
-      "sectorTag": "insurance",
-      "roleTerms": [
-        "agency development manager",
-        "agency manager",
-        "direct sales manager insurance"
-      ],
-      "phraseTerms": [
-        "seeking a career move",
-        "open to work"
-      ],
-      "compiledQuery": "(\"agency development manager\" OR \"insurance sales\") AND (\"seeking a career move\" OR \"open to work\")",
-      "enabled": true,
-      "stats": {
-        "runsCount": 0,
-        "retrievedCount": 0,
-        "duplicatesCount": 0,
-        "matchedCount": 0,
-        "rejectedCount": 0
-      }
-    },
-    {
-      "id": "q_hosp_01",
-      "category": "hospitality",
-      "categoryLabel": "Hospitality Sales",
-      "sectorTag": "hospitality",
-      "roleTerms": [
-        "hotel sales executive",
-        "hotel sales manager",
-        "hospitality sales"
-      ],
-      "phraseTerms": [
-        "exploring new opportunities",
-        "seeking a new role"
-      ],
-      "compiledQuery": "(\"hotel sales\" OR \"hospitality sales\" OR \"banquet sales\") AND (\"exploring new opportunities\" OR \"seeking a new role\")",
-      "enabled": true,
-      "stats": {
-        "runsCount": 0,
-        "retrievedCount": 0,
-        "duplicatesCount": 0,
-        "matchedCount": 0,
-        "rejectedCount": 0
-      }
-    }
-  ],
-  "queryConfig": {
-    "maxQueriesPerRun": 4,
-    "maxPostsPerQuery": 20,
-    "timeWindow": "7d",
-    "rotationIndex": 0,
-    "lastRotatedAt": null
   }
 }

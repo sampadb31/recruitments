@@ -24,6 +24,10 @@ import {
   HelpCircle,
   Clock,
   Eye,
+  Mail,
+  Phone,
+  Copy,
+  Check,
 } from 'lucide-react';
 import { Candidate, CriteriaTag, SourcePost, AuthorIntent } from '../types/index.ts';
 import { CandidateDetailModal } from './CandidateDetailModal.tsx';
@@ -61,6 +65,7 @@ export const CandidatesScreen: React.FC<CandidatesScreenProps> = ({
   // Show "Matches Criteria" by default as strictly required by prompt
   const [activeTab, setActiveTab] = useState<'Matches Criteria' | 'Needs Review' | 'Outside Target' | 'Rejected Posts' | 'all'>('Matches Criteria');
   const [selectedExpFilter, setSelectedExpFilter] = useState<'all' | '1-3' | '4-7' | '8-10' | '10+' | 'unstated'>('all');
+  const [selectedSectorFilter, setSelectedSectorFilter] = useState<string>('all');
   const [selectedCorrectionFilter, setSelectedCorrectionFilter] = useState<'all' | 'corrected' | 'original'>('all');
 
   const [inspectingCandidate, setInspectingCandidate] = useState<Candidate | null>(null);
@@ -80,6 +85,7 @@ export const CandidatesScreen: React.FC<CandidatesScreenProps> = ({
   const [isVerifying, setIsVerifying] = useState(false);
   const [verificationData, setVerificationData] = useState<any | null>(null);
   const [showVerifyModal, setShowVerifyModal] = useState(false);
+  const [copiedContact, setCopiedContact] = useState<string | null>(null);
 
   // Counts across the dataset
   const retrievedPostsCount = allPosts.length;
@@ -124,6 +130,12 @@ export const CandidatesScreen: React.FC<CandidatesScreenProps> = ({
         return false;
     }
 
+    // Sector filter
+    if (selectedSectorFilter !== 'all') {
+      const candSector = (cand.sector || cand.industry || '').toLowerCase();
+      if (!candSector.includes(selectedSectorFilter.toLowerCase())) return false;
+    }
+
     // Manual correction filter
     if (selectedCorrectionFilter === 'corrected' && !cand.isManuallyCorrected) return false;
     if (selectedCorrectionFilter === 'original' && cand.isManuallyCorrected) return false;
@@ -136,6 +148,7 @@ export const CandidatesScreen: React.FC<CandidatesScreenProps> = ({
       const matchCompany = cand.employer ? cand.employer.toLowerCase().includes(q) : false;
       const matchIndustry = cand.industry ? cand.industry.toLowerCase().includes(q) : false;
       const matchEmail = cand.email ? cand.email.toLowerCase().includes(q) : false;
+      const matchPhone = cand.phone ? cand.phone.toLowerCase().includes(q) : false;
       const matchHandle = cand.profileUrlOrTelegramId ? cand.profileUrlOrTelegramId.toLowerCase().includes(q) : false;
       const matchExplanation = cand.matchingExplanation.toLowerCase().includes(q);
       const matchLocation =
@@ -148,6 +161,7 @@ export const CandidatesScreen: React.FC<CandidatesScreenProps> = ({
         matchCompany ||
         matchIndustry ||
         matchEmail ||
+        matchPhone ||
         matchHandle ||
         matchExplanation ||
         matchLocation
@@ -178,20 +192,18 @@ export const CandidatesScreen: React.FC<CandidatesScreenProps> = ({
     try {
       if (onReprocessPosts) {
         const res = await onReprocessPosts();
-        if (res) setReprocessSummary(res);
+        setReprocessSummary(res);
       } else {
         const res = await fetch('/api/posts/reprocess', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ mode }),
         });
-        if (res.ok) {
-          const body = await res.json();
-          setReprocessSummary(body);
-        }
+        const body = await res.json();
+        setReprocessSummary(body);
       }
     } catch (err: any) {
-      console.warn('Reprocess trigger encountered error:', err?.message || err);
+      console.error('Reprocess failed:', err);
     } finally {
       setIsReprocessing(false);
     }
@@ -227,7 +239,7 @@ export const CandidatesScreen: React.FC<CandidatesScreenProps> = ({
               </span>
             </div>
             <p className="text-xs text-slate-400 mt-1 max-w-3xl leading-relaxed">
-              Mandatory criteria: <strong>Individually seeking employment</strong>, currently <strong>based in India</strong>, and <strong>1–10 years experience</strong>. Working in any role and sector is accepted.
+              Stage 1 classifies author intent (only <strong>SELF_JOB_SEEKING</strong> authors proceed). Stage 2 validates sales role, India location, 1–10y experience, eligible sector, and post date window.
             </p>
           </div>
 
@@ -294,7 +306,7 @@ export const CandidatesScreen: React.FC<CandidatesScreenProps> = ({
               <span className="text-[10px] text-emerald-300/80 font-medium">Default view</span>
             </div>
             <p className="text-[10px] text-emerald-300/70 mt-1 leading-tight">
-              India based, 1–10y exp, self job-seeking.
+              All 6 checks verified with evidence.
             </p>
           </button>
 
@@ -338,7 +350,7 @@ export const CandidatesScreen: React.FC<CandidatesScreenProps> = ({
               <span className="text-[10px] text-rose-300/80">Separate view</span>
             </div>
             <p className="text-[10px] text-rose-300/70 mt-1 leading-tight">
-              &lt;1y or &gt;10y exp, outside India, etc.
+              Fails sales role, &gt;10y, outside India, etc.
             </p>
           </button>
 
@@ -458,6 +470,26 @@ export const CandidatesScreen: React.FC<CandidatesScreenProps> = ({
             </div>
 
             <div className="flex items-center space-x-2">
+              <span className="text-slate-400 font-medium">Sector:</span>
+              <select
+                value={selectedSectorFilter}
+                onChange={e => setSelectedSectorFilter(e.target.value)}
+                className="bg-slate-800 border border-slate-700 rounded-lg px-2.5 py-1 text-xs text-white focus:outline-none focus:border-blue-500"
+              >
+                <option value="all">Any Sector</option>
+                <option value="wealthtech">Wealthtech</option>
+                <option value="fmcg">FMCG</option>
+                <option value="automotive">Automotive</option>
+                <option value="nbfc">NBFC</option>
+                <option value="fintech">Fintech / BFSI</option>
+                <option value="pharma">Pharma</option>
+                <option value="technology sales">Technology Sales</option>
+                <option value="manufacturing">Manufacturing</option>
+                <option value="paints">Paints</option>
+              </select>
+            </div>
+
+            <div className="flex items-center space-x-2">
               <span className="text-slate-400 font-medium">Data Record:</span>
               <select
                 value={selectedCorrectionFilter}
@@ -469,6 +501,21 @@ export const CandidatesScreen: React.FC<CandidatesScreenProps> = ({
                 <option value="original">Original AI</option>
               </select>
             </div>
+          </div>
+        )}
+
+        {/* Matches Criteria Banner */}
+        {activeTab === 'Matches Criteria' && (
+          <div className="bg-emerald-950/40 border border-emerald-800/80 rounded-xl p-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs text-emerald-200">
+            <div className="flex items-center space-x-2">
+              <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+              <span>
+                <strong>Expanded Target Criteria:</strong> Candidates actively looking out for jobs having <strong>1–10 years experience across ANY role (Sales or Non-Sales) & ANY sector</strong>.
+              </span>
+            </div>
+            <span className="text-[11px] text-emerald-300 font-mono bg-emerald-900/60 px-2 py-0.5 rounded border border-emerald-700/60 shrink-0">
+              Tech • Sales • Operations • Finance • Marketing • HR • Pharma • BFSI & more
+            </span>
           </div>
         )}
       </div>
@@ -675,6 +722,79 @@ export const CandidatesScreen: React.FC<CandidatesScreenProps> = ({
                         {candidate.matchingExplanation}
                       </p>
 
+                      {/* Contact Details (Email & Phone) */}
+                      <div className="bg-slate-950/70 border border-slate-800 rounded-xl p-2.5 space-y-1.5">
+                        <div className="flex items-center justify-between text-[10px] text-slate-400 font-medium">
+                          <span className="uppercase tracking-wider font-semibold">Contact Details</span>
+                          {candidate.email || candidate.phone ? (
+                            <span className="text-emerald-400 font-semibold flex items-center space-x-1">
+                              <Check className="w-3 h-3" />
+                              <span>Extracted</span>
+                            </span>
+                          ) : (
+                            <span className="text-slate-500">Not in post</span>
+                          )}
+                        </div>
+
+                        {candidate.email && (
+                          <div className="flex items-center justify-between gap-1 text-xs text-blue-300 bg-slate-900/90 px-2 py-1 rounded border border-slate-800">
+                            <a
+                              href={`mailto:${candidate.email}`}
+                              className="hover:underline flex items-center space-x-1.5 truncate"
+                              title="Send email"
+                            >
+                              <Mail className="w-3 h-3 text-blue-400 shrink-0" />
+                              <span className="truncate font-mono text-[11px]">{candidate.email}</span>
+                            </a>
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                navigator.clipboard.writeText(candidate.email!);
+                                setCopiedContact(candidate.email!);
+                                setTimeout(() => setCopiedContact(null), 2000);
+                              }}
+                              className="text-slate-400 hover:text-white p-0.5 rounded cursor-pointer shrink-0"
+                              title="Copy email"
+                            >
+                              {copiedContact === candidate.email ? (
+                                <Check className="w-3 h-3 text-emerald-400" />
+                              ) : (
+                                <Copy className="w-3 h-3" />
+                              )}
+                            </button>
+                          </div>
+                        )}
+
+                        {candidate.phone && (
+                          <div className="flex items-center justify-between gap-1 text-xs text-emerald-300 bg-slate-900/90 px-2 py-1 rounded border border-slate-800">
+                            <a
+                              href={`tel:${candidate.phone}`}
+                              className="hover:underline flex items-center space-x-1.5 truncate"
+                              title="Call phone"
+                            >
+                              <Phone className="w-3 h-3 text-emerald-400 shrink-0" />
+                              <span className="truncate font-mono text-[11px]">{candidate.phone}</span>
+                            </a>
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                navigator.clipboard.writeText(candidate.phone!);
+                                setCopiedContact(candidate.phone!);
+                                setTimeout(() => setCopiedContact(null), 2000);
+                              }}
+                              className="text-slate-400 hover:text-white p-0.5 rounded cursor-pointer shrink-0"
+                              title="Copy phone"
+                            >
+                              {copiedContact === candidate.phone ? (
+                                <Check className="w-3 h-3 text-emerald-400" />
+                              ) : (
+                                <Copy className="w-3 h-3" />
+                              )}
+                            </button>
+                          </div>
+                        )}
+                      </div>
+
                       {/* 6-Point Validation Summary Pills */}
                       {checks && (
                         <div className="pt-2 border-t border-slate-800/80 grid grid-cols-3 gap-1 text-[10px]">
@@ -696,9 +816,9 @@ export const CandidatesScreen: React.FC<CandidatesScreenProps> = ({
                                 ? 'text-rose-400 bg-rose-950/60'
                                 : 'text-amber-400 bg-amber-950/60'
                             }`}
-                            title={`Sales: ${checks.currentlyEmployedInSalesRole.evidence}`}
+                            title={`Role: ${checks.currentlyEmployedInSalesRole.evidence}`}
                           >
-                            Sales: {checks.currentlyEmployedInSalesRole.passed === true ? '✓' : checks.currentlyEmployedInSalesRole.passed === false ? '✗' : '?'}
+                            Role: {checks.currentlyEmployedInSalesRole.passed === true ? '✓' : checks.currentlyEmployedInSalesRole.passed === false ? '✗' : '?'}
                           </span>
                           <span
                             className={`px-1.5 py-0.5 rounded truncate text-center ${

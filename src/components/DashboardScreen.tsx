@@ -28,6 +28,8 @@ import {
   Key,
   Radio,
   Inbox,
+  Mail,
+  Phone,
 } from 'lucide-react';
 import {
   AppDatabase,
@@ -42,8 +44,8 @@ import { CandidateDetailModal } from './CandidateDetailModal.tsx';
 interface DashboardScreenProps {
   data: AppDatabase;
   mode: 'demo' | 'live';
-  onFindCandidates: (timeWindow: '24h' | '7d' | '30d', limit: number, useSmallTestQuery?: boolean) => Promise<void>;
-  onNavigateTab: (tab: 'dashboard' | 'sources' | 'candidates' | 'queries' | 'settings') => void;
+  onFindCandidates: (timeWindow: '24h' | '7d', limit: number, useSmallTestQuery?: boolean) => Promise<void>;
+  onNavigateTab: (tab: 'dashboard' | 'sources' | 'candidates' | 'settings') => void;
   isScanning: boolean;
   activeRun: ActiveCollectionRun | null;
   geminiConfigured: boolean;
@@ -64,7 +66,7 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
 }) => {
   const { candidates, posts, scanRuns, schedule } = data;
 
-  const [timeWindow, setTimeWindow] = useState<'24h' | '7d' | '30d'>('7d');
+  const [timeWindow, setTimeWindow] = useState<'24h' | '7d'>('7d');
   const [usageCap, setUsageCap] = useState<number>(20);
   const [selectedTagFilter, setSelectedTagFilter] = useState<'all' | CriteriaTag>('all');
   const [inspectingCandidate, setInspectingCandidate] = useState<Candidate | null>(null);
@@ -386,33 +388,22 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
               >
                 {mode === 'demo' ? 'Demo Sandbox' : 'Live LinkedIn Search'}
               </span>
-              <span className="text-xs text-slate-400">
-                Target: Sales in India (1–10 yrs) • All Companies &amp; Industries (Banking Allowed)
+              <span className="text-xs text-slate-300 font-medium">
+                Target: Job Seekers (1–10 yrs exp) • Across Any Sector (Wealthtech, FMCG, Automotive, NBFC, BFSI, &amp; more)
               </span>
             </div>
 
             <h1 className="text-xl sm:text-2xl font-bold text-white mt-1">
               {mode === 'demo'
-                ? 'Simulated Job-Seekers in India (1–10y Experience)'
-                : 'Find Job-Seekers in India (1–10y Experience)'}
+                ? 'Job-Seeking Candidates Across Any Sector'
+                : 'Find Job-Seekers Across Any Sector (1–10y Exp)'}
             </h1>
 
             <p className="text-slate-300 text-xs sm:text-sm mt-1 max-w-2xl leading-relaxed">
               {mode === 'demo'
-                ? 'Demo Sandbox uses 8 pre-loaded fictional candidates to test two-stage verification (India location, 1–10y experience, individual job-seeking intent). Switch to Live Mode to harvest real-time LinkedIn posts via Apify.'
-                : 'Harvests posts from LinkedIn via Apify harvestapi/linkedin-post-search actor and confirms individual job-seeking intent, India location, and 1–10 years experience. Any role and sector accepted.'}
+                ? 'Demo Sandbox tests evidence-based verification and recruiter workflow across sectors (Wealthtech, FMCG, NBFC, Automotive, etc.) with 1–10 years experience.'
+                : 'Harvests posts from LinkedIn and verifies candidates looking out for jobs with 1–10 years experience across any sector in India. Rejects recruiter ads, customer complaints, and senior >10y profiles.'}
             </p>
-
-            <div className="pt-2 flex items-center space-x-2">
-              <button
-                onClick={() => onNavigateTab('queries')}
-                className="text-xs text-indigo-400 hover:text-indigo-300 font-semibold flex items-center space-x-1 cursor-pointer"
-              >
-                <Search className="w-3.5 h-3.5" />
-                <span>View &amp; Edit Query Catalogue (7 Role Families &amp; Rotation)</span>
-                <ChevronRight className="w-3.5 h-3.5" />
-              </button>
-            </div>
           </div>
 
           {/* Search Configuration & Action Buttons */}
@@ -424,20 +415,19 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
               </label>
               <select
                 value={timeWindow}
-                onChange={e => setTimeWindow(e.target.value as '24h' | '7d' | '30d')}
+                onChange={e => setTimeWindow(e.target.value as '24h' | '7d')}
                 disabled={Boolean(isBusy)}
                 className="bg-slate-800 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none focus:border-blue-500"
               >
-                <option value="7d">Last 7 Days (Default, postedLimit: "week")</option>
+                <option value="7d">Last 7 Days (postedLimit: "week")</option>
                 <option value="24h">Last 24 Hours (postedLimit: "24h")</option>
-                <option value="30d">Last 30 Days (Rolling 30-day cutoff, postedLimit: "month")</option>
               </select>
             </div>
 
             {/* Usage Cap Limit */}
             <div>
-              <label className="block text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-1" title="Provider limit applies per query in searchQueries">
-                Max Posts / Query
+              <label className="block text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-1">
+                Usage Cap (Posts)
               </label>
               <select
                 value={usageCap}
@@ -445,11 +435,11 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
                 disabled={Boolean(isBusy)}
                 className="bg-slate-800 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none focus:border-blue-500"
               >
-                <option value={5}>5 Posts / Query</option>
-                <option value={10}>10 Posts / Query</option>
-                <option value={20}>20 Posts / Query (Default)</option>
-                <option value={30}>30 Posts / Query</option>
-                <option value={50}>50 Posts / Query</option>
+                <option value={5}>5 Posts (Quick)</option>
+                <option value={10}>10 Posts</option>
+                <option value={20}>20 Posts (Default)</option>
+                <option value={30}>30 Posts</option>
+                <option value={50}>50 Posts</option>
               </select>
             </div>
 
@@ -556,7 +546,7 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
           <div className="flex items-center space-x-2">
             <Sparkles className="w-4 h-4 text-emerald-400" />
             <span>
-              AI Extractor: <strong>Gemini 2.5 Flash (Two-Stage 6-Point Validation)</strong>
+              AI Extractor: <strong>Gemini 3.8 Flash (Expanded Two-Stage Validation + Contact Extraction)</strong>
             </span>
           </div>
         </div>
@@ -634,7 +624,7 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
             <XCircle className="w-4 h-4 text-rose-400" />
           </div>
           <p className="text-2xl font-bold text-rose-400 mt-2">{outsideCount}</p>
-          <p className="text-[11px] text-slate-500 mt-1">&gt;10y, outside India, etc.</p>
+          <p className="text-[11px] text-slate-500 mt-1">&gt;10y, outside India, non-sales</p>
         </div>
 
         {/* Rejected Posts (Recruiter Ads & Unrelated) */}
@@ -824,6 +814,25 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
                     </div>
                   </div>
 
+                  {/* Contact Info (Email & Phone) */}
+                  {(candidate.email || candidate.phone) && (
+                    <div className="flex flex-wrap items-center gap-3 text-xs bg-slate-900/90 px-3 py-2 rounded-xl border border-slate-800">
+                      <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Contact Info:</span>
+                      {candidate.email && (
+                        <a href={`mailto:${candidate.email}`} className="text-blue-400 hover:underline flex items-center space-x-1.5 font-mono">
+                          <Mail className="w-3.5 h-3.5" />
+                          <span>{candidate.email}</span>
+                        </a>
+                      )}
+                      {candidate.phone && (
+                        <a href={`tel:${candidate.phone}`} className="text-emerald-400 hover:underline flex items-center space-x-1.5 font-mono">
+                          <Phone className="w-3.5 h-3.5" />
+                          <span>{candidate.phone}</span>
+                        </a>
+                      )}
+                    </div>
+                  )}
+
                   {/* Job Seeking Statement */}
                   {candidate.jobSeekingStatement && (
                     <div className="text-xs text-slate-300 bg-slate-800/50 p-2.5 rounded-lg border border-slate-700/50">
@@ -838,10 +847,10 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
                       5-Point Validation Evidence:
                     </span>
                     <div className="grid grid-cols-1 md:grid-cols-5 gap-2 text-[11px]">
-                      {/* Check 1: Sales Role */}
+                      {/* Check 1: Role Check */}
                       <div className="bg-slate-900/90 p-2 rounded-lg border border-slate-800 space-y-1">
                         <div className="flex items-center justify-between">
-                          <span className="font-semibold text-slate-300">1. Sales Role</span>
+                          <span className="font-semibold text-slate-300">1. Role Check</span>
                           {checks?.currentlyEmployedInSalesRole?.passed === true ? (
                             <CheckCircle2 className="w-3 h-3 text-emerald-400" />
                           ) : checks?.currentlyEmployedInSalesRole?.passed === false ? (

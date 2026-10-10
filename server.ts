@@ -7,6 +7,7 @@ import {
   getDatabase,
   saveDatabase,
   resetDemoDatabase,
+  clearDatabase,
   deduplicateAndInsertPosts,
   runExtractionProcess,
   correctCandidateField,
@@ -74,6 +75,17 @@ app.get('/api/data', (req: Request, res: Response) => {
 app.post('/api/demo/reset', (req: Request, res: Response) => {
   const resetData = resetDemoDatabase();
   res.json({ message: 'Demo database reset to initial 5-point validated candidate posts.', data: resetData });
+});
+
+// Clear Database (candidates, posts, scan runs)
+app.post('/api/database/clear', (req: Request, res: Response) => {
+  const mode = (req.body?.mode as 'demo' | 'live' | 'all') || 'all';
+  const cleared = clearDatabase(mode);
+  res.json({
+    success: true,
+    message: `Database cleared successfully (${mode}). All candidates, posts, and run histories removed.`,
+    data: mode === 'live' ? cleared.live : mode === 'demo' ? cleared.demo : cleared,
+  });
 });
 
 // 4. Authenticated Endpoint: Start "Find Candidates" Collection Run
@@ -389,7 +401,7 @@ app.post('/api/telegram/webhook', (req: Request, res: Response) => {
     sourceUrl: message.chat?.username ? `https://t.me/${message.chat.username}/${message.message_id}` : null,
     authorIdentifier: message.from?.username ? `@${message.from.username}` : `id_${message.from?.id || 'unknown'}`,
     authorName: [message.from?.first_name, message.from?.last_name].filter(Boolean).join(' ') || null,
-    postedAt: message.date ? new Date(message.date * 1000).toISOString() : new Date().toISOString(),
+    postedAt: message.date ? new Date(message.date * 1000).toISOString() : null,
   };
 
   const { added, duplicates } = deduplicateAndInsertPosts([newPost], 'live');

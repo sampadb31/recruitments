@@ -20,6 +20,8 @@ import {
   Calendar,
   Briefcase,
   Clock,
+  Mail,
+  Phone,
 } from 'lucide-react';
 import { Candidate, CriteriaTag, SourcePost } from '../types/index.ts';
 
@@ -59,6 +61,7 @@ export const CandidateDetailModal: React.FC<CandidateDetailModalProps> = ({
   const [editTag, setEditTag] = useState<CriteriaTag>(candidate.criteriaTag);
   const [editNotes, setEditNotes] = useState(candidate.recruiterNotes || '');
   const [editExplanation, setEditExplanation] = useState(candidate.matchingExplanation);
+  const [copiedInfo, setCopiedInfo] = useState<string | null>(null);
 
   const linkedPosts = allPosts.filter(p => candidate.sourcePostIds.includes(p.id));
   const checks = candidate.validationChecks;
@@ -253,7 +256,7 @@ export const CandidateDetailModal: React.FC<CandidateDetailModalProps> = ({
                 <div className="bg-slate-800/60 border border-slate-700/60 rounded-xl p-3 space-y-1">
                   <div className="flex items-center justify-between">
                     <span className="font-semibold text-slate-200">
-                      1. Individually Seeking for a Job (MANDATORY)
+                      1. Author is Personally Seeking a New Job
                     </span>
                     {renderCheckBadge(
                       checks?.authorIsPersonallySeekingJob
@@ -266,16 +269,16 @@ export const CandidateDetailModal: React.FC<CandidateDetailModalProps> = ({
                   </p>
                 </div>
 
-                {/* 2. Role */}
+                {/* 2. Professional Role */}
                 <div className="bg-slate-800/60 border border-slate-700/60 rounded-xl p-3 space-y-1">
                   <div className="flex items-center justify-between">
                     <span className="font-semibold text-slate-200">
-                      2. Role & Function (Any role accepted)
+                      2. Role & Function Check (Any Role: Sales or Non-Sales)
                     </span>
-                    {renderCheckBadge(true)}
+                    {renderCheckBadge(checks?.currentlyEmployedInSalesRole?.passed)}
                   </div>
                   <p className="text-[11px] text-slate-300 italic">
-                    Evidence: "{checks?.currentlyEmployedInSalesRole?.evidence || candidate.currentOrPreviousRole || 'Any role accepted per criteria.'}"
+                    Evidence: "{checks?.currentlyEmployedInSalesRole?.evidence || 'No employment evidence stated.'}"
                   </p>
                 </div>
 
@@ -283,7 +286,7 @@ export const CandidateDetailModal: React.FC<CandidateDetailModalProps> = ({
                 <div className="bg-slate-800/60 border border-slate-700/60 rounded-xl p-3 space-y-1">
                   <div className="flex items-center justify-between">
                     <span className="font-semibold text-slate-200">
-                      3. Currently Working / Based in India (MANDATORY)
+                      3. Currently Working in India
                     </span>
                     {renderCheckBadge(checks?.currentlyWorkingInIndia?.passed)}
                   </div>
@@ -296,7 +299,7 @@ export const CandidateDetailModal: React.FC<CandidateDetailModalProps> = ({
                 <div className="bg-slate-800/60 border border-slate-700/60 rounded-xl p-3 space-y-1">
                   <div className="flex items-center justify-between">
                     <span className="font-semibold text-slate-200">
-                      4. Total Experience 1–10 Years (MANDATORY)
+                      4. Total Experience 1–10 Years (Stated or Calculated: {candidate.experienceType || (checks?.totalExperience1To10Years as any)?.experienceType || 'unknown'})
                     </span>
                     {renderCheckBadge(checks?.totalExperience1To10Years?.passed)}
                   </div>
@@ -309,12 +312,12 @@ export const CandidateDetailModal: React.FC<CandidateDetailModalProps> = ({
                 <div className="bg-slate-800/60 border border-slate-700/60 rounded-xl p-3 space-y-1">
                   <div className="flex items-center justify-between">
                     <span className="font-semibold text-slate-200">
-                      5. Employer Sector (Any sector accepted)
+                      5. Employer Sector (Any Commercial or Industry Sector)
                     </span>
-                    {renderCheckBadge(true)}
+                    {renderCheckBadge(checks?.currentEmployerInTargetSector?.passed)}
                   </div>
                   <p className="text-[11px] text-slate-300 italic">
-                    Evidence: "{checks?.currentEmployerInTargetSector?.evidence || (candidate.sector ? `Sector: ${candidate.sector}` : candidate.industry ? `Industry: ${candidate.industry}` : 'Any sector accepted per criteria.')}"
+                    Evidence: "{checks?.currentEmployerInTargetSector?.evidence || (candidate.sector ? `Sector detected: ${candidate.sector}` : 'Employer operates in an eligible sector.')}"
                   </p>
                 </div>
 
@@ -359,7 +362,7 @@ export const CandidateDetailModal: React.FC<CandidateDetailModalProps> = ({
 
                 {/* Role */}
                 <div>
-                  <label className="text-slate-400 font-medium block mb-1">Current Sales Role</label>
+                  <label className="text-slate-400 font-medium block mb-1">Current Professional Role</label>
                   {!isEditing ? (
                     <p className="text-white font-medium">
                       {candidate.currentOrPreviousRole || <em className="text-slate-500 font-normal">Not Provided</em>}
@@ -517,6 +520,86 @@ export const CandidateDetailModal: React.FC<CandidateDetailModalProps> = ({
                       type="text"
                       value={editPostUrl}
                       onChange={e => setEditPostUrl(e.target.value)}
+                      className="w-full bg-slate-800 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-white font-mono"
+                    />
+                  )}
+                </div>
+
+                {/* Email Address */}
+                <div>
+                  <label className="text-slate-400 font-medium block mb-1">Email Address</label>
+                  {!isEditing ? (
+                    candidate.email ? (
+                      <div className="flex items-center justify-between text-blue-400 font-mono bg-slate-800/60 px-2.5 py-1.5 rounded-lg border border-slate-800">
+                        <a href={`mailto:${candidate.email}`} className="hover:underline flex items-center space-x-1.5 truncate">
+                          <Mail className="w-3.5 h-3.5 shrink-0" />
+                          <span className="truncate">{candidate.email}</span>
+                        </a>
+                        <button
+                          onClick={() => {
+                            navigator.clipboard.writeText(candidate.email!);
+                            setCopiedInfo(candidate.email!);
+                            setTimeout(() => setCopiedInfo(null), 2000);
+                          }}
+                          className="text-slate-400 hover:text-white p-0.5 rounded cursor-pointer shrink-0 ml-1"
+                          title="Copy email"
+                        >
+                          {copiedInfo === candidate.email ? (
+                            <Check className="w-3 h-3 text-emerald-400" />
+                          ) : (
+                            <Copy className="w-3 h-3" />
+                          )}
+                        </button>
+                      </div>
+                    ) : (
+                      <p className="text-slate-500 italic py-1">Not in post</p>
+                    )
+                  ) : (
+                    <input
+                      type="email"
+                      placeholder="e.g. name@example.com"
+                      value={editEmail}
+                      onChange={e => setEditEmail(e.target.value)}
+                      className="w-full bg-slate-800 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-white font-mono"
+                    />
+                  )}
+                </div>
+
+                {/* Phone Number */}
+                <div>
+                  <label className="text-slate-400 font-medium block mb-1">Phone / WhatsApp</label>
+                  {!isEditing ? (
+                    candidate.phone ? (
+                      <div className="flex items-center justify-between text-emerald-400 font-mono bg-slate-800/60 px-2.5 py-1.5 rounded-lg border border-slate-800">
+                        <a href={`tel:${candidate.phone}`} className="hover:underline flex items-center space-x-1.5 truncate">
+                          <Phone className="w-3.5 h-3.5 shrink-0" />
+                          <span className="truncate">{candidate.phone}</span>
+                        </a>
+                        <button
+                          onClick={() => {
+                            navigator.clipboard.writeText(candidate.phone!);
+                            setCopiedInfo(candidate.phone!);
+                            setTimeout(() => setCopiedInfo(null), 2000);
+                          }}
+                          className="text-slate-400 hover:text-white p-0.5 rounded cursor-pointer shrink-0 ml-1"
+                          title="Copy phone"
+                        >
+                          {copiedInfo === candidate.phone ? (
+                            <Check className="w-3 h-3 text-emerald-400" />
+                          ) : (
+                            <Copy className="w-3 h-3" />
+                          )}
+                        </button>
+                      </div>
+                    ) : (
+                      <p className="text-slate-500 italic py-1">Not in post</p>
+                    )
+                  ) : (
+                    <input
+                      type="text"
+                      placeholder="e.g. +91 98765 43210"
+                      value={editPhone}
+                      onChange={e => setEditPhone(e.target.value)}
                       className="w-full bg-slate-800 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-white font-mono"
                     />
                   )}

@@ -10,6 +10,7 @@ import {
   Radio,
   Loader2,
   AlertCircle,
+  Trash2,
 } from 'lucide-react';
 import { ActiveCollectionRun } from '../types/index.ts';
 
@@ -22,6 +23,7 @@ interface NavbarProps {
   apifyConfigured: boolean;
   onFindCandidates: () => void;
   onResetDemo: () => void;
+  onClearDatabase?: () => void;
   isScanning: boolean;
   activeRun: ActiveCollectionRun | null;
   totalCandidates: number;
@@ -37,6 +39,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   apifyConfigured,
   onFindCandidates,
   onResetDemo,
+  onClearDatabase,
   isScanning,
   activeRun,
   totalCandidates,
@@ -142,6 +145,18 @@ export const Navbar: React.FC<NavbarProps> = ({
               >
                 <RotateCcw className="w-3.5 h-3.5" />
                 <span>Reset Demo</span>
+              </button>
+            )}
+
+            {/* Clear Database button */}
+            {onClearDatabase && (
+              <button
+                onClick={onClearDatabase}
+                className="hidden xl:flex items-center space-x-1 text-rose-400 hover:text-rose-200 bg-rose-950/40 hover:bg-rose-900/50 border border-rose-800/60 px-2.5 py-1.5 rounded-lg text-xs transition-colors cursor-pointer"
+                title="Clear all posts, candidates, and runs from the database"
+              >
+                <Trash2 className="w-3.5 h-3.5" />
+                <span>Clear Database</span>
               </button>
             )}
           </div>

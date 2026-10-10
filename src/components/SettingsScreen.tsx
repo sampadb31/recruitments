@@ -48,6 +48,8 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
   const [excludeSenior, setExcludeSenior] = useState(criteria.excludeSeniorLeadership ?? true);
   const [strictAds, setStrictAds] = useState(criteria.strictRecruiterAdFiltering ?? true);
   const [allowBanking, setAllowBanking] = useState(criteria.allowBankingIndustry ?? true);
+  const [matchAnySector, setMatchAnySector] = useState(criteria.matchAnySector ?? true);
+  const [matchAnyRole, setMatchAnyRole] = useState(criteria.matchAnyRole ?? true);
   const [targetCountry, setTargetCountry] = useState(criteria.targetCountry || 'India');
 
   const [keywordsList, setKeywordsList] = useState<string[]>(criteria.requiredKeywords || []);
@@ -88,6 +90,8 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
           strictRecruiterAdFiltering: strictAds,
           targetCountry,
           allowBankingIndustry: allowBanking,
+          matchAnySector,
+          matchAnyRole,
           requiredKeywords: keywordsList,
           excludedIndustries: allowBanking ? [] : ['banking', 'financial services'],
         },
@@ -158,10 +162,10 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
         <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5 space-y-4">
           <div className="flex items-center space-x-2">
             <Sliders className="w-4 h-4 text-indigo-400" />
-            <h2 className="text-sm font-bold text-white">Target Candidate Criteria (Job Seekers in India)</h2>
+            <h2 className="text-sm font-bold text-white">Target Candidate Criteria (Sales in India)</h2>
           </div>
           <p className="text-xs text-slate-400">
-            Mandatory criteria: Currently based in India, 1–10 years experience, and individually seeking for a job. Working in any role and sector is accepted.
+            Enforces the 5 conditions: Currently employed in sales, currently in India, 1–10 years experience, personal job-seeking statement, and post date within period.
           </p>
 
           <div className="space-y-4 text-xs">
@@ -215,6 +219,44 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
               <p className="text-[11px] text-slate-500 mt-1">
                 Default: 1–10 years inclusive. Unstated experience duration is tagged "Needs Review".
               </p>
+            </div>
+
+            {/* Match Across Any Role Policy */}
+            <div className="flex items-start justify-between p-3 rounded-xl bg-slate-800/50 border border-blue-800/40">
+              <div>
+                <span className="text-xs font-semibold text-blue-300 block flex items-center space-x-1.5">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-blue-400" />
+                  <span>Match Candidates Across Any Role (Sales & Non-Sales)</span>
+                </span>
+                <p className="text-[11px] text-slate-300 mt-0.5">
+                  Expanded search: Matches eligible job seekers in ANY functional role (Engineering/Tech, Product, Operations, Finance, Marketing, Sales, HR, Customer Support, etc.) having 1–10 years experience.
+                </p>
+              </div>
+              <input
+                type="checkbox"
+                checked={matchAnyRole}
+                onChange={e => setMatchAnyRole(e.target.checked)}
+                className="w-4 h-4 rounded text-blue-600 bg-slate-900 border-slate-700 focus:ring-0 mt-1 cursor-pointer"
+              />
+            </div>
+
+            {/* Match Across Any Sector Policy */}
+            <div className="flex items-start justify-between p-3 rounded-xl bg-slate-800/50 border border-emerald-800/40">
+              <div>
+                <span className="text-xs font-semibold text-emerald-300 block flex items-center space-x-1.5">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+                  <span>Match Candidates Across Any Sector (1–10 Years Experience)</span>
+                </span>
+                <p className="text-[11px] text-slate-300 mt-0.5">
+                  Matches eligible job-seeking candidates across any industry domain (Wealthtech, FMCG, Automotive, NBFC, BFSI, Pharma, Tech, Paints, Manufacturing, Logistics, etc.) having 1–10 years experience.
+                </p>
+              </div>
+              <input
+                type="checkbox"
+                checked={matchAnySector}
+                onChange={e => setMatchAnySector(e.target.checked)}
+                className="w-4 h-4 rounded text-emerald-600 bg-slate-900 border-slate-700 focus:ring-0 mt-1 cursor-pointer"
+              />
             </div>
 
             {/* Industry Policy: Banking Allowed */}

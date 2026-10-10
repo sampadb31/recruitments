@@ -213,6 +213,27 @@ export default function App() {
     }
   };
 
+  // Clear Database (candidates, posts, scan runs)
+  const handleClearDatabase = async () => {
+    try {
+      const res = await fetch('/api/database/clear', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ mode }),
+      });
+      const body = await res.json();
+      if (body.data) {
+        setDbData(body.data);
+      } else {
+        await fetchData(mode);
+      }
+      showToast('Database cleared successfully. All records removed.', 'success');
+    } catch (err: any) {
+      console.error(err);
+      showToast('Failed to clear database', 'error');
+    }
+  };
+
   // Import posts
   const handleImportPosts = async (
     postsToImport: Array<Partial<SourcePost> & { content: string }>
@@ -351,6 +372,7 @@ export default function App() {
         apifyConfigured={apifyConfigured}
         onFindCandidates={() => handleFindCandidates('7d', 20)}
         onResetDemo={handleResetDemo}
+        onClearDatabase={handleClearDatabase}
         isScanning={isScanning}
         activeRun={activeRun}
         totalCandidates={dbData.candidates.length}

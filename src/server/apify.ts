@@ -14,11 +14,10 @@
 import { AppErrorDetails } from '../types/index.ts';
 
 export interface ApifySearchParams {
-  timeWindow?: '24h' | '7d' | '30d' | string;
+  timeWindow?: '24h' | '7d' | string;
   limit?: number;
   useSmallTestQuery?: boolean;
   customQuery?: string;
-  searchQueries?: string[];
 }
 
 export interface ApifyPostItem {
@@ -68,34 +67,29 @@ export function isApifyConfigured(): boolean {
  * Maps UI time interval values to Apify harvestapi/linkedin-post-search allowed enum values:
  * "7d" -> "week"
  * "24h" -> "24h"
- * "30d" -> "month"
- * Never passes internal UI string values directly to provider.
+ * Never passes internal UI string values like "7d" directly to provider.
  */
-export function mapTimeToPostedLimit(timeWindow?: string): '24h' | 'week' | 'month' {
+export function mapTimeToPostedLimit(timeWindow?: string): '24h' | 'week' {
   if (!timeWindow) return 'week';
   const clean = String(timeWindow).trim().toLowerCase();
   if (clean === '24h' || clean === '1d' || clean === 'day' || clean === 'today' || clean === '24') {
     return '24h';
   }
-  if (clean === '30d' || clean === '30' || clean === 'month' || clean === '1m') {
-    return 'month';
-  }
   // All 7-day or week options strictly map to "week"
   return 'week';
 }
 
-export const DEFAULT_FOCUSED_SEARCH_QUERIES: string[] = [
-  '"open to work" India',
-  '"looking for new opportunities" India',
-  '"immediate joiner" India',
-  '"seeking my next role" India',
-  '"actively looking for job" India',
-  '"exploring new opportunities" India',
-  '("open to work" OR "seeking job") AND ("Bangalore" OR "Mumbai" OR "Delhi" OR "Pune")',
-  '("software engineer" OR "developer") AND "open to work" India',
-  '("sales" OR "business development") AND "open to work" India',
-  '("operations" OR "marketing" OR "finance") AND "open to work" India',
+export const DEFAULT_EXPANDED_SEARCH_QUERIES: string[] = [
+  '("I am looking for" OR "currently exploring opportunities") AND "India"',
+  '("actively looking for" OR "seeking new opportunities") AND "India"',
+  '("open to work" OR "seeking my next role") AND ("years experience" OR "yrs exp")',
+  '("looking for a new job" OR "exploring new roles") AND "India"',
+  '("career opportunities" OR "immediate joiner") AND ("open to work" OR "resume")',
+  '("sales" OR "operations" OR "developer" OR "marketing" OR "finance") AND "open to work"',
+  '("open to work" OR "seeking opportunities") AND ("email" OR "phone" OR "mobile" OR "contact")',
 ];
+
+export const DEFAULT_FOCUSED_SEARCH_QUERIES: string[] = DEFAULT_EXPANDED_SEARCH_QUERIES;
 
 export async function fetchLinkedInPostsViaApify(
   params: ApifySearchParams,
@@ -118,8 +112,6 @@ export async function fetchLinkedInPostsViaApify(
   if (params.useSmallTestQuery) {
     // Verified small test request query as documented
     searchQueries = ['sales AND "open to work"'];
-  } else if (params.searchQueries && params.searchQueries.length > 0) {
-    searchQueries = params.searchQueries;
   } else if (params.customQuery && params.customQuery.trim()) {
     searchQueries = [params.customQuery.trim()];
   } else {

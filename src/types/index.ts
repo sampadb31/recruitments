@@ -8,6 +8,7 @@ export type AuthorIntent =
   | 'UNCLEAR';
 
 export type TargetSector =
+  | 'any'
   | 'pharma'
   | 'FMCG'
   | 'manufacturing'
@@ -16,10 +17,13 @@ export type TargetSector =
   | 'technology sales'
   | 'fintech'
   | 'NBFC'
-  | 'banking'
-  | 'insurance';
+  | 'wealthtech'
+  | 'automotive'
+  | 'retail'
+  | 'logistics';
 
 export const TARGET_SECTORS: TargetSector[] = [
+  'any',
   'pharma',
   'FMCG',
   'manufacturing',
@@ -28,11 +32,11 @@ export const TARGET_SECTORS: TargetSector[] = [
   'technology sales',
   'fintech',
   'NBFC',
-  'banking',
-  'insurance',
+  'wealthtech',
+  'automotive',
+  'retail',
+  'logistics',
 ];
-
-export type TimeWindow = '24h' | '7d' | '30d';
 
 export type PlatformType = 'LinkedIn' | 'Telegram' | 'Demo';
 export type CollectionMethod = 'Manual' | 'Connected' | 'Demo' | 'Apify';
@@ -54,10 +58,7 @@ export interface SourcePost {
   extractionState: 'pending' | 'extracted' | 'failed' | 'rejected_post' | 'recruiter_ad';
   authorIntent?: AuthorIntent | null;
   intentEvidence?: string | null;
-  locationEvidence?: string | null;
   rejectionReason?: string | null;
-  currentCity?: string | null;
-  currentStateOrUT?: string | null;
   extractionError?: string | null;
   extractedCandidateId?: string | null;
   duplicateOfPostId?: string | null;
@@ -76,15 +77,6 @@ export interface CandidateSixPointCheck {
   totalExperience1To10Years: CandidateCheckResult & { experienceType?: 'stated' | 'calculated' | 'unknown' };
   currentEmployerInTargetSector: CandidateCheckResult & { detectedSector?: string | null };
   postDateWithinSelectedPeriod: CandidateCheckResult;
-  // Dedicated structured validation checks
-  author_seeking_job?: boolean | 'unknown' | null;
-  author_based_in_india?: boolean | 'unknown' | null;
-  intent_evidence?: string;
-  location_evidence?: string;
-  currentCity?: string | null;
-  currentStateOrUT?: string | null;
-  preferredLocation?: string | null;
-  rejection_or_review_reason?: string | null;
 }
 
 // Backwards-compatible alias for existing references
@@ -99,8 +91,6 @@ export interface CandidateEvidence {
   salesExperienceSummary?: string;
   totalExperienceYears?: string;
   currentLocation?: string;
-  currentCity?: string;
-  currentStateOrUT?: string;
   preferredLocation?: string;
   jobSeekingStatement?: string;
   statedAvailability?: string;
@@ -116,8 +106,6 @@ export interface Candidate {
   employer: string | null;
   sector: string | null;
   currentWorkLocation: string | null;
-  currentCity?: string | null;
-  currentStateOrUT?: string | null;
   industry: string | null;
   salesExperienceSummary: string | null;
   totalExperienceYears: number | null;
@@ -133,11 +121,6 @@ export interface Candidate {
   profileUrlOrTelegramId: string | null;
   authorIntent: AuthorIntent;
   intentEvidence: string | null;
-  // Structured validation checks required by specification
-  author_seeking_job?: boolean | 'unknown' | null;
-  author_based_in_india?: boolean | 'unknown' | null;
-  location_evidence?: string | null;
-  rejection_or_review_reason?: string | null;
   criteriaTag: CriteriaTag;
   matchingExplanation: string;
   isRecruiterAd: boolean;
@@ -181,7 +164,7 @@ export interface ScanRun {
   error?: string;
   errorDetails?: AppErrorDetails;
   queryConfig?: {
-    timeWindow: TimeWindow;
+    timeWindow: '24h' | '7d';
     limit: number;
     postedLimit?: string;
     maxPosts?: number;
@@ -196,7 +179,7 @@ export interface ActiveCollectionRun {
   runId: string;
   mode: 'demo' | 'live';
   status: 'starting' | 'fetching_posts' | 'classifying_intent' | 'validating_profiles' | 'analyzing' | 'completed' | 'failed';
-  timeWindow: TimeWindow;
+  timeWindow: '24h' | '7d';
   limit: number;
   useSmallTestQuery?: boolean;
   fetchedPostsCount: number;
@@ -223,6 +206,8 @@ export interface CriteriaFilters {
   locationFilter: string;
   targetCountry: string; // e.g. "India"
   allowBankingIndustry: boolean;
+  matchAnySector: boolean;
+  matchAnyRole: boolean;
 }
 
 export interface ScheduleSettings {
@@ -261,45 +246,6 @@ export interface ConnectionsConfig {
   };
 }
 
-export type RoleFamilyCategory =
-  | 'all_roles_india'
-  | 'tech_engineering'
-  | 'general_sales'
-  | 'operations_hr_marketing'
-  | 'fmcg_manufacturing_paints'
-  | 'pharma_healthcare'
-  | 'technology_sales'
-  | 'banking_nbfc_fintech'
-  | 'insurance'
-  | 'hospitality';
-
-export interface QueryCatalogueItem {
-  id: string;
-  category: RoleFamilyCategory;
-  categoryLabel: string;
-  sectorTag: TargetSector | 'all';
-  roleTerms: string[];
-  phraseTerms: string[];
-  compiledQuery: string;
-  enabled: boolean;
-  lastUsedAt?: string | null;
-  stats: {
-    runsCount: number;
-    retrievedCount: number;
-    duplicatesCount: number;
-    matchedCount: number;
-    rejectedCount: number;
-  };
-}
-
-export interface QueryCatalogueConfig {
-  maxQueriesPerRun: number;
-  maxPostsPerQuery: number;
-  timeWindow: TimeWindow;
-  rotationIndex: number;
-  lastRotatedAt?: string | null;
-}
-
 export interface AppDatabase {
   candidates: Candidate[];
   posts: SourcePost[];
@@ -307,8 +253,6 @@ export interface AppDatabase {
   criteria: CriteriaFilters;
   schedule: ScheduleSettings;
   connections: ConnectionsConfig;
-  queryCatalogue?: QueryCatalogueItem[];
-  queryConfig?: QueryCatalogueConfig;
 }
 
 export interface ExtractionResult {
@@ -317,8 +261,6 @@ export interface ExtractionResult {
   employer: string | null;
   sector: string | null;
   currentWorkLocation: string | null;
-  currentCity?: string | null;
-  currentStateOrUT?: string | null;
   industry: string | null;
   salesExperienceSummary: string | null;
   totalExperienceYears: number | null;
@@ -333,11 +275,6 @@ export interface ExtractionResult {
   postUrl: string | null;
   authorIntent: AuthorIntent;
   intentEvidence: string | null;
-  // Structured validation fields
-  author_seeking_job?: boolean | 'unknown' | null;
-  author_based_in_india?: boolean | 'unknown' | null;
-  location_evidence?: string | null;
-  rejection_or_review_reason?: string | null;
   rejectionReason?: string | null;
   isRecruiterAd: boolean;
   isSeekingForOthers?: boolean;
