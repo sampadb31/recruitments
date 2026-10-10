@@ -1,0 +1,3459 @@
+{
+  "candidates": [
+    {
+      "id": "cand_1791132839868_2ixni",
+      "name": "Yug Trivedi",
+      "currentOrPreviousRole": "Business Development Executive at HireNest Global | Client Acquisition | Lead Generation | Market Expansion",
+      "employer": null,
+      "currentWorkLocation": "[object Object]",
+      "industry": "Commercial / Technology",
+      "salesExperienceSummary": "Reported sales / BD background.",
+      "totalExperienceYears": 8,
+      "preferredLocation": null,
+      "jobSeekingStatement": null,
+      "statedAvailability": null,
+      "originalPostDate": {
+        "timestamp": 1791122476742,
+        "date": "2026-10-04T14:01:16.742Z",
+        "postedAgoShort": "2h",
+        "postedAgoText": "2 hours ago • Visible to anyone on or off LinkedIn"
+      },
+      "postUrl": "https://www.linkedin.com/posts/yug-trivedi-991280270_nonitjobs-usajobs-canadajobs-activity-7512512168689352704-70gP",
+      "profileUrl": "https://www.linkedin.com/in/yug-trivedi-991280270",
+      "email": null,
+      "phone": null,
+      "profileUrlOrTelegramId": "https://www.linkedin.com/in/yug-trivedi-991280270",
+      "criteriaTag": "Needs Review",
+      "matchingExplanation": "[API Error Fallback] [Simulated Fallback] 5-point evaluation: Sales (true), India (null), Exp (true), Seeking (null), Date (true)",
+      "isRecruiterAd": false,
+      "validationChecks": {
+        "currentlyEmployedInSalesRole": {
+          "passed": true,
+          "evidence": "Sales / business development background mentioned in post or headline."
+        },
+        "currentlyWorkingInIndia": {
+          "passed": null,
+          "evidence": "Location in India not confirmed."
+        },
+        "totalExperience1To10Years": {
+          "passed": true,
+          "evidence": "8 years of experience reported (8+ Years)"
+        },
+        "explicitPersonalJobSeekingStatement": {
+          "passed": null,
+          "evidence": "Personal job seeking intent not explicitly stated."
+        },
+        "postDateWithinSelectedPeriod": {
+          "passed": true,
+          "evidence": "Original post timestamp: [object Object]"
+        }
+      },
+      "sourcePostIds": [
+        "post_1791132807042_o7eo6"
+      ],
+      "firstSeenAt": "2026-10-04T16:53:59.868Z",
+      "lastUpdatedAt": "2026-10-04T16:53:59.868Z",
+      "isManuallyCorrected": false,
+      "manuallyCorrectedFields": [],
+      "evidence": {
+        "candidateName": "Yug Trivedi",
+        "totalExperienceYears": "8 years of experience reported (8+ Years)"
+      }
+    },
+    {
+      "id": "cand_1791132838947_8ygv8",
+      "name": "Luke Ross",
+      "currentOrPreviousRole": "Helping SDRs & BDRs book more meetings from cold calls | Cold Caller → Head of Sales by 24 | Founder, Modern Seller AI",
+      "employer": null,
+      "currentWorkLocation": "[object Object]",
+      "industry": "Commercial / Technology",
+      "salesExperienceSummary": "Reported sales / BD background.",
+      "totalExperienceYears": 20,
+      "preferredLocation": null,
+      "jobSeekingStatement": null,
+      "statedAvailability": null,
+      "originalPostDate": {
+        "timestamp": 1791116699948,
+        "date": "2026-10-04T12:24:59.948Z",
+        "postedAgoShort": "4h",
+        "postedAgoText": "4 hours ago • Visible to anyone on or off LinkedIn"
+      },
+      "postUrl": "https://www.linkedin.com/posts/thelukeross_want-an-opener-that-books-meetings-stop-activity-7512487939059195904-piNt",
+      "profileUrl": "https://www.linkedin.com/in/thelukeross",
+      "email": null,
+      "phone": null,
+      "profileUrlOrTelegramId": "https://www.linkedin.com/in/thelukeross",
+      "criteriaTag": "Outside Target",
+      "matchingExplanation": "[API Error Fallback] [Simulated Fallback] 5-point evaluation: Sales (true), India (null), Exp (false), Seeking (null), Date (true)",
+      "isRecruiterAd": false,
+      "validationChecks": {
+        "currentlyEmployedInSalesRole": {
+          "passed": true,
+          "evidence": "Sales / business development background mentioned in post or headline."
+        },
+        "currentlyWorkingInIndia": {
+          "passed": null,
+          "evidence": "Location in India not confirmed."
+        },
+        "totalExperience1To10Years": {
+          "passed": false,
+          "evidence": "20 years of experience reported (20 years)"
+        },
+        "explicitPersonalJobSeekingStatement": {
+          "passed": null,
+          "evidence": "Personal job seeking intent not explicitly stated."
+        },
+        "postDateWithinSelectedPeriod": {
+          "passed": true,
+          "evidence": "Original post timestamp: [object Object]"
+        }
+      },
+      "sourcePostIds": [
+        "post_1791132807042_co76g"
+      ],
+      "firstSeenAt": "2026-10-04T16:53:58.947Z",
+      "lastUpdatedAt": "2026-10-04T16:53:58.947Z",
+      "isManuallyCorrected": false,
+      "manuallyCorrectedFields": [],
+      "evidence": {
+        "candidateName": "Luke Ross",
+        "totalExperienceYears": "20 years of experience reported (20 years)"
+      }
+    },
+    {
+      "id": "cand_1791132836201_rp5by",
+      "name": "Ancil Olwage",
+      "currentOrPreviousRole": "Technical Buyer & Procurement Specialist | Red Seal Electrician | Sourcing from AutoCAD & BOM Creation | Syspro | Pastel | Tenders, Cost Estimations & Logistics | Supply Chain",
+      "employer": null,
+      "currentWorkLocation": "[object Object]",
+      "industry": "Commercial / Technology",
+      "salesExperienceSummary": "Reported sales / BD background.",
+      "totalExperienceYears": null,
+      "preferredLocation": null,
+      "jobSeekingStatement": null,
+      "statedAvailability": null,
+      "originalPostDate": {
+        "timestamp": 1791120006395,
+        "date": "2026-10-04T13:20:06.395Z",
+        "postedAgoShort": "3h",
+        "postedAgoText": "3 hours ago • Visible to anyone on or off LinkedIn"
+      },
+      "postUrl": "https://www.linkedin.com/posts/ancilolwage_interviewerprospective-employer-can-you-activity-7512501807302991872-Hbjf",
+      "profileUrl": "https://www.linkedin.com/in/ancilolwage",
+      "email": null,
+      "phone": null,
+      "profileUrlOrTelegramId": "https://www.linkedin.com/in/ancilolwage",
+      "criteriaTag": "Needs Review",
+      "matchingExplanation": "[API Error Fallback] [Simulated Fallback] 5-point evaluation: Sales (true), India (null), Exp (null), Seeking (null), Date (true)",
+      "isRecruiterAd": false,
+      "validationChecks": {
+        "currentlyEmployedInSalesRole": {
+          "passed": true,
+          "evidence": "Sales / business development background mentioned in post or headline."
+        },
+        "currentlyWorkingInIndia": {
+          "passed": null,
+          "evidence": "Location in India not confirmed."
+        },
+        "totalExperience1To10Years": {
+          "passed": null,
+          "evidence": "Experience duration not stated"
+        },
+        "explicitPersonalJobSeekingStatement": {
+          "passed": null,
+          "evidence": "Personal job seeking intent not explicitly stated."
+        },
+        "postDateWithinSelectedPeriod": {
+          "passed": true,
+          "evidence": "Original post timestamp: [object Object]"
+        }
+      },
+      "sourcePostIds": [
+        "post_1791132807041_wbek0"
+      ],
+      "firstSeenAt": "2026-10-04T16:53:56.201Z",
+      "lastUpdatedAt": "2026-10-04T16:53:56.201Z",
+      "isManuallyCorrected": false,
+      "manuallyCorrectedFields": [],
+      "evidence": {
+        "candidateName": "Ancil Olwage",
+        "totalExperienceYears": "Experience duration not stated"
+      }
+    },
+    {
+      "id": "cand_1791132835212_khy6y",
+      "name": "Dhyey K.",
+      "currentOrPreviousRole": "Business Development Executive | US & Canada Market Outreach | Lead Generation & LinkedIn Growth | Tech & Recruitment Partnerships",
+      "employer": null,
+      "currentWorkLocation": "[object Object]",
+      "industry": "Commercial / Technology",
+      "salesExperienceSummary": "Reported sales / BD background.",
+      "totalExperienceYears": 8,
+      "preferredLocation": null,
+      "jobSeekingStatement": null,
+      "statedAvailability": null,
+      "originalPostDate": {
+        "timestamp": 1791123316498,
+        "date": "2026-10-04T14:15:16.498Z",
+        "postedAgoShort": "2h",
+        "postedAgoText": "2 hours ago • Visible to anyone on or off LinkedIn"
+      },
+      "postUrl": "https://www.linkedin.com/posts/dhyey-k-52a536353_nonitjobs-usajobs-canadajobs-activity-7512515690881474560-caxd",
+      "profileUrl": "https://www.linkedin.com/in/dhyey-k-52a536353",
+      "email": null,
+      "phone": null,
+      "profileUrlOrTelegramId": "https://www.linkedin.com/in/dhyey-k-52a536353",
+      "criteriaTag": "Needs Review",
+      "matchingExplanation": "[API Error Fallback] [Simulated Fallback] 5-point evaluation: Sales (true), India (null), Exp (true), Seeking (null), Date (true)",
+      "isRecruiterAd": false,
+      "validationChecks": {
+        "currentlyEmployedInSalesRole": {
+          "passed": true,
+          "evidence": "Sales / business development background mentioned in post or headline."
+        },
+        "currentlyWorkingInIndia": {
+          "passed": null,
+          "evidence": "Location in India not confirmed."
+        },
+        "totalExperience1To10Years": {
+          "passed": true,
+          "evidence": "8 years of experience reported (8+ Years)"
+        },
+        "explicitPersonalJobSeekingStatement": {
+          "passed": null,
+          "evidence": "Personal job seeking intent not explicitly stated."
+        },
+        "postDateWithinSelectedPeriod": {
+          "passed": true,
+          "evidence": "Original post timestamp: [object Object]"
+        }
+      },
+      "sourcePostIds": [
+        "post_1791132807041_luqz1"
+      ],
+      "firstSeenAt": "2026-10-04T16:53:55.212Z",
+      "lastUpdatedAt": "2026-10-04T16:53:55.212Z",
+      "isManuallyCorrected": false,
+      "manuallyCorrectedFields": [],
+      "evidence": {
+        "candidateName": "Dhyey K.",
+        "totalExperienceYears": "8 years of experience reported (8+ Years)"
+      }
+    },
+    {
+      "id": "cand_1791132813217_brh85",
+      "name": "Pranjali Ingle",
+      "currentOrPreviousRole": "Global Payments & Resilience Executive | JPMorgan Chase | Operational Risk · Crisis Command · AI-Led Transformation at Scale",
+      "employer": null,
+      "currentWorkLocation": "[object Object]",
+      "industry": "Commercial / Technology",
+      "salesExperienceSummary": "Reported sales / BD background.",
+      "totalExperienceYears": null,
+      "preferredLocation": null,
+      "jobSeekingStatement": null,
+      "statedAvailability": null,
+      "originalPostDate": {
+        "timestamp": 1791126437843,
+        "date": "2026-10-04T15:07:17.843Z",
+        "postedAgoShort": "1h",
+        "postedAgoText": "1 hour ago • Visible to anyone on or off LinkedIn"
+      },
+      "postUrl": "https://www.linkedin.com/posts/pranjalii_a-lot-of-what-we-ask-ai-to-do-has-three-or-activity-7512528782751182848-juMI",
+      "profileUrl": "https://www.linkedin.com/in/pranjalii",
+      "email": null,
+      "phone": null,
+      "profileUrlOrTelegramId": "https://www.linkedin.com/in/pranjalii",
+      "criteriaTag": "Needs Review",
+      "matchingExplanation": "[API Error Fallback] [Simulated Fallback] 5-point evaluation: Sales (true), India (null), Exp (null), Seeking (null), Date (true)",
+      "isRecruiterAd": false,
+      "validationChecks": {
+        "currentlyEmployedInSalesRole": {
+          "passed": true,
+          "evidence": "Sales / business development background mentioned in post or headline."
+        },
+        "currentlyWorkingInIndia": {
+          "passed": null,
+          "evidence": "Location in India not confirmed."
+        },
+        "totalExperience1To10Years": {
+          "passed": null,
+          "evidence": "Experience duration not stated"
+        },
+        "explicitPersonalJobSeekingStatement": {
+          "passed": null,
+          "evidence": "Personal job seeking intent not explicitly stated."
+        },
+        "postDateWithinSelectedPeriod": {
+          "passed": true,
+          "evidence": "Original post timestamp: [object Object]"
+        }
+      },
+      "sourcePostIds": [
+        "post_1791132807041_alx5v"
+      ],
+      "firstSeenAt": "2026-10-04T16:53:33.217Z",
+      "lastUpdatedAt": "2026-10-04T16:53:33.217Z",
+      "isManuallyCorrected": false,
+      "manuallyCorrectedFields": [],
+      "evidence": {
+        "candidateName": "Pranjali Ingle",
+        "totalExperienceYears": "Experience duration not stated"
+      }
+    }
+  ],
+  "posts": [
+    {
+      "id": "post_1791132807041_alx5v",
+      "platform": "LinkedIn",
+      "collectionMethod": "Apify",
+      "content": "A lot of what we ask AI to do has three or four possible answers.\n\nA customer helpdesk sorts tickets into billing, technical or sales, and flags them as urgent or routine. An AI agent decides whether to act or ask a human. These are small decisions made thousands of times a day, and the standard tool for them is a large language model like ChatGPT or Claude.\n\nBut an LLM is a prediction engine, built for open-ended work. It writes, reasons and explains, and it produces the answer one token at a time, running the full model for each piece. Ask it a yes or no question and you get an elaborate explanation. That is by design, and you're literally paying for all that spiel you don't even need.\n\nTake a support inbox with 2,000 tickets every morning. Some are easy. \"I was charged twice this month\" is billing. \"The export button crashes the app\" is technical. \"What does the enterprise plan cost?\" is sales. For tickets like these, a paragraph of reasoning adds nothing. You want the label.\n\nThe border issues pose a bigger problem. A customer complaint that says \"I upgraded to Pro and the new features still aren't in my account\" could be a failed payment, which is billing, or a feature that never switched on, which is technical. A chat model replies with a sentence: \"This looks primarily like a billing concern, though there's a technical element too.\" If you force it to return one word, the answer gets short, but the uncertainty disappears. The double charge (definite) and the upgrade ticket (possible) both come back \"billing,\" and the output shows no difference. You are also still running a full-size model for a job with three answers.\n\nAsking for a confidence score doesn't solve this. LLMs predict text, then get tuned on which answers human raters preferred, not on whether the answer was right.\n\nFor jobs like this, Typesafe AI built a model called Jev. Jev returns a probability for each option plus a confidence score, with no sentence around it. The upgrade ticket might come back 62% technical and 38% billing, with low confidence. The double charge comes back billing with high confidence. Typesafe trains Jev on examples where the right answer is already known, so when it says 80%, about 80% of those answers should be correct, Typesafe claims.\n\nConfidence becomes a routing rule. High, the system acts. Medium, it confirms first. Low, a person or a larger model takes over. Because Jev writes a number instead of text, Typesafe lists output as free and input at about $42 per billion tokens. LLMs charge more for output than for input.\n\nBut two weeks after Jev launched, OpenAI announced a Decisions API for the same job. It picks from predefined answers using text or images, where Jev takes text only. Clearly there is interest in this space.\n\nIf OpenAI follows Jev's pricing logic, small decisions that never justified a full LLM become candidates for automation at a fraction of the cost. This is significant, and I'm watching out for new usecases in this space.",
+      "sourceUrl": "https://www.linkedin.com/posts/pranjalii_a-lot-of-what-we-ask-ai-to-do-has-three-or-activity-7512528782751182848-juMI",
+      "externalId": "7512528782751182848",
+      "authorIdentifier": "https://www.linkedin.com/in/pranjalii",
+      "authorName": "Pranjali Ingle",
+      "authorHeadline": "Global Payments & Resilience Executive | JPMorgan Chase | Operational Risk · Crisis Command · AI-Led Transformation at Scale",
+      "authorLocation": "[object Object]",
+      "authorProfileUrl": "https://www.linkedin.com/in/pranjalii",
+      "postedAt": {
+        "timestamp": 1791126437843,
+        "date": "2026-10-04T15:07:17.843Z",
+        "postedAgoShort": "1h",
+        "postedAgoText": "1 hour ago • Visible to anyone on or off LinkedIn"
+      },
+      "receivedAt": "2026-10-04T16:53:27.041Z",
+      "extractionState": "extracted",
+      "rawPayload": {
+        "type": "post",
+        "id": "7512528782751182848",
+        "linkedinUrl": "https://www.linkedin.com/posts/pranjalii_a-lot-of-what-we-ask-ai-to-do-has-three-or-activity-7512528782751182848-juMI",
+        "content": "A lot of what we ask AI to do has three or four possible answers.\n\nA customer helpdesk sorts tickets into billing, technical or sales, and flags them as urgent or routine. An AI agent decides whether to act or ask a human. These are small decisions made thousands of times a day, and the standard tool for them is a large language model like ChatGPT or Claude.\n\nBut an LLM is a prediction engine, built for open-ended work. It writes, reasons and explains, and it produces the answer one token at a time, running the full model for each piece. Ask it a yes or no question and you get an elaborate explanation. That is by design, and you're literally paying for all that spiel you don't even need.\n\nTake a support inbox with 2,000 tickets every morning. Some are easy. \"I was charged twice this month\" is billing. \"The export button crashes the app\" is technical. \"What does the enterprise plan cost?\" is sales. For tickets like these, a paragraph of reasoning adds nothing. You want the label.\n\nThe border issues pose a bigger problem. A customer complaint that says \"I upgraded to Pro and the new features still aren't in my account\" could be a failed payment, which is billing, or a feature that never switched on, which is technical. A chat model replies with a sentence: \"This looks primarily like a billing concern, though there's a technical element too.\" If you force it to return one word, the answer gets short, but the uncertainty disappears. The double charge (definite) and the upgrade ticket (possible) both come back \"billing,\" and the output shows no difference. You are also still running a full-size model for a job with three answers.\n\nAsking for a confidence score doesn't solve this. LLMs predict text, then get tuned on which answers human raters preferred, not on whether the answer was right.\n\nFor jobs like this, Typesafe AI built a model called Jev. Jev returns a probability for each option plus a confidence score, with no sentence around it. The upgrade ticket might come back 62% technical and 38% billing, with low confidence. The double charge comes back billing with high confidence. Typesafe trains Jev on examples where the right answer is already known, so when it says 80%, about 80% of those answers should be correct, Typesafe claims.\n\nConfidence becomes a routing rule. High, the system acts. Medium, it confirms first. Low, a person or a larger model takes over. Because Jev writes a number instead of text, Typesafe lists output as free and input at about $42 per billion tokens. LLMs charge more for output than for input.\n\nBut two weeks after Jev launched, OpenAI announced a Decisions API for the same job. It picks from predefined answers using text or images, where Jev takes text only. Clearly there is interest in this space.\n\nIf OpenAI follows Jev's pricing logic, small decisions that never justified a full LLM become candidates for automation at a fraction of the cost. This is significant, and I'm watching out for new usecases in this space.",
+        "contentAttributes": [],
+        "author": {
+          "id": "ACoAAAlgAYkBZCgCeJwCbOT3pJ3hr0YO1K_Zeyw",
+          "universalName": null,
+          "publicIdentifier": "pranjalii",
+          "type": "profile",
+          "name": "Pranjali Ingle",
+          "linkedinUrl": "https://www.linkedin.com/in/pranjalii",
+          "info": "Global Payments & Resilience Executive | JPMorgan Chase | Operational Risk · Crisis Command · AI-Led Transformation at Scale",
+          "website": null,
+          "websiteLabel": null,
+          "avatar": null,
+          "urn": "157286793",
+          "profileId": "ACoAAAlgAYkBZCgCeJwCbOT3pJ3hr0YO1K_Zeyw",
+          "firstName": "Pranjali",
+          "lastName": "Ingle",
+          "emails": [],
+          "headline": "Global Payments & Resilience Executive | JPMorgan Chase | Operational Risk · Crisis Command · AI-Led Transformation at Scale",
+          "openToWork": false,
+          "hiring": false,
+          "premium": false,
+          "influencer": false,
+          "memorialized": false,
+          "creator": false,
+          "location": {
+            "linkedinText": "Greater Bengaluru Area",
+            "countryCode": "IN",
+            "parsed": {
+              "text": "Bengaluru, India",
+              "countryCode": "IN",
+              "regionCode": null,
+              "country": "India",
+              "countryFull": "India",
+              "state": "Karnataka",
+              "city": "Bengaluru"
+            }
+          },
+          "objectUrn": "157286793",
+          "registeredAt": "2011-12-13T10:22:18.178Z",
+          "topSkills": [
+            "Business Continuity Planning",
+            "Incident Management",
+            "Operational Risk Management",
+            "Workflow Automation",
+            "Payment Systems Operations"
+          ],
+          "connectionsCount": 698,
+          "followerCount": 769,
+          "verified": true,
+          "about": "When payment systems fail, someone has to figure out what's broken, what it's going to hit, what can still move, and who needs to know right now. That's my job.\n\nAs a VP at JPMorgan Chase, I run the business incident management function for global payment operations - Fedwire, CHAPS, SWIFT, CHIPS, RTP, ACH. Our function is genuinely global: based in India, my team manages Fed opening at 9pm EST and CHAPS opening at 6am UK, alongside payment operations globally - we've hit peak volumes of 13 million transactions a day. My role is command and control: assessing blast radius, determining what can execute given available workarounds and capacity constraints, driving escalation and approvals at pace, and ensuring transparent communication across operations, technology, compliance, and executive leadership - simultaneously, under pressure, with regulatory SLAs on the clock.\n\nMy other discipline is enterprise resiliency - making sure that when something goes wrong at one of our 20+ global sites, people know what to do, know they're safe, and the work still moves. That means building the plans before the crisis, running the scenarios before the event, and being the steady voice when a natural disaster, power failure, or civil disruption makes the situation genuinely uncertain, making sure people aren't stranded, work doesn't stop, and someone who knows what they're doing is already on it before the situation becomes a crisis.\n\nRunning these systems at scale for long enough, you start to develop opinions about where human judgment is irreplaceable and where the surrounding infrastructure is just slow, manual, and overdue for rethinking. That curiosity is what pulled me into AI - and I built on it outside my role, because no one was going to hand it to me. Multi-agent orchestration with CrewAI. RAG pipelines with Pinecone. Workflow automation through n8n and GitHub Actions. MCP integrations. A creator intelligence product I'm currently building. I've run models locally, tested reasoning depth across model versions, and written about what I found. I co-developed and delivered LLM training curriculum internally at JPMorgan. I did all of this while running a 24x7 follow-the-sun operations function, because the intersection of AI capability and high-stakes regulated environments is where the genuinely hard problems live - and I don't find it easy to leave hard problems alone.\n\nI started at Goldman Sachs in 2008. Years of high-stakes operations taught me what breaks, why, and what it costs. AI is changing the answers. The problems are getting more interesting. ",
+          "currentPosition": [
+            {
+              "position": "Vice President",
+              "location": null,
+              "employmentType": "Full-time",
+              "workplaceType": null,
+              "companyName": "J.P. Morgan",
+              "companyUniversalName": "jpmorgan",
+              "companyLinkedinUrl": "https://www.linkedin.com/company/jpmorgan/",
+              "companyId": "1067",
+              "duration": "2 yrs 10 mos",
+              "description": "> Led enterprise-wide operational resiliency planning protecting daily payment flows across 20 global processing sites & essential services to ensure critical function continuity without client SLA breaches across major disruptions.\n\n> Engineered systematic resiliency framework leveraging enterprise platform to enable real-time work transfer decisions, capacity optimization, & failover orchestration—maintaining operational continuity & regulatory compliance during infrastructure failures, workforce disruptions, & security incidents\n\n> Established resilient operating model with documented playbooks, approval matrices, & capacity levers enabling rapid workload redistribution when sites experience 50%+ capacity loss - successfully executing cross-continental work transfers while maintaining payment processing quality & compliance standards\n\n> Developed multi-dimensional resiliency methodology systematically assessing workforce availability, infrastructure reliability, & business continuity capability across pandemic impacts power/connectivity outages, & emergency evacuations\n\n> Maintained uninterrupted processing of high-value payments, lockbox operations, cash & global liquidity management across APAC, EMEA, NAMR, & LATAM regions\n\n> Orchestrated real-time failover decisions coordinating cross-functional stakeholders (operations, technology, compliance, executive leadership) during high-stakes business continuity scenarios\n\n> Implemented proactive resiliency monitoring tracking impact tolerance thresholds, essential service availability, & site readiness indicators—enabling predictive contingency planning & preemptive capacity deployment to prevent service degradation before client impact\n\n> Ensured continuous adherence to regulatory guidelines, OCC standards, & international regulatory requirements - conducting quarterly BCP testing across all sites with work transfer procedures, alternate site readiness validation, & annual essential service disruption simulations",
+              "skills": null,
+              "experienceGroupId": null,
+              "startDate": {
+                "month": "Jan",
+                "year": 2024,
+                "text": "Jan 2024"
+              },
+              "endDate": {
+                "text": "Present"
+              },
+              "companyLogo": {
+                "url": "https://media.licdn.com/dms/image/v2/C4E0BAQEVXhQs3mC56Q/company-logo_400_400/company-logo_400_400/0/1630646116001/jpmorgan_logo?e=1792627200&v=beta&t=q0hhVT5IAGeE5ZSjaqzQvLHphqbOhwQwilNzj41WhC8",
+                "sizes": [
+                  {
+                    "url": "https://media.licdn.com/dms/image/v2/C4E0BAQEVXhQs3mC56Q/company-logo_400_400/company-logo_400_400/0/1630646116001/jpmorgan_logo?e=1792627200&v=beta&t=q0hhVT5IAGeE5ZSjaqzQvLHphqbOhwQwilNzj41WhC8",
+                    "width": 400,
+                    "height": 400
+                  },
+                  {
+                    "url": "https://media.licdn.com/dms/image/v2/C4E0BAQEVXhQs3mC56Q/company-logo_200_200/company-logo_200_200/0/1630646116001/jpmorgan_logo?e=1792627200&v=beta&t=dRg5oU65a980f1WXGLAVr4n4ZOGLkSTD7_1p_nv5Cus",
+                    "width": 200,
+                    "height": 200
+                  },
+                  {
+                    "url": "https://media.licdn.com/dms/image/v2/C4E0BAQEVXhQs3mC56Q/company-logo_100_100/company-logo_100_100/0/1630646116001/jpmorgan_logo?e=1792627200&v=beta&t=M4fJzbjA3RxTHuOJzskgM5375niT67Hv_H9ttVLiv10",
+                    "width": 100,
+                    "height": 100
+                  }
+                ]
+              }
+            }
+          ],
+          "profileTopEducation": [
+            {
+              "schoolName": "Srinivasa Sinai Dempo College of Commerce & Economics",
+              "description": null,
+              "insights": null,
+              "skills": null,
+              "schoolLinkedinUrl": "https://www.linkedin.com/search/results/all/?keywords=Srinivasa+Sinai+Dempo+College+of+Commerce+%26+Economics",
+              "schoolId": null,
+              "degree": "Bachelor of Commerce (B.Com.)",
+              "fieldOfStudy": "Finance, General",
+              "period": "2005 - 2008",
+              "startDate": {
+                "year": 2005,
+                "text": "2005"
+              },
+              "endDate": {
+                "year": 2008,
+                "text": "2008"
+              },
+              "schoolLogo": null
+            }
+          ],
+          "profileActions": [],
+          "profilePicture": null,
+          "coverPicture": {
+            "url": "https://media.licdn.com/dms/image/v2/D5616AQEPYE8JpbGYjA/profile-displaybackgroundimage-shrink_350_1400/B56Zp1Wad7HYAY-/0/1762905402289?e=1792627200&v=beta&t=piAuG8_J_RFm3enH2K36Uo1zq4hbt26d7gFceRg9VgI",
+            "sizes": [
+              {
+                "url": "https://media.licdn.com/dms/image/v2/D5616AQEPYE8JpbGYjA/profile-displaybackgroundimage-shrink_350_1400/B56Zp1Wad7HYAY-/0/1762905402289?e=1792627200&v=beta&t=piAuG8_J_RFm3enH2K36Uo1zq4hbt26d7gFceRg9VgI",
+                "width": 1264,
+                "height": 316
+              },
+              {
+                "url": "https://media.licdn.com/dms/image/v2/D5616AQEPYE8JpbGYjA/profile-displaybackgroundimage-shrink_200_800/B56Zp1Wad7HYAU-/0/1762905402289?e=1792627200&v=beta&t=uyUebqLOEedMkIxSBnNUlaaStn75GLMPvq2HLqOjO5c",
+                "width": 800,
+                "height": 200
+              }
+            ]
+          },
+          "photo": null,
+          "profileLocales": [
+            {
+              "country": "US",
+              "language": "en"
+            }
+          ],
+          "primaryLocale": {
+            "country": "US",
+            "language": "en"
+          },
+          "multiLocaleHeadline": [
+            {
+              "headline": "Global Payments & Resilience Executive | JPMorgan Chase | Operational Risk · Crisis Command · AI-Led Transformation at Scale",
+              "locale": "en_US"
+            }
+          ],
+          "services": null,
+          "experience": [
+            {
+              "position": "Vice President",
+              "location": null,
+              "employmentType": "Full-time",
+              "workplaceType": null,
+              "companyName": "J.P. Morgan",
+              "companyUniversalName": "jpmorgan",
+              "companyLinkedinUrl": "https://www.linkedin.com/company/jpmorgan/",
+              "companyId": "1067",
+              "duration": "2 yrs 10 mos",
+              "description": "> Led enterprise-wide operational resiliency planning protecting daily payment flows across 20 global processing sites & essential services to ensure critical function continuity without client SLA breaches across major disruptions.\n\n> Engineered systematic resiliency framework leveraging enterprise platform to enable real-time work transfer decisions, capacity optimization, & failover orchestration—maintaining operational continuity & regulatory compliance during infrastructure failures, workforce disruptions, & security incidents\n\n> Established resilient operating model with documented playbooks, approval matrices, & capacity levers enabling rapid workload redistribution when sites experience 50%+ capacity loss - successfully executing cross-continental work transfers while maintaining payment processing quality & compliance standards\n\n> Developed multi-dimensional resiliency methodology systematically assessing workforce availability, infrastructure reliability, & business continuity capability across pandemic impacts power/connectivity outages, & emergency evacuations\n\n> Maintained uninterrupted processing of high-value payments, lockbox operations, cash & global liquidity management across APAC, EMEA, NAMR, & LATAM regions\n\n> Orchestrated real-time failover decisions coordinating cross-functional stakeholders (operations, technology, compliance, executive leadership) during high-stakes business continuity scenarios\n\n> Implemented proactive resiliency monitoring tracking impact tolerance thresholds, essential service availability, & site readiness indicators—enabling predictive contingency planning & preemptive capacity deployment to prevent service degradation before client impact\n\n> Ensured continuous adherence to regulatory guidelines, OCC standards, & international regulatory requirements - conducting quarterly BCP testing across all sites with work transfer procedures, alternate site readiness validation, & annual essential service disruption simulations",
+              "skills": null,
+              "experienceGroupId": null,
+              "startDate": {
+                "month": "Jan",
+                "year": 2024,
+                "text": "Jan 2024"
+              },
+              "endDate": {
+                "text": "Present"
+              },
+              "companyLogo": {
+                "url": "https://media.licdn.com/dms/image/v2/C4E0BAQEVXhQs3mC56Q/company-logo_400_400/company-logo_400_400/0/1630646116001/jpmorgan_logo?e=1792627200&v=beta&t=q0hhVT5IAGeE5ZSjaqzQvLHphqbOhwQwilNzj41WhC8",
+                "sizes": [
+                  {
+                    "url": "https://media.licdn.com/dms/image/v2/C4E0BAQEVXhQs3mC56Q/company-logo_400_400/company-logo_400_400/0/1630646116001/jpmorgan_logo?e=1792627200&v=beta&t=q0hhVT5IAGeE5ZSjaqzQvLHphqbOhwQwilNzj41WhC8",
+                    "width": 400,
+                    "height": 400
+                  },
+                  {
+                    "url": "https://media.licdn.com/dms/image/v2/C4E0BAQEVXhQs3mC56Q/company-logo_200_200/company-logo_200_200/0/1630646116001/jpmorgan_logo?e=1792627200&v=beta&t=dRg5oU65a980f1WXGLAVr4n4ZOGLkSTD7_1p_nv5Cus",
+                    "width": 200,
+                    "height": 200
+                  },
+                  {
+                    "url": "https://media.licdn.com/dms/image/v2/C4E0BAQEVXhQs3mC56Q/company-logo_100_100/company-logo_100_100/0/1630646116001/jpmorgan_logo?e=1792627200&v=beta&t=M4fJzbjA3RxTHuOJzskgM5375niT67Hv_H9ttVLiv10",
+                    "width": 100,
+                    "height": 100
+                  }
+                ]
+              }
+            },
+            {
+              "position": "Associate Vice President",
+              "location": "Bengaluru Area, India",
+              "employmentType": null,
+              "workplaceType": null,
+              "companyName": "J.P. Morgan",
+              "companyUniversalName": "jpmorgan",
+              "companyLinkedinUrl": "https://www.linkedin.com/company/jpmorgan/",
+              "companyId": "1067",
+              "duration": "4 yrs 1 mo",
+              "description": "> Redesigned employee onboarding framework by deconstructing role requirements into transferable vs. specialized skills, accelerating time-to-productivity for new hires across distributed teams. Strategic workforce planning initiative that improved efficiency and team capability without additional headcount investment.\n\n> Architected enterprise communication framework serving as operational infrastructure for global incident management—single-handedly designed and deployed SharePoint-based system governing all incident communications, records, and audit workflows across 14 countries and 22 branches. System continues as organizational standard 2+ years post-launch, eliminating 1,800+ hours of manual work annually. Delivered multi-team scope initiative independently, demonstrating ability to architect scalable systems and drive enterprise-wide adoption without requiring large organizational structure.\n\n> Drove cross-functional strategic alignment through executive roadshows with Operations, Product, and Client Services leadership—translating incident patterns into actionable insights that informed product development roadmaps, risk mitigation strategies, and operational improvements across organization. Influenced decision-making beyond direct reporting structure through data-driven storytelling and stakeholder management.\n\n> Operate as force multiplier delivering enterprise-level outcomes independently—architected systems affecting hundreds of people across 14 countries without requiring large organizational structure. Proven ability to scale impact through technical leverage, strategic thinking, and cross-functional influence rather than positional authority. Approach: identify high-friction operational problems, architect scalable solutions, drive adoption through execution excellence.\n\n> Active member of several working groups - Women on the Move, PRIDE & NextGEN",
+              "skills": null,
+              "experienceGroupId": null,
+              "startDate": {
+                "month": "Jan",
+                "year": 2020,
+                "text": "Jan 2020"
+              },
+              "endDate": {
+                "month": "Jan",
+                "year": 2024,
+                "text": "Jan 2024"
+              },
+              "companyLogo": {
+                "url": "https://media.licdn.com/dms/image/v2/C4E0BAQEVXhQs3mC56Q/company-logo_400_400/company-logo_400_400/0/1630646116001/jpmorgan_logo?e=1792627200&v=beta&t=q0hhVT5IAGeE5ZSjaqzQvLHphqbOhwQwilNzj41WhC8",
+                "sizes": [
+                  {
+                    "url": "https://media.licdn.com/dms/image/v2/C4E0BAQEVXhQs3mC56Q/company-logo_400_400/company-logo_400_400/0/1630646116001/jpmorgan_logo?e=1792627200&v=beta&t=q0hhVT5IAGeE5ZSjaqzQvLHphqbOhwQwilNzj41WhC8",
+                    "width": 400,
+                    "height": 400
+                  },
+                  {
+                    "url": "https://media.licdn.com/dms/image/v2/C4E0BAQEVXhQs3mC56Q/company-logo_200_200/company-logo_200_200/0/1630646116001/jpmorgan_logo?e=1792627200&v=beta&t=dRg5oU65a980f1WXGLAVr4n4ZOGLkSTD7_1p_nv5Cus",
+                    "width": 200,
+                    "height": 200
+                  },
+                  {
+                    "url": "https://media.licdn.com/dms/image/v2/C4E0BAQEVXhQs3mC56Q/company-logo_100_100/company-logo_100_100/0/1630646116001/jpmorgan_logo?e=1792627200&v=beta&t=M4fJzbjA3RxTHuOJzskgM5375niT67Hv_H9ttVLiv10",
+                    "width": 100,
+                    "height": 100
+                  }
+                ]
+              }
+            },
+            {
+              "position": "Associate",
+              "location": "Bengaluru Area, India",
+              "employmentType": null,
+              "workplaceType": null,
+              "companyName": "J.P. Morgan",
+              "companyUniversalName": "jpmorgan",
+              "companyLinkedinUrl": "https://www.linkedin.com/company/jpmorgan/",
+              "companyId": "1067",
+              "duration": "4 yrs 2 mos",
+              "description": "> Established Asia incident management infrastructure from ground up—designed processes, protocols, and monitoring controls for Command Center operations across 14 countries and 22 branches. Built operational foundation that continues to serve regional incident response framework.\n\n> Coordinated critical Priority 1 incident resolution across global technical and business resources spanning 14 countries—serving as escalation point for complex investigations requiring cross-functional coordination and senior management communication.\n\n> Led strategic Business Activity Monitoring transformation as subject matter expert—gathered requirements, coordinated UAT and technical teams, and bridged gap between current state monitoring and comprehensive Treasury Business health indicators. Delivered enhanced monitoring framework improving risk detection and operational visibility. \n\n> Winner of Recognition Award 2018 for exemplary Incident Management across multiple major technical failures.",
+              "skills": null,
+              "experienceGroupId": null,
+              "startDate": {
+                "month": "Dec",
+                "year": 2015,
+                "text": "Dec 2015"
+              },
+              "endDate": {
+                "month": "Jan",
+                "year": 2020,
+                "text": "Jan 2020"
+              },
+              "companyLogo": {
+                "url": "https://media.licdn.com/dms/image/v2/C4E0BAQEVXhQs3mC56Q/company-logo_400_400/company-logo_400_400/0/1630646116001/jpmorgan_logo?e=1792627200&v=beta&t=q0hhVT5IAGeE5ZSjaqzQvLHphqbOhwQwilNzj41WhC8",
+                "sizes": [
+                  {
+                    "url": "https://media.licdn.com/dms/image/v2/C4E0BAQEVXhQs3mC56Q/company-logo_400_400/company-logo_400_400/0/1630646116001/jpmorgan_logo?e=1792627200&v=beta&t=q0hhVT5IAGeE5ZSjaqzQvLHphqbOhwQwilNzj41WhC8",
+                    "width": 400,
+                    "height": 400
+                  },
+                  {
+                    "url": "https://media.licdn.com/dms/image/v2/C4E0BAQEVXhQs3mC56Q/company-logo_200_200/company-logo_200_200/0/1630646116001/jpmorgan_logo?e=1792627200&v=beta&t=dRg5oU65a980f1WXGLAVr4n4ZOGLkSTD7_1p_nv5Cus",
+                    "width": 200,
+                    "height": 200
+                  },
+                  {
+                    "url": "https://media.licdn.com/dms/image/v2/C4E0BAQEVXhQs3mC56Q/company-logo_100_100/company-logo_100_100/0/1630646116001/jpmorgan_logo?e=1792627200&v=beta&t=M4fJzbjA3RxTHuOJzskgM5375niT67Hv_H9ttVLiv10",
+                    "width": 100,
+                    "height": 100
+                  }
+                ]
+              }
+            },
+            {
+              "position": "Associate  - Trade Settlement & Claims",
+              "location": null,
+              "employmentType": "Full-time",
+              "workplaceType": "On-site",
+              "companyName": "Goldman Sachs",
+              "companyUniversalName": "goldman-sachs",
+              "companyLinkedinUrl": "https://www.linkedin.com/company/goldman-sachs/",
+              "companyId": "1382",
+              "duration": "1 yr 2 mos",
+              "description": "> Led STP claims processing automation saving 12-15 hours/month and reducing operational risk\n\n> Designed \"Trade Cost Forecast\" tool for settlement failure escalation to senior management\n\n> Winner of Ops Award 2014 for \"Project RIPLE\" training tool",
+              "skills": null,
+              "experienceGroupId": null,
+              "startDate": {
+                "month": "Nov",
+                "year": 2014,
+                "text": "Nov 2014"
+              },
+              "endDate": {
+                "month": "Dec",
+                "year": 2015,
+                "text": "Dec 2015"
+              },
+              "companyLogo": {
+                "url": "https://media.licdn.com/dms/image/v2/D4E0BAQG9L7InIQVZrQ/company-logo_400_400/company-logo_400_400/0/1722506756452/goldman_sachs_logo?e=1792627200&v=beta&t=vpKsIa32S7WZknqbDafJFTxSpmC1RliMUs-wq-f-uxQ",
+                "sizes": [
+                  {
+                    "url": "https://media.licdn.com/dms/image/v2/D4E0BAQG9L7InIQVZrQ/company-logo_400_400/company-logo_400_400/0/1722506756452/goldman_sachs_logo?e=1792627200&v=beta&t=vpKsIa32S7WZknqbDafJFTxSpmC1RliMUs-wq-f-uxQ",
+                    "width": 400,
+                    "height": 400
+                  },
+                  {
+                    "url": "https://media.licdn.com/dms/image/v2/D4E0BAQG9L7InIQVZrQ/company-logo_200_200/company-logo_200_200/0/1722506756452/goldman_sachs_logo?e=1792627200&v=beta&t=KrHM40drkD77783IZAeez9RMcaICHRzuvQlDCJ0TlV4",
+                    "width": 200,
+                    "height": 200
+                  },
+                  {
+                    "url": "https://media.licdn.com/dms/image/v2/D4E0BAQG9L7InIQVZrQ/company-logo_100_100/company-logo_100_100/0/1722506756452/goldman_sachs_logo?e=1792627200&v=beta&t=qkDXbcU24Qd-GkF-45VhsiGJm2epFw1Yg8Lp36Ibr68",
+                    "width": 100,
+                    "height": 100
+                  }
+                ]
+              }
+            },
+            {
+              "position": "Associate - PRIMA Projects",
+              "location": null,
+              "employmentType": "Full-time",
+              "workplaceType": "On-site",
+              "companyName": "Goldman Sachs",
+              "companyUniversalName": "goldman-sachs",
+              "companyLinkedinUrl": "https://www.linkedin.com/company/goldman-sachs/",
+              "companyId": "1382",
+              "duration": "1 yr 1 mo",
+              "description": "> Led Process Risk Analytics team delivering operational efficiency solutions\n\n> Raised STP transaction matching rates from 74% to 93% through identifier-related policy improvements",
+              "skills": null,
+              "experienceGroupId": null,
+              "startDate": {
+                "month": "Dec",
+                "year": 2013,
+                "text": "Dec 2013"
+              },
+              "endDate": {
+                "month": "Dec",
+                "year": 2014,
+                "text": "Dec 2014"
+              },
+              "companyLogo": {
+                "url": "https://media.licdn.com/dms/image/v2/D4E0BAQG9L7InIQVZrQ/company-logo_400_400/company-logo_400_400/0/1722506756452/goldman_sachs_logo?e=1792627200&v=beta&t=vpKsIa32S7WZknqbDafJFTxSpmC1RliMUs-wq-f-uxQ",
+                "sizes": [
+                  {
+                    "url": "https://media.licdn.com/dms/image/v2/D4E0BAQG9L7InIQVZrQ/company-logo_400_400/company-logo_400_400/0/1722506756452/goldman_sachs_logo?e=1792627200&v=beta&t=vpKsIa32S7WZknqbDafJFTxSpmC1RliMUs-wq-f-uxQ",
+                    "width": 400,
+                    "height": 400
+                  },
+                  {
+                    "url": "https://media.licdn.com/dms/image/v2/D4E0BAQG9L7InIQVZrQ/company-logo_200_200/company-logo_200_200/0/1722506756452/goldman_sachs_logo?e=1792627200&v=beta&t=KrHM40drkD77783IZAeez9RMcaICHRzuvQlDCJ0TlV4",
+                    "width": 200,
+                    "height": 200
+                  },
+                  {
+                    "url": "https://media.licdn.com/dms/image/v2/D4E0BAQG9L7InIQVZrQ/company-logo_100_100/company-logo_100_100/0/1722506756452/goldman_sachs_logo?e=1792627200&v=beta&t=qkDXbcU24Qd-GkF-45VhsiGJm2epFw1Yg8Lp36Ibr68",
+                    "width": 100,
+                    "height": 100
+                  }
+                ]
+              }
+            },
+            {
+              "position": "Associate - Fund Value Reconcilation",
+              "location": null,
+              "employmentType": "Full-time",
+              "workplaceType": null,
+              "companyName": "Goldman Sachs",
+              "companyUniversalName": "goldman-sachs",
+              "companyLinkedinUrl": "https://www.linkedin.com/company/goldman-sachs/",
+              "companyId": "1382",
+              "duration": "2 yrs",
+              "description": "> Managed NAV Reconciliation team, designed exception management tool logic, increased matching rates to 80% through STP\n\n> Lead initiatives to enhance the current system to increase matching rates to 80% through STP.\n\n> Expertise in on boarding new counterparties and accommodating changes in file format based on system build to ensure day today functions remain unaffected by regulatory reforms (e.g.Dodd Frank Act) or counterparty technology changes.\n\n> Custodian champion from 2011 - 2013.",
+              "skills": null,
+              "experienceGroupId": null,
+              "startDate": {
+                "month": "Dec",
+                "year": 2011,
+                "text": "Dec 2011"
+              },
+              "endDate": {
+                "month": "Nov",
+                "year": 2013,
+                "text": "Nov 2013"
+              },
+              "companyLogo": {
+                "url": "https://media.licdn.com/dms/image/v2/D4E0BAQG9L7InIQVZrQ/company-logo_400_400/company-logo_400_400/0/1722506756452/goldman_sachs_logo?e=1792627200&v=beta&t=vpKsIa32S7WZknqbDafJFTxSpmC1RliMUs-wq-f-uxQ",
+                "sizes": [
+                  {
+                    "url": "https://media.licdn.com/dms/image/v2/D4E0BAQG9L7InIQVZrQ/company-logo_400_400/company-logo_400_400/0/1722506756452/goldman_sachs_logo?e=1792627200&v=beta&t=vpKsIa32S7WZknqbDafJFTxSpmC1RliMUs-wq-f-uxQ",
+                    "width": 400,
+                    "height": 400
+                  },
+                  {
+                    "url": "https://media.licdn.com/dms/image/v2/D4E0BAQG9L7InIQVZrQ/company-logo_200_200/company-logo_200_200/0/1722506756452/goldman_sachs_logo?e=1792627200&v=beta&t=KrHM40drkD77783IZAeez9RMcaICHRzuvQlDCJ0TlV4",
+                    "width": 200,
+                    "height": 200
+                  },
+                  {
+                    "url": "https://media.licdn.com/dms/image/v2/D4E0BAQG9L7InIQVZrQ/company-logo_100_100/company-logo_100_100/0/1722506756452/goldman_sachs_logo?e=1792627200&v=beta&t=qkDXbcU24Qd-GkF-45VhsiGJm2epFw1Yg8Lp36Ibr68",
+                    "width": 100,
+                    "height": 100
+                  }
+                ]
+              }
+            }
+          ],
+          "education": [
+            {
+              "schoolName": "Srinivasa Sinai Dempo College of Commerce & Economics",
+              "description": null,
+              "insights": null,
+              "skills": null,
+              "schoolLinkedinUrl": "https://www.linkedin.com/search/results/all/?keywords=Srinivasa+Sinai+Dempo+College+of+Commerce+%26+Economics",
+              "schoolId": null,
+              "degree": "Bachelor of Commerce (B.Com.)",
+              "fieldOfStudy": "Finance, General",
+              "period": "2005 - 2008",
+              "startDate": {
+                "year": 2005,
+                "text": "2005"
+              },
+              "endDate": {
+                "year": 2008,
+                "text": "2008"
+              },
+              "schoolLogo": null
+            },
+            {
+              "schoolName": "Sharada Mandir School",
+              "description": null,
+              "insights": null,
+              "skills": null,
+              "schoolLinkedinUrl": "https://www.linkedin.com/search/results/all/?keywords=Sharada+Mandir+School",
+              "schoolId": null,
+              "degree": null,
+              "fieldOfStudy": null,
+              "period": "1991 - 2003",
+              "startDate": {
+                "year": 1991,
+                "text": "1991"
+              },
+              "endDate": {
+                "year": 2003,
+                "text": "2003"
+              },
+              "schoolLogo": null
+            }
+          ],
+          "certifications": [
+            {
+              "title": "AI Fluency: Framework & Foundations",
+              "issuedBy": "Anthropic",
+              "issuedAt": "Jun 2026",
+              "link": "https://verify.skilljar.com/c/v2e9muiropa7",
+              "credentialId": null,
+              "issuedByLink": "https://www.linkedin.com/company/74126343/",
+              "issuedByLogo": {
+                "url": "https://media.licdn.com/dms/image/v2/D4E0BAQFMhKgeR7EYAg/company-logo_400_400/company-logo_400_400/0/1719256729905/anthropicresearch_logo?e=1792627200&v=beta&t=ZCk4etrrf2eR-jWfPhkrQIGFcIjgivRF4U1GYWDjZ-I",
+                "sizes": [
+                  {
+                    "url": "https://media.licdn.com/dms/image/v2/D4E0BAQFMhKgeR7EYAg/company-logo_400_400/company-logo_400_400/0/1719256729905/anthropicresearch_logo?e=1792627200&v=beta&t=ZCk4etrrf2eR-jWfPhkrQIGFcIjgivRF4U1GYWDjZ-I",
+                    "width": 400,
+                    "height": 400
+                  },
+                  {
+                    "url": "https://media.licdn.com/dms/image/v2/D4E0BAQFMhKgeR7EYAg/company-logo_200_200/company-logo_200_200/0/1719256413073/anthropicresearch_logo?e=1792627200&v=beta&t=2LoE9Rcnwd4OaF7HfKtkS0EJoa9uu5IXbu4t304cl0c",
+                    "width": 200,
+                    "height": 200
+                  },
+                  {
+                    "url": "https://media.licdn.com/dms/image/v2/D4E0BAQFMhKgeR7EYAg/company-logo_100_100/company-logo_100_100/0/1719256989269/anthropicresearch_logo?e=1792627200&v=beta&t=FJJYA-9_Cn_BRw_s5R0TuKzULyVk9hUhiqaEj2NxM_M",
+                    "width": 100,
+                    "height": 100
+                  }
+                ]
+              }
+            },
+            {
+              "title": "Claude 101",
+              "issuedBy": "Anthropic",
+              "issuedAt": "Jun 2026",
+              "link": "https://verify.skilljar.com/c/ma35fyxf6tkr",
+              "credentialId": null,
+              "issuedByLink": "https://www.linkedin.com/company/74126343/",
+              "issuedByLogo": {
+                "url": "https://media.licdn.com/dms/image/v2/D4E0BAQFMhKgeR7EYAg/company-logo_400_400/company-logo_400_400/0/1719256729905/anthropicresearch_logo?e=1792627200&v=beta&t=ZCk4etrrf2eR-jWfPhkrQIGFcIjgivRF4U1GYWDjZ-I",
+                "sizes": [
+                  {
+                    "url": "https://media.licdn.com/dms/image/v2/D4E0BAQFMhKgeR7EYAg/company-logo_400_400/company-logo_400_400/0/1719256729905/anthropicresearch_logo?e=1792627200&v=beta&t=ZCk4etrrf2eR-jWfPhkrQIGFcIjgivRF4U1GYWDjZ-I",
+                    "width": 400,
+                    "height": 400
+                  },
+                  {
+                    "url": "https://media.licdn.com/dms/image/v2/D4E0BAQFMhKgeR7EYAg/company-logo_200_200/company-logo_200_200/0/1719256413073/anthropicresearch_logo?e=1792627200&v=beta&t=2LoE9Rcnwd4OaF7HfKtkS0EJoa9uu5IXbu4t304cl0c",
+                    "width": 200,
+                    "height": 200
+                  },
+                  {
+                    "url": "https://media.licdn.com/dms/image/v2/D4E0BAQFMhKgeR7EYAg/company-logo_100_100/company-logo_100_100/0/1719256989269/anthropicresearch_logo?e=1792627200&v=beta&t=FJJYA-9_Cn_BRw_s5R0TuKzULyVk9hUhiqaEj2NxM_M",
+                    "width": 100,
+                    "height": 100
+                  }
+                ]
+              }
+            }
+          ],
+          "projects": [],
+          "volunteering": [],
+          "receivedRecommendations": [],
+          "skills": [
+            {
+              "name": "Process Automation",
+              "positions": [
+                "AI Fluency: Framework & Foundations"
+              ]
+            },
+            {
+              "name": "Anthropic Claude",
+              "positions": [
+                "Claude Code in Action",
+                "Claude 101",
+                "AI Fluency: Framework & Foundations"
+              ]
+            }
+          ],
+          "publications": [],
+          "courses": [],
+          "patents": [],
+          "honorsAndAwards": [],
+          "languages": [
+            {
+              "name": "English",
+              "proficiency": "Native or bilingual proficiency"
+            },
+            {
+              "name": "Hindi",
+              "proficiency": "Professional working proficiency"
+            }
+          ],
+          "organizations": [],
+          "causes": [],
+          "featured": null,
+          "composeOptionType": null,
+          "moreProfiles": [],
+          "sectionTotals": {
+            "experience": 7,
+            "education": 2,
+            "certifications": 7,
+            "receivedRecommendations": 0,
+            "skills": 99,
+            "courses": 0,
+            "languages": 4,
+            "projects": 0,
+            "volunteering": 0,
+            "publications": 0,
+            "patents": 0,
+            "organizations": 0,
+            "honorsAndAwards": 0,
+            "causes": 0
+          },
+          "interests": [
+            {
+              "interestName": "Top Voices",
+              "elements": [
+                {
+                  "title": "Jack Welch",
+                  "subtitle": "Executive Chairman, The Jack Welch Management Institute",
+                  "link": "https://www.linkedin.com/in/johnfwelch",
+                  "caption": "6,770,077 followers",
+                  "image": {
+                    "url": "https://media.licdn.com/dms/image/v2/C4D03AQEnLkMsVAS1OQ/profile-displayphoto-shrink_200_200/profile-displayphoto-shrink_200_200/0/1517246508600?e=1792627200&v=beta&t=0Um8itXr7oFZBOGQXvJEQ_2G03XomkHaQDn5EHM97Go"
+                  }
+                },
+                {
+                  "title": "J.T. O'Donnell",
+                  "subtitle": "CEO, Work It DAILY | Author of PRO VOICE | Executive Presence | LinkedIn Profile Optimization | Personal Branding | Job Search Strategy | Career Coaching | Outplacement Services",
+                  "link": "https://www.linkedin.com/in/jtodonnell",
+                  "caption": "2,519,432 followers",
+                  "image": {
+                    "url": "https://media.licdn.com/dms/image/v2/D5603AQGsfRwdxRnKdg/profile-displayphoto-crop_800_800/B56aA_NWNcGQAI-/0/1787766859997?e=1792627200&v=beta&t=UxZWAHXFsat9DarVDVtH_WxSKaEKg-jPOQXycvFXpxU"
+                  }
+                }
+              ]
+            },
+            {
+              "interestName": "Companies",
+              "elements": [
+                {
+                  "title": "Microsoft",
+                  "subtitle": null,
+                  "link": "https://www.linkedin.com/company/1035/",
+                  "caption": "29,220,645 followers",
+                  "image": {
+                    "url": "https://media.licdn.com/dms/image/v2/D560BAQH32RJQCl3dDQ/company-logo_400_400/B56ZYQ0mrGGoAc-/0/1744038948046/microsoft_logo?e=1792627200&v=beta&t=NqzcT-M4G01GGJ0WSG_kxqbOJ5GVTaeHs61vteFTnyE"
+                  }
+                },
+                {
+                  "title": "PwC",
+                  "subtitle": null,
+                  "link": "https://www.linkedin.com/company/1044/",
+                  "caption": "8,537,833 followers",
+                  "image": {
+                    "url": "https://media.licdn.com/dms/image/v2/D4E0BAQFVfAbYbmcpvA/company-logo_400_400/B4EZaB6j58H0AY-/0/1745936334912/pwc_logo?e=1792627200&v=beta&t=9CsOrQIEpczASYnRFCPVgsbErs8TdKZ6ivbMCLP1Kig"
+                  }
+                }
+              ]
+            },
+            {
+              "interestName": "Groups",
+              "elements": [
+                {
+                  "title": "Artificial Intelligence, Machine Learning & Generative AI: LLMs, Agentic AI, MCP & AI Agents",
+                  "subtitle": null,
+                  "link": "https://www.linkedin.com/groups/7039829",
+                  "caption": "870,040 members",
+                  "image": {
+                    "url": "https://media.licdn.com/dms/image/v2/D4D07AQEzbpqtwOP1sQ/group-logo_image-shrink_400x400/B4DaCyrZo3J0AM-/0/1789704117251?e=1791738000&v=beta&t=ZlkJ9Cw94s7_MiV7RtjS9xApTrHZqV5QSeVGmHz0XdI"
+                  }
+                },
+                {
+                  "title": "Business of Marketing",
+                  "subtitle": null,
+                  "link": "https://www.linkedin.com/groups/62352",
+                  "caption": "2,476,426 members",
+                  "image": {
+                    "url": "https://media.licdn.com/dms/image/v2/D4E07AQE9DY6GxTzHCA/group-logo_image-shrink_400x400/B4EaDyVlqDGQAM-/0/1790772140995?e=1791738000&v=beta&t=OBLEDGS-OdUnGY0ZzfnbJIn3K2UTGSjK-ZFzaF_wgRA"
+                  }
+                }
+              ]
+            },
+            {
+              "interestName": "Newsletters",
+              "elements": [
+                {
+                  "title": "Top of Deutsche Bank",
+                  "subtitle": "Top of Deutsche Bank delves into the latest developments, trends, and insights shaping the financial landscape.",
+                  "link": "https://www.linkedin.com/newsletters/7083013793403789313",
+                  "caption": "Published monthly",
+                  "image": {
+                    "url": "https://media.licdn.com/dms/image/v2/D4E12AQEtbnYFBMFaNg/series-logo_image-shrink_300_300/B4EZfOnp3MHYAQ-/0/1751518191407?e=1792627200&v=beta&t=BLG0ITx_94UKEE_uvJuWbmOjPJuXglJS4aeyRon49E8"
+                  }
+                },
+                {
+                  "title": "TED Originals",
+                  "subtitle": "Explore new ideas through original video series — from TED",
+                  "link": "https://www.linkedin.com/newsletters/7374467737643028482",
+                  "caption": "Published weekly",
+                  "image": {
+                    "url": "https://media.licdn.com/dms/image/v2/D4E12AQEzA2wNKM6yDQ/series-logo_image-shrink_300_300/B4EZldfUUnGoAQ-/0/1758210115194?e=1792627200&v=beta&t=7Ir1ch5IImN3TOmipqBXvmhmRWDN9EyONcGOE9rmZcw"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        "postedAt": {
+          "timestamp": 1791126437843,
+          "date": "2026-10-04T15:07:17.843Z",
+          "postedAgoShort": "1h",
+          "postedAgoText": "1 hour ago • Visible to anyone on or off LinkedIn"
+        },
+        "postImages": [],
+        "socialContent": {
+          "hideCommentsCount": false,
+          "hideReactionsCount": false,
+          "hideSocialActivityCounts": false,
+          "hideShareAction": true,
+          "hideSendAction": true,
+          "hideRepostsCount": false,
+          "hideViewsCount": false,
+          "trustInterventionBanner": null,
+          "hideReactAction": false,
+          "hideCommentAction": false,
+          "shareUrl": "https://www.linkedin.com/posts/pranjalii_a-lot-of-what-we-ask-ai-to-do-has-three-or-activity-7512528782751182848-juMI?",
+          "showContributionExperience": false,
+          "showSocialDetail": true
+        },
+        "comments": [],
+        "header": {
+          "text": null
+        },
+        "entityId": "7512528782751182848",
+        "shareUrn": "urn:li:share:7512528781539012608",
+        "shareLinkedinUrl": "https://www.linkedin.com/feed/update/urn:li:share:7512528781539012608",
+        "engagement": {
+          "id": "7512528782751182848",
+          "likes": 0,
+          "comments": 0,
+          "shares": 0,
+          "reactions": []
+        },
+        "reactions": [],
+        "reactionIds": [],
+        "commentIds": [],
+        "query": {
+          "sortBy": "date",
+          "page": 1,
+          "search": "sales AND \"open to work\"",
+          "postedLimit": "week"
+        }
+      },
+      "extractedCandidateId": "cand_1791132813217_brh85"
+    },
+    {
+      "id": "post_1791132807041_luqz1",
+      "platform": "LinkedIn",
+      "collectionMethod": "Apify",
+      "content": "NON-IT CAREER OPPORTUNITIES | USA 🇺🇸 & CANADA 🇨🇦⁣⁣\n⁣⁣\nWe’re connecting with professionals exploring full-time Non-IT career opportunities across the USA and Canada.⁣⁣\n⁣⁣\nRoles Include:⁣⁣\n• Business Analyst⁣⁣\n• Project Coordinator⁣⁣\n• Operations Coordinator⁣⁣\n• Supply Chain Analyst⁣⁣\n• Procurement Specialist⁣⁣\n• Financial Analyst⁣⁣\n• Accountant⁣⁣\n• HR Coordinator / HR Specialist⁣⁣\n• Talent Acquisition Specialist⁣⁣\n• Sales & Business Development⁣⁣\n• Customer Success Specialist⁣⁣\n• Administrative Coordinator⁣⁣\n• Logistics Coordinator⁣⁣\n• Healthcare Administration⁣⁣\n⁣⁣\nExperience: 0–8+ Years | Entry-Level & Experienced Professionals⁣⁣\n⁣⁣\nKey Areas:⁣⁣\nBusiness Operations | Finance | Accounting | HR | Sales | Supply Chain | Procurement | Logistics | Administration | Healthcare Operations⁣⁣\n⁣⁣\nWork Mode: Remote | Hybrid | On-site⁣⁣\n⁣⁣\nWork Authorization:⁣⁣\n🇺🇸 USA: OPT | STEM OPT | H4-EAD | Green Card | U.S. Citizens⁣⁣\n🇨🇦 Canada: PR | Open Work Permit | Valid Work Permit | Canadian Citizens⁣⁣\n⁣⁣\nCandidates requiring new visa sponsorship or work authorization are not eligible.⁣⁣\n⁣⁣\nInterested in exploring opportunities?⁣⁣\nComment “INTERESTED” or DM your Resume + Current Location + Work Authorization Status.⁣⁣\n⁣⁣\n#NonITJobs #USAJobs #CanadaJobs #BusinessAnalyst #SupplyChainJobs #FinanceJobs #HRJobs #OperationsJobs #CareerOpportunities #Hiring⁣",
+      "sourceUrl": "https://www.linkedin.com/posts/dhyey-k-52a536353_nonitjobs-usajobs-canadajobs-activity-7512515690881474560-caxd",
+      "externalId": "7512515690881474560",
+      "authorIdentifier": "https://www.linkedin.com/in/dhyey-k-52a536353",
+      "authorName": "Dhyey K.",
+      "authorHeadline": "Business Development Executive | US & Canada Market Outreach | Lead Generation & LinkedIn Growth | Tech & Recruitment Partnerships",
+      "authorLocation": "[object Object]",
+      "authorProfileUrl": "https://www.linkedin.com/in/dhyey-k-52a536353",
+      "postedAt": {
+        "timestamp": 1791123316498,
+        "date": "2026-10-04T14:15:16.498Z",
+        "postedAgoShort": "2h",
+        "postedAgoText": "2 hours ago • Visible to anyone on or off LinkedIn"
+      },
+      "receivedAt": "2026-10-04T16:53:27.041Z",
+      "extractionState": "extracted",
+      "rawPayload": {
+        "type": "post",
+        "id": "7512515690881474560",
+        "linkedinUrl": "https://www.linkedin.com/posts/dhyey-k-52a536353_nonitjobs-usajobs-canadajobs-activity-7512515690881474560-caxd",
+        "content": "NON-IT CAREER OPPORTUNITIES | USA 🇺🇸 & CANADA 🇨🇦⁣⁣\n⁣⁣\nWe’re connecting with professionals exploring full-time Non-IT career opportunities across the USA and Canada.⁣⁣\n⁣⁣\nRoles Include:⁣⁣\n• Business Analyst⁣⁣\n• Project Coordinator⁣⁣\n• Operations Coordinator⁣⁣\n• Supply Chain Analyst⁣⁣\n• Procurement Specialist⁣⁣\n• Financial Analyst⁣⁣\n• Accountant⁣⁣\n• HR Coordinator / HR Specialist⁣⁣\n• Talent Acquisition Specialist⁣⁣\n• Sales & Business Development⁣⁣\n• Customer Success Specialist⁣⁣\n• Administrative Coordinator⁣⁣\n• Logistics Coordinator⁣⁣\n• Healthcare Administration⁣⁣\n⁣⁣\nExperience: 0–8+ Years | Entry-Level & Experienced Professionals⁣⁣\n⁣⁣\nKey Areas:⁣⁣\nBusiness Operations | Finance | Accounting | HR | Sales | Supply Chain | Procurement | Logistics | Administration | Healthcare Operations⁣⁣\n⁣⁣\nWork Mode: Remote | Hybrid | On-site⁣⁣\n⁣⁣\nWork Authorization:⁣⁣\n🇺🇸 USA: OPT | STEM OPT | H4-EAD | Green Card | U.S. Citizens⁣⁣\n🇨🇦 Canada: PR | Open Work Permit | Valid Work Permit | Canadian Citizens⁣⁣\n⁣⁣\nCandidates requiring new visa sponsorship or work authorization are not eligible.⁣⁣\n⁣⁣\nInterested in exploring opportunities?⁣⁣\nComment “INTERESTED” or DM your Resume + Current Location + Work Authorization Status.⁣⁣\n⁣⁣\n#NonITJobs #USAJobs #CanadaJobs #BusinessAnalyst #SupplyChainJobs #FinanceJobs #HRJobs #OperationsJobs #CareerOpportunities #Hiring⁣",
+        "contentAttributes": [],
+        "author": {
+          "id": "ACoAAFgtinIB-gPDRtGFFC0lhe7oDq42qM4LdfA",
+          "universalName": null,
+          "publicIdentifier": "dhyey-k-52a536353",
+          "type": "profile",
+          "name": "Dhyey K.",
+          "linkedinUrl": "https://www.linkedin.com/in/dhyey-k-52a536353",
+          "info": "Business Development Executive | US & Canada Market Outreach | Lead Generation & LinkedIn Growth | Tech & Recruitment Partnerships",
+          "website": null,
+          "websiteLabel": null,
+          "avatar": {
+            "url": "https://media.licdn.com/dms/image/v2/D4D03AQHuty4obe8aRg/profile-displayphoto-crop_800_800/B4DaBhEaorIYAI-/0/1788334943492?e=1792627200&v=beta&t=Jy2VmPJWdMi5CiRf89ECNvXjvfSbvlrpOkHgtaCQsfk",
+            "width": 800,
+            "height": 800
+          },
+          "urn": "1479379570",
+          "profileId": "ACoAAFgtinIB-gPDRtGFFC0lhe7oDq42qM4LdfA",
+          "firstName": "Dhyey",
+          "lastName": "K.",
+          "emails": [],
+          "headline": "Business Development Executive | US & Canada Market Outreach | Lead Generation & LinkedIn Growth | Tech & Recruitment Partnerships",
+          "openToWork": false,
+          "hiring": false,
+          "premium": false,
+          "influencer": false,
+          "memorialized": false,
+          "creator": false,
+          "location": {
+            "linkedinText": "United States",
+            "countryCode": "US",
+            "parsed": {
+              "text": "United States",
+              "countryCode": "US",
+              "regionCode": null,
+              "country": "United States",
+              "countryFull": "United States of America"
+            }
+          },
+          "objectUrn": "1479379570",
+          "registeredAt": "2025-02-27T12:45:16.016Z",
+          "topSkills": [],
+          "connectionsCount": 1694,
+          "followerCount": 2650,
+          "verified": true,
+          "about": null,
+          "currentPosition": [
+            {
+              "position": "Career Specialist",
+              "location": null,
+              "employmentType": "Full-time",
+              "workplaceType": null,
+              "companyName": "Job Voyage Technolab LLC",
+              "companyUniversalName": "job-voyage-technolab-llc",
+              "companyLinkedinUrl": "https://www.linkedin.com/company/job-voyage-technolab-llc/",
+              "companyId": "111732412",
+              "duration": "1 yr 5 mos",
+              "description": null,
+              "skills": null,
+              "startDate": {
+                "month": "Jun",
+                "year": 2025,
+                "text": "Jun 2025"
+              },
+              "endDate": {
+                "text": "Present"
+              },
+              "companyLogo": {
+                "url": "https://media.licdn.com/dms/image/v2/D4D0BAQHT98iUa_zVTw/company-logo_400_400/B4DaCqXgvMI4AU-/0/1789564685732?e=1792627200&v=beta&t=wnvQfgf424COhp_7Q8KsBFr1cfmwsxQRaDrlEO0Ssk4",
+                "sizes": [
+                  {
+                    "url": "https://media.licdn.com/dms/image/v2/D4D0BAQHT98iUa_zVTw/company-logo_400_400/B4DaCqXgvMI4AU-/0/1789564685732?e=1792627200&v=beta&t=wnvQfgf424COhp_7Q8KsBFr1cfmwsxQRaDrlEO0Ssk4",
+                    "width": 400,
+                    "height": 400
+                  },
+                  {
+                    "url": "https://media.licdn.com/dms/image/v2/D4D0BAQHT98iUa_zVTw/company-logo_200_200/B4DaCqXgvMI4AE-/0/1789564685732?e=1792627200&v=beta&t=o-YjafWMvKlrrsbNGRjdFcvc06YSyQzUu6J375iYxGI",
+                    "width": 200,
+                    "height": 200
+                  },
+                  {
+                    "url": "https://media.licdn.com/dms/image/v2/D4D0BAQHT98iUa_zVTw/company-logo_100_100/B4DaCqXgvMI4AI-/0/1789564685732?e=1792627200&v=beta&t=TdoXHtqwhmGii0EUTg8NwyQRinGUktjVVULSjYrvrD8",
+                    "width": 100,
+                    "height": 100
+                  }
+                ]
+              }
+            }
+          ],
+          "profileTopEducation": [
+            {
+              "schoolName": "Kadi Sarva Vishwavidyalaya (KSV), Gandhinagar",
+              "description": null,
+              "insights": null,
+              "skills": null,
+              "schoolLinkedinUrl": "https://www.linkedin.com/company/15124026/",
+              "schoolId": "15124026",
+              "degree": "BCA",
+              "fieldOfStudy": "Computer Software Engineering",
+              "period": "Jul 2022 - Apr 2025",
+              "startDate": {
+                "month": "Jul",
+                "year": 2022,
+                "text": "Jul 2022"
+              },
+              "endDate": {
+                "month": "Apr",
+                "year": 2025,
+                "text": "Apr 2025"
+              },
+              "schoolLogo": {
+                "url": "https://media.licdn.com/dms/image/v2/D4D0BAQFnu_5glVVcYw/company-logo_400_400/company-logo_400_400/0/1686029996059?e=1792627200&v=beta&t=t71RqmUNCa7HMo_2l7598l-pGNlNjJCK7YAwoSRLhe0",
+                "sizes": [
+                  {
+                    "url": "https://media.licdn.com/dms/image/v2/D4D0BAQFnu_5glVVcYw/company-logo_400_400/company-logo_400_400/0/1686029996059?e=1792627200&v=beta&t=t71RqmUNCa7HMo_2l7598l-pGNlNjJCK7YAwoSRLhe0",
+                    "width": 400,
+                    "height": 400
+                  },
+                  {
+                    "url": "https://media.licdn.com/dms/image/v2/D4D0BAQFnu_5glVVcYw/company-logo_200_200/company-logo_200_200/0/1686029996059?e=1792627200&v=beta&t=xOual6mz6IHsD6yKsKOMFmH4BXigyLGjzVO6LlmTJWU",
+                    "width": 200,
+                    "height": 200
+                  },
+                  {
+                    "url": "https://media.licdn.com/dms/image/v2/D4D0BAQFnu_5glVVcYw/company-logo_100_100/company-logo_100_100/0/1686029996059?e=1792627200&v=beta&t=kb7mPEEiEG3U9inQW9uj45xfEOB9K-YW3Tp55_wy6bM",
+                    "width": 100,
+                    "height": 100
+                  }
+                ]
+              }
+            }
+          ],
+          "profileActions": [],
+          "profilePicture": {
+            "url": "https://media.licdn.com/dms/image/v2/D4D03AQHuty4obe8aRg/profile-displayphoto-crop_800_800/B4DaBhEaorIYAI-/0/1788334943492?e=1792627200&v=beta&t=Jy2VmPJWdMi5CiRf89ECNvXjvfSbvlrpOkHgtaCQsfk",
+            "sizes": [
+              {
+                "url": "https://media.licdn.com/dms/image/v2/D4D03AQHuty4obe8aRg/profile-displayphoto-crop_800_800/B4DaBhEaorIYAI-/0/1788334943492?e=1792627200&v=beta&t=Jy2VmPJWdMi5CiRf89ECNvXjvfSbvlrpOkHgtaCQsfk",
+                "width": 800,
+                "height": 800
+              },
+              {
+                "url": "https://media.licdn.com/dms/image/v2/D4D03AQHuty4obe8aRg/profile-displayphoto-scale_400_400/B4DaBhEaorIYAg-/0/1788334943491?e=1792627200&v=beta&t=HoIgLUhBMguOL1DX9gAZ8BC95lXcpo-i-AVJSDX40Ko",
+                "width": 400,
+                "height": 400
+              },
+              {
+                "url": "https://media.licdn.com/dms/image/v2/D4D03AQHuty4obe8aRg/profile-displayphoto-scale_200_200/B4DaBhEaorIYAc-/0/1788334943491?e=1792627200&v=beta&t=tCQe-SeFpX4qBOi3LVsFhZRDCZ07GdmJHIK5wzQ7lOY",
+                "width": 200,
+                "height": 200
+              },
+              {
+                "url": "https://media.licdn.com/dms/image/v2/D4D03AQHuty4obe8aRg/profile-displayphoto-scale_100_100/B4DaBhEaorIYAY-/0/1788334943492?e=1792627200&v=beta&t=t3U4pl84B0LAfuiZfleRikG2Iyf_nJmpczb-etTUvVg",
+                "width": 100,
+                "height": 100
+              }
+            ]
+          },
+          "coverPicture": {
+            "url": "https://media.licdn.com/dms/image/v2/D4D16AQHZHRaPWLQUmA/profile-displaybackgroundimage-shrink_350_1400/B4DaCrSkTjGsAc-/0/1789580166949?e=1792627200&v=beta&t=dOAYAbkTueUGiRbrYo7-6DXRfPWFw24wugVlGDN7T3w",
+            "sizes": [
+              {
+                "url": "https://media.licdn.com/dms/image/v2/D4D16AQHZHRaPWLQUmA/profile-displaybackgroundimage-shrink_350_1400/B4DaCrSkTjGsAc-/0/1789580166949?e=1792627200&v=beta&t=dOAYAbkTueUGiRbrYo7-6DXRfPWFw24wugVlGDN7T3w",
+                "width": 880,
+                "height": 220
+              },
+              {
+                "url": "https://media.licdn.com/dms/image/v2/D4D16AQHZHRaPWLQUmA/profile-displaybackgroundimage-shrink_200_800/B4DaCrSkTjGsAY-/0/1789580166950?e=1792627200&v=beta&t=hkd1RIPongZTyxw-sv8HyvJ6RBu3pZ83Nzky2uuoo5c",
+                "width": 800,
+                "height": 200
+              }
+            ]
+          },
+          "photo": "https://media.licdn.com/dms/image/v2/D4D03AQHuty4obe8aRg/profile-displayphoto-crop_800_800/B4DaBhEaorIYAI-/0/1788334943492?e=1792627200&v=beta&t=Jy2VmPJWdMi5CiRf89ECNvXjvfSbvlrpOkHgtaCQsfk",
+          "profileLocales": [
+            {
+              "country": "US",
+              "language": "en"
+            }
+          ],
+          "primaryLocale": {
+            "country": "US",
+            "language": "en"
+          },
+          "multiLocaleHeadline": [
+            {
+              "headline": "Business Development Executive | US & Canada Market Outreach | Lead Generation & LinkedIn Growth | Tech & Recruitment Partnerships",
+              "locale": "en_US"
+            }
+          ],
+          "services": null,
+          "experience": [
+            {
+              "position": "Career Specialist",
+              "location": null,
+              "employmentType": "Full-time",
+              "workplaceType": null,
+              "companyName": "Job Voyage Technolab LLC",
+              "companyUniversalName": "job-voyage-technolab-llc",
+              "companyLinkedinUrl": "https://www.linkedin.com/company/job-voyage-technolab-llc/",
+              "companyId": "111732412",
+              "duration": "1 yr 5 mos",
+              "description": null,
+              "skills": null,
+              "startDate": {
+                "month": "Jun",
+                "year": 2025,
+                "text": "Jun 2025"
+              },
+              "endDate": {
+                "text": "Present"
+              },
+              "companyLogo": {
+                "url": "https://media.licdn.com/dms/image/v2/D4D0BAQHT98iUa_zVTw/company-logo_400_400/B4DaCqXgvMI4AU-/0/1789564685732?e=1792627200&v=beta&t=wnvQfgf424COhp_7Q8KsBFr1cfmwsxQRaDrlEO0Ssk4",
+                "sizes": [
+                  {
+                    "url": "https://media.licdn.com/dms/image/v2/D4D0BAQHT98iUa_zVTw/company-logo_400_400/B4DaCqXgvMI4AU-/0/1789564685732?e=1792627200&v=beta&t=wnvQfgf424COhp_7Q8KsBFr1cfmwsxQRaDrlEO0Ssk4",
+                    "width": 400,
+                    "height": 400
+                  },
+                  {
+                    "url": "https://media.licdn.com/dms/image/v2/D4D0BAQHT98iUa_zVTw/company-logo_200_200/B4DaCqXgvMI4AE-/0/1789564685732?e=1792627200&v=beta&t=o-YjafWMvKlrrsbNGRjdFcvc06YSyQzUu6J375iYxGI",
+                    "width": 200,
+                    "height": 200
+                  },
+                  {
+                    "url": "https://media.licdn.com/dms/image/v2/D4D0BAQHT98iUa_zVTw/company-logo_100_100/B4DaCqXgvMI4AI-/0/1789564685732?e=1792627200&v=beta&t=TdoXHtqwhmGii0EUTg8NwyQRinGUktjVVULSjYrvrD8",
+                    "width": 100,
+                    "height": 100
+                  }
+                ]
+              }
+            }
+          ],
+          "education": [
+            {
+              "schoolName": "Kadi Sarva Vishwavidyalaya (KSV), Gandhinagar",
+              "description": null,
+              "insights": null,
+              "skills": null,
+              "schoolLinkedinUrl": "https://www.linkedin.com/company/15124026/",
+              "schoolId": "15124026",
+              "degree": "BCA",
+              "fieldOfStudy": "Computer Software Engineering",
+              "period": "Jul 2022 - Apr 2025",
+              "startDate": {
+                "month": "Jul",
+                "year": 2022,
+                "text": "Jul 2022"
+              },
+              "endDate": {
+                "month": "Apr",
+                "year": 2025,
+                "text": "Apr 2025"
+              },
+              "schoolLogo": {
+                "url": "https://media.licdn.com/dms/image/v2/D4D0BAQFnu_5glVVcYw/company-logo_400_400/company-logo_400_400/0/1686029996059?e=1792627200&v=beta&t=t71RqmUNCa7HMo_2l7598l-pGNlNjJCK7YAwoSRLhe0",
+                "sizes": [
+                  {
+                    "url": "https://media.licdn.com/dms/image/v2/D4D0BAQFnu_5glVVcYw/company-logo_400_400/company-logo_400_400/0/1686029996059?e=1792627200&v=beta&t=t71RqmUNCa7HMo_2l7598l-pGNlNjJCK7YAwoSRLhe0",
+                    "width": 400,
+                    "height": 400
+                  },
+                  {
+                    "url": "https://media.licdn.com/dms/image/v2/D4D0BAQFnu_5glVVcYw/company-logo_200_200/company-logo_200_200/0/1686029996059?e=1792627200&v=beta&t=xOual6mz6IHsD6yKsKOMFmH4BXigyLGjzVO6LlmTJWU",
+                    "width": 200,
+                    "height": 200
+                  },
+                  {
+                    "url": "https://media.licdn.com/dms/image/v2/D4D0BAQFnu_5glVVcYw/company-logo_100_100/company-logo_100_100/0/1686029996059?e=1792627200&v=beta&t=kb7mPEEiEG3U9inQW9uj45xfEOB9K-YW3Tp55_wy6bM",
+                    "width": 100,
+                    "height": 100
+                  }
+                ]
+              }
+            },
+            {
+              "schoolName": "Kadi Sarva Vishwavidyalaya (KSV), Gandhinagar",
+              "description": null,
+              "insights": null,
+              "skills": null,
+              "schoolLinkedinUrl": "https://www.linkedin.com/company/15124026/",
+              "schoolId": "15124026",
+              "degree": "Master of Computer Applications",
+              "fieldOfStudy": "Computer Science",
+              "period": "Jul 2025 - May 2027",
+              "startDate": {
+                "month": "Jul",
+                "year": 2025,
+                "text": "Jul 2025"
+              },
+              "endDate": {
+                "month": "May",
+                "year": 2027,
+                "text": "May 2027"
+              },
+              "schoolLogo": {
+                "url": "https://media.licdn.com/dms/image/v2/D4D0BAQFnu_5glVVcYw/company-logo_400_400/company-logo_400_400/0/1686029996059?e=1792627200&v=beta&t=t71RqmUNCa7HMo_2l7598l-pGNlNjJCK7YAwoSRLhe0",
+                "sizes": [
+                  {
+                    "url": "https://media.licdn.com/dms/image/v2/D4D0BAQFnu_5glVVcYw/company-logo_400_400/company-logo_400_400/0/1686029996059?e=1792627200&v=beta&t=t71RqmUNCa7HMo_2l7598l-pGNlNjJCK7YAwoSRLhe0",
+                    "width": 400,
+                    "height": 400
+                  },
+                  {
+                    "url": "https://media.licdn.com/dms/image/v2/D4D0BAQFnu_5glVVcYw/company-logo_200_200/company-logo_200_200/0/1686029996059?e=1792627200&v=beta&t=xOual6mz6IHsD6yKsKOMFmH4BXigyLGjzVO6LlmTJWU",
+                    "width": 200,
+                    "height": 200
+                  },
+                  {
+                    "url": "https://media.licdn.com/dms/image/v2/D4D0BAQFnu_5glVVcYw/company-logo_100_100/company-logo_100_100/0/1686029996059?e=1792627200&v=beta&t=kb7mPEEiEG3U9inQW9uj45xfEOB9K-YW3Tp55_wy6bM",
+                    "width": 100,
+                    "height": 100
+                  }
+                ]
+              }
+            }
+          ],
+          "certifications": [],
+          "projects": [],
+          "volunteering": [],
+          "receivedRecommendations": [],
+          "skills": [
+            {
+              "name": "Career Development",
+              "positions": [
+                "Career Specialist at Job Voyage Technolab LLC"
+              ]
+            },
+            {
+              "name": "Research Skills"
+            }
+          ],
+          "publications": [],
+          "courses": [],
+          "patents": [],
+          "honorsAndAwards": [],
+          "languages": [],
+          "organizations": [],
+          "causes": [],
+          "featured": null,
+          "composeOptionType": "UPSELL",
+          "moreProfiles": [],
+          "sectionTotals": {
+            "experience": 1,
+            "education": 2,
+            "certifications": 0,
+            "receivedRecommendations": 0,
+            "skills": 6,
+            "courses": 0,
+            "languages": 0,
+            "projects": 0,
+            "volunteering": 0,
+            "publications": 0,
+            "patents": 0,
+            "organizations": 0,
+            "honorsAndAwards": 0,
+            "causes": 0
+          },
+          "interests": [
+            {
+              "interestName": "Companies",
+              "elements": [
+                {
+                  "title": "Odoo",
+                  "subtitle": null,
+                  "link": "https://www.linkedin.com/company/633558/",
+                  "caption": "635,357 followers",
+                  "image": {
+                    "url": "https://media.licdn.com/dms/image/v2/D4E0BAQF91OMQCIi4dQ/company-logo_400_400/company-logo_400_400/0/1691657301051/odoo_logo?e=1792627200&v=beta&t=zNxnGmWQ98laoTxyTdnQfm5fQgLRVen0pUeIbCyVU4s"
+                  }
+                },
+                {
+                  "title": "Bista Solutions Inc",
+                  "subtitle": null,
+                  "link": "https://www.linkedin.com/company/682615/",
+                  "caption": "13,465 followers",
+                  "image": {
+                    "url": "https://media.licdn.com/dms/image/v2/C4D0BAQFfEzZfgAgoZg/company-logo_400_400/company-logo_400_400/0/1631345311232?e=1792627200&v=beta&t=F0xx-C00thjiX3dmYjMqJZbZlvULyaQAReg3xw_kuvk"
+                  }
+                }
+              ]
+            },
+            {
+              "interestName": "Newsletters",
+              "elements": [
+                {
+                  "title": "Dark Horse Insider LI",
+                  "subtitle": "Stay ahead of the curve in your entrepreneurial journey, you won't want to miss the Dark Horse Insider Newsletter.",
+                  "link": "https://www.linkedin.com/newsletters/7284610901687603202",
+                  "caption": "Published weekly",
+                  "image": {
+                    "url": "https://media.licdn.com/dms/image/v2/D4D12AQFNwZpPJE4E3A/series-logo_image-shrink_300_300/series-logo_image-shrink_300_300/0/1736786573902?e=1792627200&v=beta&t=ytYMNLvpZd9RrhE4eUiJKmMvtddentw4rxAUXPeOqlo"
+                  }
+                },
+                {
+                  "title": "Bista Solutions Newsletter",
+                  "subtitle": "Industry expertise, tailored ERP solutions, technological innovations, and practical insights for modern businesses.",
+                  "link": "https://www.linkedin.com/newsletters/7477729498856239105",
+                  "caption": "Published monthly",
+                  "image": {
+                    "url": "https://media.licdn.com/dms/image/v2/D4E12AQGBSazhLSEm3w/series-logo_image-shrink_300_300/B4EZ8Y7WBiJEAM-/0/1782829637964?e=1792627200&v=beta&t=9A4_dIfLV_JHYH-dcebWB_xHcTWH95EDkdd1qvyZWiA"
+                  }
+                }
+              ]
+            },
+            {
+              "interestName": "Schools",
+              "elements": [
+                {
+                  "title": "Kadi Sarva Vishwavidyalaya (KSV), Gandhinagar",
+                  "subtitle": null,
+                  "link": "https://www.linkedin.com/school/15124026/",
+                  "caption": "19,919 followers",
+                  "image": {
+                    "url": "https://media.licdn.com/dms/image/v2/D4D0BAQFnu_5glVVcYw/company-logo_400_400/company-logo_400_400/0/1686029996059?e=1792627200&v=beta&t=t71RqmUNCa7HMo_2l7598l-pGNlNjJCK7YAwoSRLhe0"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        "postedAt": {
+          "timestamp": 1791123316498,
+          "date": "2026-10-04T14:15:16.498Z",
+          "postedAgoShort": "2h",
+          "postedAgoText": "2 hours ago • Visible to anyone on or off LinkedIn"
+        },
+        "postImages": [],
+        "socialContent": {
+          "hideCommentsCount": false,
+          "hideReactionsCount": false,
+          "hideSocialActivityCounts": false,
+          "hideShareAction": true,
+          "hideSendAction": true,
+          "hideRepostsCount": false,
+          "hideViewsCount": false,
+          "trustInterventionBanner": null,
+          "hideReactAction": false,
+          "hideCommentAction": false,
+          "shareUrl": "https://www.linkedin.com/posts/dhyey-k-52a536353_nonitjobs-usajobs-canadajobs-activity-7512515690881474560-caxd?",
+          "showContributionExperience": false,
+          "showSocialDetail": true
+        },
+        "comments": [],
+        "header": {
+          "text": null
+        },
+        "entityId": "7512515690881474560",
+        "shareUrn": "urn:li:share:7512515688184467456",
+        "shareLinkedinUrl": "https://www.linkedin.com/feed/update/urn:li:share:7512515688184467456",
+        "engagement": {
+          "id": "7512515690881474560",
+          "likes": 0,
+          "comments": 0,
+          "shares": 0,
+          "reactions": []
+        },
+        "reactions": [],
+        "reactionIds": [],
+        "commentIds": [],
+        "query": {
+          "sortBy": "date",
+          "page": 1,
+          "search": "sales AND \"open to work\"",
+          "postedLimit": "week"
+        }
+      },
+      "extractedCandidateId": "cand_1791132835212_khy6y"
+    },
+    {
+      "id": "post_1791132807041_wbek0",
+      "platform": "LinkedIn",
+      "collectionMethod": "Apify",
+      "content": "Interviewer/Prospective Employer:\n\nCan you tell me a bit more about what you did at your last job?\n\nI was Office Manager. I did all general admin, sales, tenders, correspondence, reception, customer management, BOM, Petty Cash, Personnel time keeping/leave, vehicle maintenance, travel and stay bookings (no agent). Allocate payments, release orders. Make sure Customer and Supplier info stays updated. Ensure technical drawings stay updated and properly filed. (Hard and Soft Copy) Update any changes in technical drawings with comments. (Dated /reason). And more....\n\nReality of 1 order: \n\n⚙️ Operational Flow Chart: Step-by-Step\nThe chart above maps out the complete sequential path of your operational workflow. Below is the quick-reference checklist for each stage:\n\n1. Inbound Inquiry & Costing\n\n* Log RFQ: Register customer specifications, target dates, and destination country.\n* Generate Quote: Calculate material, labour, margins, and state Incoterms and currency clearly.\n\n2. Contract & Financial Initiation\n\n* Establish Supply Contract: Lock down terms, milestones, and penalties.\n* Receive & Allocate Payment:\n* Local: Match EFT to pro-forma invoice.\n   * Foreign: Route to CFC account, apply spot rate, and log FX variance.\n\n3. Demand & Production Planning\n\n* Create Sales Order (SO): Commit the order to the master schedule.\n* Explode Bill of Materials (BOM): Run stock checks on multi-level components.\n* Issue Purchase Orders (POs): Order missing parts from approved vendors.\n\n4. Workshop Execution & Prioritisation\n\n* Create WIP for Workshop: Open the work order, issue materials, and track labour.\n* Prioritise Jobs: Score and sequence active jobs using this automated matrix:\n* Priority 1: Penalties imminent or critical timeline → Immediate line clearance.\n   * Priority 2: Standard contract jobs → Sequenced by component arrival dates.\n   * Priority 3: Internal stock or low risk → Fills capacity gaps.\n\n5. Quality Assurance & Compliance\n\n* Complete Test Bay Reports: Sign off quality checkpoints, log serial numbers, and attach calibration data.\n\n6. Export Preparation & Packaging\n\n* Prepare Documentation: Compile Commercial Invoice, Packing List, and Certificate of Origin.\n* Arrange Package/Pallets: Pack to destination country rules using certified ISPM 15 heat-treated wood.\n\n7. Logistics & Dispatch\n\n* Local Route: Issue a Delivery Note and dispatch via local courier.\n* Export Route: Hand over goods and customs paperwork to the nominated freight forwarder; collect the Bill of Lading / Air Waybill.",
+      "sourceUrl": "https://www.linkedin.com/posts/ancilolwage_interviewerprospective-employer-can-you-activity-7512501807302991872-Hbjf",
+      "externalId": "7512501807302991872",
+      "authorIdentifier": "https://www.linkedin.com/in/ancilolwage",
+      "authorName": "Ancil Olwage",
+      "authorHeadline": "Technical Buyer & Procurement Specialist | Red Seal Electrician | Sourcing from AutoCAD & BOM Creation | Syspro | Pastel | Tenders, Cost Estimations & Logistics | Supply Chain",
+      "authorLocation": "[object Object]",
+      "authorProfileUrl": "https://www.linkedin.com/in/ancilolwage",
+      "postedAt": {
+        "timestamp": 1791120006395,
+        "date": "2026-10-04T13:20:06.395Z",
+        "postedAgoShort": "3h",
+        "postedAgoText": "3 hours ago • Visible to anyone on or off LinkedIn"
+      },
+      "receivedAt": "2026-10-04T16:53:27.041Z",
+      "extractionState": "extracted",
+      "rawPayload": {
+        "type": "post",
+        "id": "7512501807302991872",
+        "linkedinUrl": "https://www.linkedin.com/posts/ancilolwage_interviewerprospective-employer-can-you-activity-7512501807302991872-Hbjf",
+        "content": "Interviewer/Prospective Employer:\n\nCan you tell me a bit more about what you did at your last job?\n\nI was Office Manager. I did all general admin, sales, tenders, correspondence, reception, customer management, BOM, Petty Cash, Personnel time keeping/leave, vehicle maintenance, travel and stay bookings (no agent). Allocate payments, release orders. Make sure Customer and Supplier info stays updated. Ensure technical drawings stay updated and properly filed. (Hard and Soft Copy) Update any changes in technical drawings with comments. (Dated /reason). And more....\n\nReality of 1 order: \n\n⚙️ Operational Flow Chart: Step-by-Step\nThe chart above maps out the complete sequential path of your operational workflow. Below is the quick-reference checklist for each stage:\n\n1. Inbound Inquiry & Costing\n\n* Log RFQ: Register customer specifications, target dates, and destination country.\n* Generate Quote: Calculate material, labour, margins, and state Incoterms and currency clearly.\n\n2. Contract & Financial Initiation\n\n* Establish Supply Contract: Lock down terms, milestones, and penalties.\n* Receive & Allocate Payment:\n* Local: Match EFT to pro-forma invoice.\n   * Foreign: Route to CFC account, apply spot rate, and log FX variance.\n\n3. Demand & Production Planning\n\n* Create Sales Order (SO): Commit the order to the master schedule.\n* Explode Bill of Materials (BOM): Run stock checks on multi-level components.\n* Issue Purchase Orders (POs): Order missing parts from approved vendors.\n\n4. Workshop Execution & Prioritisation\n\n* Create WIP for Workshop: Open the work order, issue materials, and track labour.\n* Prioritise Jobs: Score and sequence active jobs using this automated matrix:\n* Priority 1: Penalties imminent or critical timeline → Immediate line clearance.\n   * Priority 2: Standard contract jobs → Sequenced by component arrival dates.\n   * Priority 3: Internal stock or low risk → Fills capacity gaps.\n\n5. Quality Assurance & Compliance\n\n* Complete Test Bay Reports: Sign off quality checkpoints, log serial numbers, and attach calibration data.\n\n6. Export Preparation & Packaging\n\n* Prepare Documentation: Compile Commercial Invoice, Packing List, and Certificate of Origin.\n* Arrange Package/Pallets: Pack to destination country rules using certified ISPM 15 heat-treated wood.\n\n7. Logistics & Dispatch\n\n* Local Route: Issue a Delivery Note and dispatch via local courier.\n* Export Route: Hand over goods and customs paperwork to the nominated freight forwarder; collect the Bill of Lading / Air Waybill.",
+        "contentAttributes": [],
+        "author": {
+          "id": "ACoAAGsBIgsBYYbdt3z6EuT1A-XIvrOtTpEgiGE",
+          "universalName": null,
+          "publicIdentifier": "ancilolwage",
+          "type": "profile",
+          "name": "Ancil Olwage",
+          "linkedinUrl": "https://www.linkedin.com/in/ancilolwage",
+          "info": "Technical Buyer & Procurement Specialist | Red Seal Electrician | Sourcing from AutoCAD & BOM Creation | Syspro | Pastel | Tenders, Cost Estimations & Logistics | Supply Chain",
+          "website": null,
+          "websiteLabel": null,
+          "avatar": {
+            "url": "https://media.licdn.com/dms/image/v2/D4D35AQGnH_hJU2lc-Q/profile-framedphoto-shrink_800_800/B4DaBiXj3sGkAY-/0/1788356738993?e=1791738000&v=beta&t=tE8YCIPeQnb2-uy-sWqQMLBPfJWc53fQyreC81iGZkk",
+            "width": 800,
+            "height": 800
+          },
+          "urn": "1795236363",
+          "profileId": "ACoAAGsBIgsBYYbdt3z6EuT1A-XIvrOtTpEgiGE",
+          "firstName": "Ancil",
+          "lastName": "Olwage",
+          "emails": [],
+          "headline": "Technical Buyer & Procurement Specialist | Red Seal Electrician | Sourcing from AutoCAD & BOM Creation | Syspro | Pastel | Tenders, Cost Estimations & Logistics | Supply Chain",
+          "openToWork": true,
+          "hiring": false,
+          "premium": true,
+          "influencer": false,
+          "memorialized": false,
+          "creator": false,
+          "location": {
+            "linkedinText": "Germiston Metropolitan Area",
+            "countryCode": "ZA",
+            "parsed": {
+              "text": "Germiston, South Africa",
+              "countryCode": "ZA",
+              "regionCode": null,
+              "country": "South Africa",
+              "countryFull": "South Africa",
+              "state": "Gauteng",
+              "city": "Germiston"
+            }
+          },
+          "objectUrn": "1795236363",
+          "registeredAt": "2026-07-09T14:50:45.121Z",
+          "topSkills": [
+            "Procurement",
+            "Syspro",
+            "Logistics Management",
+            "Operations Management",
+            "Contract Management"
+          ],
+          "connectionsCount": 63,
+          "followerCount": 65,
+          "verified": false,
+          "about": " A highly accomplished Technical Procurement Specialist and Red Seal Qualified Electrician (NQF 5) with over 25 years of cross-functional experience bridging the gap between complex engineering requirements and commercial execution. Historically distinguished as the first woman to qualify as a Red Seal Electrician in South Africa, I bring an invaluable, firsthand understanding of electrical, manufacturing, and heavy industrial systems to the global supply chain.My expertise centers on technical buying and robust materials management. I specialize in reading and extracting precise technical specifications directly from AutoCAD drawings, building and maintaining highly accurate Bills of Materials (BOMs), and managing high-value engineering tenders. Proficient in Syspro and Pastel ERP frameworks, I track components seamlessly and resolve inventory bottlenecks under tight deadlines.Throughout my career, I have successfully managed local and international logistics pipelines, optimized vendor relations, and mitigated commercial risks by expert handling of cost estimations, forward covers, liquidated damages (late penalties), and project-specific account settlement agreements.Equipped with a fully resilient home office infrastructure (including dedicated fibre internet, laptop, and 100% solar/UPS backup power), I offer complete operational flexibility. I am actively seeking new opportunities and am fully available for On-Site, Hybrid, Remote, Contract, Temporary, or Permanent placements within the Engineering, Electrical, Utilities, and Manufacturing sectors.Core Expertise:Technical Procurement &amp; Sourcing | AutoCAD Drawing Interpretation | Bill of Materials (BOM) Management | Tenders &amp; Contract Negotiation | Cost Estimations &amp; Forward Covers | Syspro &amp; Pastel ERP | Key Account Management (KAM) | Local &amp; International Logistics | Industrial Electrical Systems",
+          "currentPosition": [
+            {
+              "position": "Voluntary work",
+              "location": "Kempton Park, Gauteng, South Africa",
+              "employmentType": null,
+              "workplaceType": null,
+              "companyName": "Career Break",
+              "companyUniversalName": null,
+              "companyLinkedinUrl": null,
+              "companyId": null,
+              "duration": "4 yrs 2 mos",
+              "description": "In 2022, I sustained a severe fall while employed at Shelhurst Components, which required a spinal fusion of my lower vertebrae and coccyx. Because my role there was critical to daily operations, and my specialist strictly prohibited driving during the 3-month recovery window, the long commute wasn't feasible. We came to an amicable agreement to replace me so the business wouldn't suffer while I healed.After making a full recovery, I focused on family caregiving responsibilities. During that time, I stayed sharp by volunteering for local NPOs, managing logistics for seasonal community projects, and doing administrative work. Now that my family care duties are concluded, I am re-entering the workforce full-time. I’ve built a fully redundant, solar-powered home office specifically designed to ensure 100% operational uptime for remote procurement or operations roles.\"",
+              "skills": null,
+              "startDate": {
+                "month": "Sep",
+                "year": 2022,
+                "text": "Sep 2022"
+              },
+              "endDate": {
+                "text": "Present"
+              },
+              "companyLogo": null
+            }
+          ],
+          "profileTopEducation": [
+            {
+              "schoolName": "MIETTB",
+              "description": "After completing all relevant, and practical training, plus minimum (208 weeks) required practical work on Sishen Open Cast Mine, a date for my Trade Test was requested from MIETTB.  This was the only Red Seal institution you could qualify as a Red Seal Diploma Trade Master at the time.\nA date was issued to the Training Centre, and I passed my Trade Test on my 1st attempt with 100% (The only pass rate for a Read Seal at the time was 100%) ",
+              "insights": "Grade: Red Seal Electrician Diploma NQF 5",
+              "skills": null,
+              "schoolLinkedinUrl": "https://www.linkedin.com/search/results/all/?keywords=MIETTB",
+              "schoolId": null,
+              "degree": "Red Seal Electrician",
+              "fieldOfStudy": "Technical / Trade / Electrician",
+              "period": "Jan 1993 - Apr 1996",
+              "startDate": {
+                "month": "Jan",
+                "year": 1993,
+                "text": "Jan 1993"
+              },
+              "endDate": {
+                "month": "Apr",
+                "year": 1996,
+                "text": "Apr 1996"
+              },
+              "schoolLogo": null
+            }
+          ],
+          "profileActions": [],
+          "profilePicture": {
+            "url": "https://media.licdn.com/dms/image/v2/D4D03AQH27RG8pAp6NQ/profile-displayphoto-crop_800_800/B4DaBiXi8uJwAQ-/0/1788356736885?e=1792627200&v=beta&t=k7V-WwfjQKWAS068OHIm-z6k6dVnoQL71kAO_d2Vkk8",
+            "sizes": [
+              {
+                "url": "https://media.licdn.com/dms/image/v2/D4D03AQH27RG8pAp6NQ/profile-displayphoto-crop_800_800/B4DaBiXi8uJwAQ-/0/1788356736885?e=1792627200&v=beta&t=k7V-WwfjQKWAS068OHIm-z6k6dVnoQL71kAO_d2Vkk8",
+                "width": 800,
+                "height": 800
+              },
+              {
+                "url": "https://media.licdn.com/dms/image/v2/D4D03AQH27RG8pAp6NQ/profile-displayphoto-scale_400_400/B4DaBiXi8uJwAo-/0/1788356736885?e=1792627200&v=beta&t=Mqi--pAWWUs7Cd4wB57nZ2KGI3X2SFFiO2ePcWOkwXE",
+                "width": 400,
+                "height": 400
+              },
+              {
+                "url": "https://media.licdn.com/dms/image/v2/D4D03AQH27RG8pAp6NQ/profile-displayphoto-scale_200_200/B4DaBiXi8uJwAk-/0/1788356736885?e=1792627200&v=beta&t=c7unzSVGq_5qLDQpRr9T8ZBIdZB6eyHjgYaQgP0mRL4",
+                "width": 200,
+                "height": 200
+              },
+              {
+                "url": "https://media.licdn.com/dms/image/v2/D4D03AQH27RG8pAp6NQ/profile-displayphoto-scale_100_100/B4DaBiXi8uJwAg-/0/1788356736885?e=1792627200&v=beta&t=U3LTSFfASR2mletC6lB7TjYkV42fLOwxm2yDGoz7fWs",
+                "width": 100,
+                "height": 100
+              }
+            ]
+          },
+          "coverPicture": {
+            "url": "https://media.licdn.com/dms/image/v2/D4D16AQGDg4gr-j3how/profile-displaybackgroundimage-shrink_350_1400/B4DaBiXYUpJgAc-/0/1788356691497?e=1792627200&v=beta&t=2Cd65pHaDLKjQhhTtcTUwicLtERlb5qgy88Iqkx-55g",
+            "sizes": [
+              {
+                "url": "https://media.licdn.com/dms/image/v2/D4D16AQGDg4gr-j3how/profile-displaybackgroundimage-shrink_350_1400/B4DaBiXYUpJgAc-/0/1788356691497?e=1792627200&v=beta&t=2Cd65pHaDLKjQhhTtcTUwicLtERlb5qgy88Iqkx-55g",
+                "width": 1055,
+                "height": 263
+              },
+              {
+                "url": "https://media.licdn.com/dms/image/v2/D4D16AQGDg4gr-j3how/profile-displaybackgroundimage-shrink_200_800/B4DaBiXYUpJgAY-/0/1788356691497?e=1792627200&v=beta&t=zkALWL9i6KSxsG2hN1U2-8_3cwT7acolNFk1Kv33-9g",
+                "width": 800,
+                "height": 199
+              }
+            ]
+          },
+          "photo": "https://media.licdn.com/dms/image/v2/D4D03AQH27RG8pAp6NQ/profile-displayphoto-crop_800_800/B4DaBiXi8uJwAQ-/0/1788356736885?e=1792627200&v=beta&t=k7V-WwfjQKWAS068OHIm-z6k6dVnoQL71kAO_d2Vkk8",
+          "profileLocales": [
+            {
+              "country": "US",
+              "language": "en"
+            }
+          ],
+          "primaryLocale": {
+            "country": "US",
+            "language": "en"
+          },
+          "multiLocaleHeadline": [
+            {
+              "headline": "Technical Buyer & Procurement Specialist | Red Seal Electrician | Sourcing from AutoCAD & BOM Creation | Syspro | Pastel | Tenders, Cost Estimations & Logistics | Supply Chain",
+              "locale": "en_US"
+            }
+          ],
+          "services": null,
+          "experience": [
+            {
+              "position": "Voluntary work",
+              "location": "Kempton Park, Gauteng, South Africa",
+              "employmentType": null,
+              "workplaceType": null,
+              "companyName": "Career Break",
+              "companyUniversalName": null,
+              "companyLinkedinUrl": null,
+              "companyId": null,
+              "duration": "4 yrs 2 mos",
+              "description": "In 2022, I sustained a severe fall while employed at Shelhurst Components, which required a spinal fusion of my lower vertebrae and coccyx. Because my role there was critical to daily operations, and my specialist strictly prohibited driving during the 3-month recovery window, the long commute wasn't feasible. We came to an amicable agreement to replace me so the business wouldn't suffer while I healed.After making a full recovery, I focused on family caregiving responsibilities. During that time, I stayed sharp by volunteering for local NPOs, managing logistics for seasonal community projects, and doing administrative work. Now that my family care duties are concluded, I am re-entering the workforce full-time. I’ve built a fully redundant, solar-powered home office specifically designed to ensure 100% operational uptime for remote procurement or operations roles.\"",
+              "skills": null,
+              "startDate": {
+                "month": "Sep",
+                "year": 2022,
+                "text": "Sep 2022"
+              },
+              "endDate": {
+                "text": "Present"
+              },
+              "companyLogo": null
+            },
+            {
+              "position": "Office Administrator",
+              "location": "Randburg, Gauteng, South Africa",
+              "employmentType": "Full-time",
+              "workplaceType": "On-site",
+              "companyName": "Shelhurst Components",
+              "companyUniversalName": null,
+              "companyLinkedinUrl": "https://www.linkedin.com/search/results/all/?keywords=Shelhurst+Components",
+              "companyId": null,
+              "duration": "4 mos",
+              "description": "I played a pivotal role in streamlining office administration at Shelhurst Components, focusing on import/export/tender and operational efficiency.  \n\n• Handled tender (local and international) and procurement processes (local and international), ensuring accuracy and compliance with CAD drawings.  \n• Acted as the switchboard operator and reception, enhancing communication within the company.  \n• Developed skills in stock control and vehicle management, supporting overall operational effectiveness.",
+              "skills": null,
+              "startDate": {
+                "month": "May",
+                "year": 2022,
+                "text": "May 2022"
+              },
+              "endDate": {
+                "month": "Aug",
+                "year": 2022,
+                "text": "Aug 2022"
+              },
+              "companyLogo": null
+            },
+            {
+              "position": "Receptionist And Technical Buyer",
+              "location": "Boksburg, Gauteng, South Africa",
+              "employmentType": "Part-time",
+              "workplaceType": "On-site",
+              "companyName": "Alstom",
+              "companyUniversalName": null,
+              "companyLinkedinUrl": "https://www.linkedin.com/search/results/all/?keywords=Alstom",
+              "companyId": null,
+              "duration": "11 mos",
+              "description": "I temped as receptionist, while the receptionist had Covid. After she returned they asked me to stay and temp for the technical buyer - as she also came down with a serious case of Covid.\n\nProcessing purchase orders on Syspro.\nOrders generated from MRP, Job Cards and special requests.\nEnsuring orders are placed with correct supplier.\nUpdating price changes on system.\nSpecial notes to suppliers.\nFollowing up on orders placed.\nArranging delivery/collections\nBuy out on urgent order, where general suppliers do not have stock/lead times are too long.",
+              "skills": null,
+              "startDate": {
+                "month": "Jun",
+                "year": 2021,
+                "text": "Jun 2021"
+              },
+              "endDate": {
+                "month": "Apr",
+                "year": 2022,
+                "text": "Apr 2022"
+              },
+              "companyLogo": null
+            },
+            {
+              "position": "Technical Buyer",
+              "location": null,
+              "employmentType": null,
+              "workplaceType": null,
+              "companyName": "Various Temporary Assignments",
+              "companyUniversalName": null,
+              "companyLinkedinUrl": "https://www.linkedin.com/search/results/all/?keywords=Various+Temporary+Assignments",
+              "companyId": null,
+              "duration": "1 yr 10 mos",
+              "description": null,
+              "skills": null,
+              "startDate": {
+                "month": "Apr",
+                "year": 2020,
+                "text": "Apr 2020"
+              },
+              "endDate": {
+                "year": 2022,
+                "text": "2022"
+              },
+              "companyLogo": null
+            },
+            {
+              "position": "Caregiving",
+              "location": "Hiberdene",
+              "employmentType": null,
+              "workplaceType": null,
+              "companyName": "Career Break",
+              "companyUniversalName": null,
+              "companyLinkedinUrl": null,
+              "companyId": null,
+              "duration": "1 yr 3 mos",
+              "description": "Palliative Care and Bereavement — Mar 2020 – May 2021\n\nTook a planned career break to provide full‑time palliative care and bereavement support for my father. Focused on family wellbeing, medical coordination and household management during a critical period. Maintained professional currency through self‑directed learning and light freelance/administrative tasks.",
+              "skills": null,
+              "startDate": {
+                "month": "Mar",
+                "year": 2020,
+                "text": "Mar 2020"
+              },
+              "endDate": {
+                "month": "May",
+                "year": 2021,
+                "text": "May 2021"
+              },
+              "companyLogo": null
+            }
+          ],
+          "education": [
+            {
+              "schoolName": "MIETTB",
+              "description": "After completing all relevant, and practical training, plus minimum (208 weeks) required practical work on Sishen Open Cast Mine, a date for my Trade Test was requested from MIETTB.  This was the only Red Seal institution you could qualify as a Red Seal Diploma Trade Master at the time.\nA date was issued to the Training Centre, and I passed my Trade Test on my 1st attempt with 100% (The only pass rate for a Read Seal at the time was 100%) ",
+              "insights": "Grade: Red Seal Electrician Diploma NQF 5",
+              "skills": null,
+              "schoolLinkedinUrl": "https://www.linkedin.com/search/results/all/?keywords=MIETTB",
+              "schoolId": null,
+              "degree": "Red Seal Electrician",
+              "fieldOfStudy": "Technical / Trade / Electrician",
+              "period": "Jan 1993 - Apr 1996",
+              "startDate": {
+                "month": "Jan",
+                "year": 1993,
+                "text": "Jan 1993"
+              },
+              "endDate": {
+                "month": "Apr",
+                "year": 1996,
+                "text": "Apr 1996"
+              },
+              "schoolLogo": null
+            },
+            {
+              "schoolName": "Sishen College",
+              "description": "Certificate",
+              "insights": "Grade: N4",
+              "skills": null,
+              "schoolLinkedinUrl": "https://www.linkedin.com/search/results/all/?keywords=Sishen+College",
+              "schoolId": null,
+              "degree": "N4",
+              "fieldOfStudy": "Engineering Science",
+              "period": "Sep 1993 - Dec 1993",
+              "startDate": {
+                "month": "Sep",
+                "year": 1993,
+                "text": "Sep 1993"
+              },
+              "endDate": {
+                "month": "Dec",
+                "year": 1993,
+                "text": "Dec 1993"
+              },
+              "schoolLogo": null
+            }
+          ],
+          "certifications": [
+            {
+              "title": "Red Seal Electrician (NQF5)",
+              "issuedBy": "MIETTB",
+              "issuedAt": "Apr 1996",
+              "link": null,
+              "credentialId": null,
+              "issuedByLink": null,
+              "issuedByLogo": {
+                "url": null,
+                "sizes": []
+              }
+            }
+          ],
+          "projects": [],
+          "volunteering": [
+            {
+              "role": "Community Project & Logistics Volunteer",
+              "organizationName": "Thusenang Community Project (Groot Marico) & Local Care Initiatives",
+              "duration": "Aug 2022 - Present · 4 yrs 3 mos",
+              "startDate": {
+                "month": "Aug",
+                "year": 2022,
+                "text": "Aug 2022"
+              },
+              "endDate": {
+                "text": "Present"
+              },
+              "description": "Collaborated directly with project leadership to coordinate donation drives, supply logistics, and seasonal care initiatives for vulnerable communities and local old-age homes.Donation & Resource Mobilization: Spearheaded targeted collection drives for Thusenang in Groot Marico, managing inventory intake, auditing physical donations, and tracking distribution pipelines.Seasonal Project Management: Concepted, budgeted, and assembled tailored seasonal gifts (such as decorated festive plants and care packages) for residential old-age homes, managing end-to-end procurement of materials.Stakeholder Relations: Interfaced with community donors, local organizers, and facility administrators to ensure the smooth, timely execution of distributions under tight timelines.",
+              "cause": "Poverty Alleviation"
+            }
+          ],
+          "receivedRecommendations": [],
+          "skills": [
+            {
+              "name": "Supplier Relationship Management"
+            },
+            {
+              "name": "Virtual Assistance"
+            }
+          ],
+          "publications": [],
+          "courses": [
+            {
+              "title": "Assertive Communication & Professional Selling Skills",
+              "number": null,
+              "associatedWith": null,
+              "associatedWithLink": null
+            },
+            {
+              "title": "Assertive Communication & Professional Selling Skills",
+              "number": null,
+              "associatedWith": null,
+              "associatedWithLink": null
+            }
+          ],
+          "patents": [],
+          "honorsAndAwards": [],
+          "languages": [
+            {
+              "name": "Afrikaans",
+              "proficiency": "Native or bilingual proficiency"
+            },
+            {
+              "name": "English",
+              "proficiency": "Native or bilingual proficiency"
+            }
+          ],
+          "organizations": [],
+          "causes": [],
+          "featured": null,
+          "composeOptionType": "PREMIUM_INMAIL",
+          "moreProfiles": [],
+          "sectionTotals": {
+            "experience": 13,
+            "education": 12,
+            "certifications": 1,
+            "receivedRecommendations": 0,
+            "skills": 61,
+            "courses": 13,
+            "languages": 2,
+            "projects": 0,
+            "volunteering": 1,
+            "publications": 0,
+            "patents": 0,
+            "organizations": 0,
+            "honorsAndAwards": 0,
+            "causes": 0
+          },
+          "interests": [
+            {
+              "interestName": "Top Voices",
+              "elements": [
+                {
+                  "title": "Morten Wierod",
+                  "subtitle": "CEO at ABB​",
+                  "link": "https://www.linkedin.com/in/morten-wierod",
+                  "caption": "122,801 followers",
+                  "image": {
+                    "url": "https://media.licdn.com/dms/image/v2/D4E03AQGB9FUBG_O7FA/profile-displayphoto-shrink_800_800/profile-displayphoto-shrink_800_800/0/1730381467792?e=1792627200&v=beta&t=29D7JXp10Uxm7_rwqBjaSWjIX-Iqsae2rtS9Vf4OGig"
+                  }
+                },
+                {
+                  "title": "Shaibu Ibrahim PE, PMP®",
+                  "subtitle": "Sr. Electrical Engineer. NABCEP PVIP. LEED GA. I write and talk about power and energy systems. I help electrical engineers achieve their professional engineer license in the U.S. Read more at shailearning.com 🚀",
+                  "link": "https://www.linkedin.com/in/shaibuibrahim",
+                  "caption": "93,428 followers",
+                  "image": {
+                    "url": "https://media.licdn.com/dms/image/v2/D4E03AQGNMJ7a-rJWdQ/profile-displayphoto-shrink_800_800/profile-displayphoto-shrink_800_800/0/1713867073618?e=1792627200&v=beta&t=ktnnTFcUYbedHKtVksePHd7KvJY7Y8PJc05Rxe0-dKI"
+                  }
+                }
+              ]
+            },
+            {
+              "interestName": "Companies",
+              "elements": [
+                {
+                  "title": "Siemens",
+                  "subtitle": null,
+                  "link": "https://www.linkedin.com/company/1043/",
+                  "caption": "9,445,893 followers",
+                  "image": {
+                    "url": "https://media.licdn.com/dms/image/v2/D4D0BAQFK_4wGnzwPTQ/company-logo_400_400/company-logo_400_400/0/1719931174735/siemens_logo?e=1792627200&v=beta&t=Jy0VUfzICxUppmWiWLaaxzD88Zag-iuCSM0VMtq_X9M"
+                  }
+                },
+                {
+                  "title": "Medtronic",
+                  "subtitle": null,
+                  "link": "https://www.linkedin.com/company/1841/",
+                  "caption": "2,679,376 followers",
+                  "image": {
+                    "url": "https://media.licdn.com/dms/image/v2/D560BAQEzUefeWte_PQ/company-logo_400_400/company-logo_400_400/0/1667587833952/medtronic_logo?e=1792627200&v=beta&t=Kg-yxtB0V5HpKMP0c3bMxNqeKcug2273eYxrBNJ-BNw"
+                  }
+                }
+              ]
+            },
+            {
+              "interestName": "Groups",
+              "elements": [
+                {
+                  "title": "Leadership First - Inspirational Leadership ",
+                  "subtitle": null,
+                  "link": "https://www.linkedin.com/groups/8689668",
+                  "caption": "102,452 members",
+                  "image": {
+                    "url": "https://media.licdn.com/dms/image/v2/C4E07AQEWI4FSG4MJ4Q/group-logo_image-shrink_92x92/group-logo_image-shrink_92x92/0/1543514767698?e=1791738000&v=beta&t=4c8UPNs52QwoUYL5RPYr88RP7-K78EJTkgjHW3NBF8A"
+                  }
+                }
+              ]
+            },
+            {
+              "interestName": "Newsletters",
+              "elements": [
+                {
+                  "title": "Create Possibilities",
+                  "subtitle": "Tips, tricks, and resources for members who want to grow their community, increase engagement, and create great content.",
+                  "link": "https://www.linkedin.com/newsletters/7026669590701035521",
+                  "caption": "Published monthly",
+                  "image": {
+                    "url": "https://media.licdn.com/dms/image/v2/D4E12AQH7I--OnPIryg/series-logo_image-shrink_300_300/series-logo_image-shrink_300_300/0/1704731644888?e=1792627200&v=beta&t=R7ouVATHwpWYXWUHuPs-4wV06csY3yDzgMQAttBBWGo"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        "postedAt": {
+          "timestamp": 1791120006395,
+          "date": "2026-10-04T13:20:06.395Z",
+          "postedAgoShort": "3h",
+          "postedAgoText": "3 hours ago • Visible to anyone on or off LinkedIn"
+        },
+        "postImages": [],
+        "socialContent": {
+          "hideCommentsCount": false,
+          "hideReactionsCount": false,
+          "hideSocialActivityCounts": false,
+          "hideShareAction": true,
+          "hideSendAction": true,
+          "hideRepostsCount": false,
+          "hideViewsCount": false,
+          "trustInterventionBanner": null,
+          "hideReactAction": false,
+          "hideCommentAction": false,
+          "shareUrl": "https://www.linkedin.com/posts/ancilolwage_interviewerprospective-employer-can-you-activity-7512501807302991872-Hbjf?",
+          "showContributionExperience": false,
+          "showSocialDetail": true
+        },
+        "comments": [],
+        "header": {
+          "text": null
+        },
+        "entityId": "7512501807302991872",
+        "shareUrn": "urn:li:share:7512501805826596864",
+        "shareLinkedinUrl": "https://www.linkedin.com/feed/update/urn:li:share:7512501805826596864",
+        "engagement": {
+          "id": "7512501807302991872",
+          "likes": 0,
+          "comments": 0,
+          "shares": 0,
+          "reactions": []
+        },
+        "reactions": [],
+        "reactionIds": [],
+        "commentIds": [],
+        "query": {
+          "sortBy": "date",
+          "page": 1,
+          "search": "sales AND \"open to work\"",
+          "postedLimit": "week"
+        }
+      },
+      "extractedCandidateId": "cand_1791132836201_rp5by"
+    },
+    {
+      "id": "post_1791132807042_co76g",
+      "platform": "LinkedIn",
+      "collectionMethod": "Apify",
+      "content": "Want an opener that books meetings?\n\nStop switching it every week. Do this instead:\n\nAlmost every rep I speak with is stuck on the same thing:\n\nThey change their approach every week.\nSo they never have enough data to see if their approach actually works.\n\nSo they decide it's broken.\n\nThat's the wrong approach.\nYou need DATA. Not feelings.\n\nHere's the exact process I give my reps:\n\n1. Pick 1 opener.\nPermission-based, trigger-based, or both. Honestly, any of them will work.\nIf you've got a real trigger, use it. If not, go permission-based.\n\n2. Rewrite it until it sounds like you.\nNot like some LinkedIn opener from a sales director who hasn't dialled in 20 years.\n\n3. Say it out loud 10 times and record it.\nYes, it's cringe. But you'll hear every filler word and every time you rush.\n\n4. Use it unchanged for 20 conversations.\nNot 20 dials. 20 conversations where they actually heard the opener.\n\n5. Ask your question, then shut up.\nThey'll usually take 3 to 5 seconds to answer. Don't fill the silence.\n\n6. Review 1 call a day.\nDid you sound calm? Was it relevant? Did you end on a question, or just trail off?\n\n7. Only change it after conversation 20.\n3 bad calls tells you nothing. Neither does 5.\nYou need a real sample size to know if it works.\n\nAny opener works once it sounds natural.\nAnd it only sounds natural after you've said it enough times.\n\nBut If you're impatient (like me), I made a tool that'll tell you exactly how to book more meetings. Not \"Dial more\", actual advice tailored to you.\n\nTry it here:\n\nhttps://lnkd.in/euHgxvZ4\n\nSave this for your next call block, and repost if you know a rep who needs it.\n\nFollow Luke Ross for more useful cold calling content.",
+      "sourceUrl": "https://www.linkedin.com/posts/thelukeross_want-an-opener-that-books-meetings-stop-activity-7512487939059195904-piNt",
+      "externalId": "7512487939059195904",
+      "authorIdentifier": "https://www.linkedin.com/in/thelukeross",
+      "authorName": "Luke Ross",
+      "authorHeadline": "Helping SDRs & BDRs book more meetings from cold calls | Cold Caller → Head of Sales by 24 | Founder, Modern Seller AI",
+      "authorLocation": "[object Object]",
+      "authorProfileUrl": "https://www.linkedin.com/in/thelukeross",
+      "postedAt": {
+        "timestamp": 1791116699948,
+        "date": "2026-10-04T12:24:59.948Z",
+        "postedAgoShort": "4h",
+        "postedAgoText": "4 hours ago • Visible to anyone on or off LinkedIn"
+      },
+      "receivedAt": "2026-10-04T16:53:27.042Z",
+      "extractionState": "extracted",
+      "rawPayload": {
+        "type": "post",
+        "id": "7512487939059195904",
+        "linkedinUrl": "https://www.linkedin.com/posts/thelukeross_want-an-opener-that-books-meetings-stop-activity-7512487939059195904-piNt",
+        "content": "Want an opener that books meetings?\n\nStop switching it every week. Do this instead:\n\nAlmost every rep I speak with is stuck on the same thing:\n\nThey change their approach every week.\nSo they never have enough data to see if their approach actually works.\n\nSo they decide it's broken.\n\nThat's the wrong approach.\nYou need DATA. Not feelings.\n\nHere's the exact process I give my reps:\n\n1. Pick 1 opener.\nPermission-based, trigger-based, or both. Honestly, any of them will work.\nIf you've got a real trigger, use it. If not, go permission-based.\n\n2. Rewrite it until it sounds like you.\nNot like some LinkedIn opener from a sales director who hasn't dialled in 20 years.\n\n3. Say it out loud 10 times and record it.\nYes, it's cringe. But you'll hear every filler word and every time you rush.\n\n4. Use it unchanged for 20 conversations.\nNot 20 dials. 20 conversations where they actually heard the opener.\n\n5. Ask your question, then shut up.\nThey'll usually take 3 to 5 seconds to answer. Don't fill the silence.\n\n6. Review 1 call a day.\nDid you sound calm? Was it relevant? Did you end on a question, or just trail off?\n\n7. Only change it after conversation 20.\n3 bad calls tells you nothing. Neither does 5.\nYou need a real sample size to know if it works.\n\nAny opener works once it sounds natural.\nAnd it only sounds natural after you've said it enough times.\n\nBut If you're impatient (like me), I made a tool that'll tell you exactly how to book more meetings. Not \"Dial more\", actual advice tailored to you.\n\nTry it here:\n\nhttps://lnkd.in/euHgxvZ4\n\nSave this for your next call block, and repost if you know a rep who needs it.\n\nFollow Luke Ross for more useful cold calling content.",
+        "contentAttributes": [],
+        "author": {
+          "id": "ACoAAEC5uVsBiylZ9zPOtGJqanfuGBQc3kr58Wg",
+          "universalName": null,
+          "publicIdentifier": "thelukeross",
+          "type": "profile",
+          "name": "Luke Ross",
+          "linkedinUrl": "https://www.linkedin.com/in/thelukeross",
+          "info": "Helping SDRs & BDRs book more meetings from cold calls | Cold Caller → Head of Sales by 24 | Founder, Modern Seller AI",
+          "website": "https://modernseller.ai/",
+          "websiteLabel": "Visit my website",
+          "avatar": {
+            "url": "https://media.licdn.com/dms/image/v2/D4D03AQGjFsNNLIbUNA/profile-displayphoto-crop_800_800/B4DZ2_L71bIYAI-/0/1777029075222?e=1792627200&v=beta&t=3vJCpHlYjrnS0cj87Du4kVUkRE4P1FXjafqW_G_ig7Y",
+            "width": 800,
+            "height": 800
+          },
+          "urn": "1085913435",
+          "profileId": "ACoAAEC5uVsBiylZ9zPOtGJqanfuGBQc3kr58Wg",
+          "firstName": "Luke",
+          "lastName": "Ross",
+          "emails": [],
+          "headline": "Helping SDRs & BDRs book more meetings from cold calls | Cold Caller → Head of Sales by 24 | Founder, Modern Seller AI",
+          "openToWork": false,
+          "hiring": false,
+          "premium": true,
+          "influencer": false,
+          "memorialized": false,
+          "creator": false,
+          "location": {
+            "linkedinText": "County Dublin, Ireland",
+            "countryCode": "IE",
+            "parsed": {
+              "text": "Dublin, Ireland",
+              "countryCode": "IE",
+              "regionCode": null,
+              "country": "Ireland",
+              "countryFull": "Ireland",
+              "state": "Leinster",
+              "city": "Dublin"
+            }
+          },
+          "objectUrn": "1085913435",
+          "registeredAt": "2023-01-25T23:06:35.538Z",
+          "topSkills": [
+            "Sales",
+            "Cold Calling",
+            "Sales Management"
+          ],
+          "connectionsCount": 9920,
+          "followerCount": 20026,
+          "verified": true,
+          "about": "I moved 5,000km from Ireland to Toronto with one goal: make money.\n\nStarted as an entry-level sales rep. Cold calling. 150+ dials a day.\n\n9 months later: promoted to Account Manager.\n6 months after that: promoted to Sales Manager.\n6 months after that: Head of Sales. 24 years old. Youngest in the company's history.\n\nI didn't get lucky. I got good at cold calling, and the results spoke for themselves.\n\nWhen I started managing reps, I taught them the same things I used to get there. I've since coached 100+ B2B reps across 15 industries on how to cold call properly, handle objections without freezing, and book meetings consistently. Reps at HubSpot, Deel, Rippling, Oracle and Fortune 500 sales floors.\n\nNow I run the Modern Seller Accelerator. Twelve weeks, for reps making 30+ calls a day.\n\nWe write your playbook with you on day one. Your opener, your objection responses, your discovery questions, built around the people you actually call. Then every week you send us a real call and we break it down line by line.\n\nWeekly group coaching, one to one calls on your own market, and self-paced material covering every part of the call.\n\nThe promise: book 50% more meetings in 12 weeks, or you get your money back. Every cent.\n\nI cap how many reps I take on at a time. Every one of them sends me a real call every week and gets it reviewed, and that only works at small numbers. When it's full, it's full.\n\nEvery spot starts with a free application call: https://modernseller.ai/schedule\n\nRunning a sales team and want cold call coaching for your reps? hello@lukeross.me",
+          "currentPosition": [
+            {
+              "position": "Founder",
+              "location": "Dublin, County Dublin, Ireland",
+              "employmentType": null,
+              "workplaceType": null,
+              "companyName": "Modern Seller AI",
+              "companyUniversalName": "modern-seller-ai",
+              "companyLinkedinUrl": "https://www.linkedin.com/company/modern-seller-ai/",
+              "companyId": "115840013",
+              "duration": "7 mos",
+              "description": "The Modern Seller Accelerator is a 12-week cold call program for SDRs & BDRs making 30+ dials per day.\n\nWe build your playbook with you, around your company and the buyer you actually call. Then we review your real calls every week, line by line, so you fix what's breaking it the same week.\n\nWeekly group coaching. One-to-one calls on your own market. Self-paced material covering every part of the call.\n\nBuilt from coaching 100+ reps across 15 industries, at HubSpot, Deel, Rippling, Oracle and Fortune 500 sales floors.\n\nThe promise:\nBook 50% more meetings in 12 weeks or get your money back.\n\nhttps://modernseller.ai/",
+              "skills": null,
+              "startDate": {
+                "month": "Apr",
+                "year": 2026,
+                "text": "Apr 2026"
+              },
+              "endDate": {
+                "text": "Present"
+              },
+              "companyLogo": {
+                "url": "https://media.licdn.com/dms/image/v2/D4D0BAQG4sPscz8H6SA/company-logo_400_400/B4DZ2.nIH_GwAc-/0/1777019421594?e=1792627200&v=beta&t=re7h1a8Od1I3M9IpEoKCLSye-1jt4l-NNHEdreUPZu0",
+                "sizes": [
+                  {
+                    "url": "https://media.licdn.com/dms/image/v2/D4D0BAQG4sPscz8H6SA/company-logo_400_400/B4DZ2.nIH_GwAc-/0/1777019421594?e=1792627200&v=beta&t=re7h1a8Od1I3M9IpEoKCLSye-1jt4l-NNHEdreUPZu0",
+                    "width": 400,
+                    "height": 400
+                  },
+                  {
+                    "url": "https://media.licdn.com/dms/image/v2/D4D0BAQG4sPscz8H6SA/company-logo_200_200/B4DZ2.nIH_GwAM-/0/1777019421594?e=1792627200&v=beta&t=TPvXpXgAwArX4z53dLBHtJWld7PTXJ-4gj9XHhITZwM",
+                    "width": 200,
+                    "height": 200
+                  },
+                  {
+                    "url": "https://media.licdn.com/dms/image/v2/D4D0BAQG4sPscz8H6SA/company-logo_100_100/B4DZ2.nIH_GwAU-/0/1777019421594?e=1792627200&v=beta&t=Hm4qvNhg-KSmE07xPkSfap334GCIFEWUq7hx1VfWv5Q",
+                    "width": 100,
+                    "height": 100
+                  }
+                ]
+              }
+            }
+          ],
+          "profileTopEducation": [
+            {
+              "schoolName": "Maynooth University",
+              "description": null,
+              "insights": null,
+              "skills": null,
+              "schoolLinkedinUrl": "https://www.linkedin.com/company/15104581/",
+              "schoolId": "15104581",
+              "degree": "Bachelor of Arts - BA",
+              "fieldOfStudy": "Business management",
+              "period": "Sep 2021 - Sep 2023",
+              "startDate": {
+                "month": "Sep",
+                "year": 2021,
+                "text": "Sep 2021"
+              },
+              "endDate": {
+                "month": "Sep",
+                "year": 2023,
+                "text": "Sep 2023"
+              },
+              "schoolLogo": {
+                "url": "https://media.licdn.com/dms/image/v2/C4E0BAQGNGtHSeHqncQ/company-logo_400_400/company-logo_400_400/0/1652437376562/maynooth_university_logo?e=1792627200&v=beta&t=o8O0ZnIslf7iT1iLhe5YY3GAhJ40BPKN9MSWOS9OlNk",
+                "sizes": [
+                  {
+                    "url": "https://media.licdn.com/dms/image/v2/C4E0BAQGNGtHSeHqncQ/company-logo_400_400/company-logo_400_400/0/1652437376562/maynooth_university_logo?e=1792627200&v=beta&t=o8O0ZnIslf7iT1iLhe5YY3GAhJ40BPKN9MSWOS9OlNk",
+                    "width": 400,
+                    "height": 400
+                  },
+                  {
+                    "url": "https://media.licdn.com/dms/image/v2/C4E0BAQGNGtHSeHqncQ/company-logo_200_200/company-logo_200_200/0/1652437376562/maynooth_university_logo?e=1792627200&v=beta&t=P1ZGb72nodJl5Fr-rc6IpJnriCpYO4Ti3iwCAaSyoY4",
+                    "width": 200,
+                    "height": 200
+                  },
+                  {
+                    "url": "https://media.licdn.com/dms/image/v2/C4E0BAQGNGtHSeHqncQ/company-logo_100_100/company-logo_100_100/0/1652437376562/maynooth_university_logo?e=1792627200&v=beta&t=LOWX91kUmBFozFNzuthUIgiMYAzf4mYe66ykGAJcRB4",
+                    "width": 100,
+                    "height": 100
+                  }
+                ]
+              }
+            }
+          ],
+          "profileActions": [
+            {
+              "label": "Visit my website",
+              "url": "https://modernseller.ai/"
+            }
+          ],
+          "profilePicture": {
+            "url": "https://media.licdn.com/dms/image/v2/D4D03AQGjFsNNLIbUNA/profile-displayphoto-crop_800_800/B4DZ2_L71bIYAI-/0/1777029075222?e=1792627200&v=beta&t=3vJCpHlYjrnS0cj87Du4kVUkRE4P1FXjafqW_G_ig7Y",
+            "sizes": [
+              {
+                "url": "https://media.licdn.com/dms/image/v2/D4D03AQGjFsNNLIbUNA/profile-displayphoto-crop_800_800/B4DZ2_L71bIYAI-/0/1777029075222?e=1792627200&v=beta&t=3vJCpHlYjrnS0cj87Du4kVUkRE4P1FXjafqW_G_ig7Y",
+                "width": 800,
+                "height": 800
+              },
+              {
+                "url": "https://media.licdn.com/dms/image/v2/D4D03AQGjFsNNLIbUNA/profile-displayphoto-scale_400_400/B4DZ2_L71bIYAg-/0/1777029075323?e=1792627200&v=beta&t=HTGM5vyvvh82zCvjzi0DyevBm43JLk3_fo8C5tib6i4",
+                "width": 400,
+                "height": 400
+              },
+              {
+                "url": "https://media.licdn.com/dms/image/v2/D4D03AQGjFsNNLIbUNA/profile-displayphoto-scale_200_200/B4DZ2_L71bIYAY-/0/1777029075323?e=1792627200&v=beta&t=dBUjZgKWagHYOd1-ys9IcdJwX0lHu4zbHCCbOAB9me8",
+                "width": 200,
+                "height": 200
+              },
+              {
+                "url": "https://media.licdn.com/dms/image/v2/D4D03AQGjFsNNLIbUNA/profile-displayphoto-scale_100_100/B4DZ2_L71bIYAc-/0/1777029075323?e=1792627200&v=beta&t=CAW8gBDW7Y-6qtfGetW1ZmKlZg2Ev-ciyZKuw94H-2k",
+                "width": 100,
+                "height": 100
+              }
+            ]
+          },
+          "coverPicture": {
+            "url": "https://media.licdn.com/dms/image/v2/D4E16AQHk-hFIUbIQmw/profile-displaybackgroundimage-shrink_350_1400/B4EaC8MztUI4AU-/0/1789863869559?e=1792627200&v=beta&t=WoPvbli3B8r3kZdOrLoEzVf64uTv-RelZwjZhSh6vnI",
+            "sizes": [
+              {
+                "url": "https://media.licdn.com/dms/image/v2/D4E16AQHk-hFIUbIQmw/profile-displaybackgroundimage-shrink_350_1400/B4EaC8MztUI4AU-/0/1789863869559?e=1792627200&v=beta&t=WoPvbli3B8r3kZdOrLoEzVf64uTv-RelZwjZhSh6vnI",
+                "width": 1400,
+                "height": 349
+              },
+              {
+                "url": "https://media.licdn.com/dms/image/v2/D4E16AQHk-hFIUbIQmw/profile-displaybackgroundimage-shrink_200_800/B4EaC8MztUI4AQ-/0/1789863869559?e=1792627200&v=beta&t=WCtIE9I4OnxfBicdRJDQxCotHFTKhAejRMb7x4wR6ZA",
+                "width": 800,
+                "height": 199
+              }
+            ]
+          },
+          "photo": "https://media.licdn.com/dms/image/v2/D4D03AQGjFsNNLIbUNA/profile-displayphoto-crop_800_800/B4DZ2_L71bIYAI-/0/1777029075222?e=1792627200&v=beta&t=3vJCpHlYjrnS0cj87Du4kVUkRE4P1FXjafqW_G_ig7Y",
+          "profileLocales": [
+            {
+              "country": "US",
+              "language": "en"
+            }
+          ],
+          "primaryLocale": {
+            "country": "US",
+            "language": "en"
+          },
+          "multiLocaleHeadline": [
+            {
+              "headline": "Helping SDRs & BDRs book more meetings from cold calls | Cold Caller → Head of Sales by 24 | Founder, Modern Seller AI",
+              "locale": "en_US"
+            }
+          ],
+          "services": null,
+          "experience": [
+            {
+              "position": "Founder",
+              "location": "Dublin, County Dublin, Ireland",
+              "employmentType": null,
+              "workplaceType": null,
+              "companyName": "Modern Seller AI",
+              "companyUniversalName": "modern-seller-ai",
+              "companyLinkedinUrl": "https://www.linkedin.com/company/modern-seller-ai/",
+              "companyId": "115840013",
+              "duration": "7 mos",
+              "description": "The Modern Seller Accelerator is a 12-week cold call program for SDRs & BDRs making 30+ dials per day.\n\nWe build your playbook with you, around your company and the buyer you actually call. Then we review your real calls every week, line by line, so you fix what's breaking it the same week.\n\nWeekly group coaching. One-to-one calls on your own market. Self-paced material covering every part of the call.\n\nBuilt from coaching 100+ reps across 15 industries, at HubSpot, Deel, Rippling, Oracle and Fortune 500 sales floors.\n\nThe promise:\nBook 50% more meetings in 12 weeks or get your money back.\n\nhttps://modernseller.ai/",
+              "skills": null,
+              "startDate": {
+                "month": "Apr",
+                "year": 2026,
+                "text": "Apr 2026"
+              },
+              "endDate": {
+                "text": "Present"
+              },
+              "companyLogo": {
+                "url": "https://media.licdn.com/dms/image/v2/D4D0BAQG4sPscz8H6SA/company-logo_400_400/B4DZ2.nIH_GwAc-/0/1777019421594?e=1792627200&v=beta&t=re7h1a8Od1I3M9IpEoKCLSye-1jt4l-NNHEdreUPZu0",
+                "sizes": [
+                  {
+                    "url": "https://media.licdn.com/dms/image/v2/D4D0BAQG4sPscz8H6SA/company-logo_400_400/B4DZ2.nIH_GwAc-/0/1777019421594?e=1792627200&v=beta&t=re7h1a8Od1I3M9IpEoKCLSye-1jt4l-NNHEdreUPZu0",
+                    "width": 400,
+                    "height": 400
+                  },
+                  {
+                    "url": "https://media.licdn.com/dms/image/v2/D4D0BAQG4sPscz8H6SA/company-logo_200_200/B4DZ2.nIH_GwAM-/0/1777019421594?e=1792627200&v=beta&t=TPvXpXgAwArX4z53dLBHtJWld7PTXJ-4gj9XHhITZwM",
+                    "width": 200,
+                    "height": 200
+                  },
+                  {
+                    "url": "https://media.licdn.com/dms/image/v2/D4D0BAQG4sPscz8H6SA/company-logo_100_100/B4DZ2.nIH_GwAU-/0/1777019421594?e=1792627200&v=beta&t=Hm4qvNhg-KSmE07xPkSfap334GCIFEWUq7hx1VfWv5Q",
+                    "width": 100,
+                    "height": 100
+                  }
+                ]
+              }
+            },
+            {
+              "position": "Head of Delegate Sales",
+              "location": null,
+              "employmentType": "Contract Full-time",
+              "workplaceType": null,
+              "companyName": "Generis",
+              "companyUniversalName": "generis-group",
+              "companyLinkedinUrl": "https://www.linkedin.com/company/generis-group/",
+              "companyId": "3604970",
+              "duration": "10 mos",
+              "description": "- Led 13 B2B summits across North America. Took full ownership of a team of 15 reps and 3 managers, their numbers, their development, and their results.\n\n- Coached and developed 3 sales managers on how to lead their own teams, run performance reviews, and drive consistent output across every event.\n\n- Averaged 107% quota attainment across all projects. Broke the company's all-time sales record in month one. Broke it again in month two.",
+              "skills": null,
+              "experienceGroupId": null,
+              "startDate": {
+                "month": "May",
+                "year": 2025,
+                "text": "May 2025"
+              },
+              "endDate": {
+                "month": "Feb",
+                "year": 2026,
+                "text": "Feb 2026"
+              },
+              "companyLogo": {
+                "url": "https://media.licdn.com/dms/image/v2/D560BAQHaZmcA_R-t_g/company-logo_400_400/company-logo_400_400/0/1739215420974/generis_group_logo?e=1792627200&v=beta&t=z0UWRlGqigQ7i6oDYXtnFWIlYZvQsL-KKQKuGSGR2j0",
+                "sizes": [
+                  {
+                    "url": "https://media.licdn.com/dms/image/v2/D560BAQHaZmcA_R-t_g/company-logo_400_400/company-logo_400_400/0/1739215420974/generis_group_logo?e=1792627200&v=beta&t=z0UWRlGqigQ7i6oDYXtnFWIlYZvQsL-KKQKuGSGR2j0",
+                    "width": 400,
+                    "height": 400
+                  },
+                  {
+                    "url": "https://media.licdn.com/dms/image/v2/D560BAQHaZmcA_R-t_g/company-logo_200_200/company-logo_200_200/0/1739215420974/generis_group_logo?e=1792627200&v=beta&t=xWn5EwAlxJY75cN7c6b1IILXOfQWoOet6YbZxq4qsF0",
+                    "width": 200,
+                    "height": 200
+                  },
+                  {
+                    "url": "https://media.licdn.com/dms/image/v2/D560BAQHaZmcA_R-t_g/company-logo_100_100/company-logo_100_100/0/1739215420974/generis_group_logo?e=1792627200&v=beta&t=7V7FYcB5ZpF1sTqhxNfJYSVbIT-Gr3UI58kPPFCzl9s",
+                    "width": 100,
+                    "height": 100
+                  }
+                ]
+              }
+            },
+            {
+              "position": "Sales Manager",
+              "location": null,
+              "employmentType": null,
+              "workplaceType": null,
+              "companyName": "Generis",
+              "companyUniversalName": "generis-group",
+              "companyLinkedinUrl": "https://www.linkedin.com/company/generis-group/",
+              "companyId": "3604970",
+              "duration": "7 mos",
+              "description": "- Personally managed a team of 5 reps. Listened to live calls, took over when needed, ran objection practice, and helped build their outbound pipeline from lead gen to email outreach.\n\n- 3 out of 5 reps earned promotions within a year. Highest promotion rate of any manager in the company.\n\n- Won the Sales Trophy every single month. Averaged 112% quota attainment across 4 projects while simultaneously developing my team.\n\n- Promoted to Head of Delegate Sales within 6 months, the youngest in company history.",
+              "skills": null,
+              "experienceGroupId": null,
+              "startDate": {
+                "month": "Nov",
+                "year": 2024,
+                "text": "Nov 2024"
+              },
+              "endDate": {
+                "month": "May",
+                "year": 2025,
+                "text": "May 2025"
+              },
+              "companyLogo": {
+                "url": "https://media.licdn.com/dms/image/v2/D560BAQHaZmcA_R-t_g/company-logo_400_400/company-logo_400_400/0/1739215420974/generis_group_logo?e=1792627200&v=beta&t=z0UWRlGqigQ7i6oDYXtnFWIlYZvQsL-KKQKuGSGR2j0",
+                "sizes": [
+                  {
+                    "url": "https://media.licdn.com/dms/image/v2/D560BAQHaZmcA_R-t_g/company-logo_400_400/company-logo_400_400/0/1739215420974/generis_group_logo?e=1792627200&v=beta&t=z0UWRlGqigQ7i6oDYXtnFWIlYZvQsL-KKQKuGSGR2j0",
+                    "width": 400,
+                    "height": 400
+                  },
+                  {
+                    "url": "https://media.licdn.com/dms/image/v2/D560BAQHaZmcA_R-t_g/company-logo_200_200/company-logo_200_200/0/1739215420974/generis_group_logo?e=1792627200&v=beta&t=xWn5EwAlxJY75cN7c6b1IILXOfQWoOet6YbZxq4qsF0",
+                    "width": 200,
+                    "height": 200
+                  },
+                  {
+                    "url": "https://media.licdn.com/dms/image/v2/D560BAQHaZmcA_R-t_g/company-logo_100_100/company-logo_100_100/0/1739215420974/generis_group_logo?e=1792627200&v=beta&t=7V7FYcB5ZpF1sTqhxNfJYSVbIT-Gr3UI58kPPFCzl9s",
+                    "width": 100,
+                    "height": 100
+                  }
+                ]
+              }
+            },
+            {
+              "position": "Account Manager",
+              "location": null,
+              "employmentType": "Contract Full-time",
+              "workplaceType": null,
+              "companyName": "Generis",
+              "companyUniversalName": "generis-group",
+              "companyLinkedinUrl": "https://www.linkedin.com/company/generis-group/",
+              "companyId": "3604970",
+              "duration": "6 mos",
+              "description": "- Averaged 200% of quota managing both inbound and outbound pipeline across multiple B2B events. Top month: 280%. Consistently the top-performing closer on every project I was assigned to.\n\n- Promoted to Sales Manager within 6 months. Never finished a single month below target.",
+              "skills": null,
+              "experienceGroupId": null,
+              "startDate": {
+                "month": "Jun",
+                "year": 2024,
+                "text": "Jun 2024"
+              },
+              "endDate": {
+                "month": "Nov",
+                "year": 2024,
+                "text": "Nov 2024"
+              },
+              "companyLogo": {
+                "url": "https://media.licdn.com/dms/image/v2/D560BAQHaZmcA_R-t_g/company-logo_400_400/company-logo_400_400/0/1739215420974/generis_group_logo?e=1792627200&v=beta&t=z0UWRlGqigQ7i6oDYXtnFWIlYZvQsL-KKQKuGSGR2j0",
+                "sizes": [
+                  {
+                    "url": "https://media.licdn.com/dms/image/v2/D560BAQHaZmcA_R-t_g/company-logo_400_400/company-logo_400_400/0/1739215420974/generis_group_logo?e=1792627200&v=beta&t=z0UWRlGqigQ7i6oDYXtnFWIlYZvQsL-KKQKuGSGR2j0",
+                    "width": 400,
+                    "height": 400
+                  },
+                  {
+                    "url": "https://media.licdn.com/dms/image/v2/D560BAQHaZmcA_R-t_g/company-logo_200_200/company-logo_200_200/0/1739215420974/generis_group_logo?e=1792627200&v=beta&t=xWn5EwAlxJY75cN7c6b1IILXOfQWoOet6YbZxq4qsF0",
+                    "width": 200,
+                    "height": 200
+                  },
+                  {
+                    "url": "https://media.licdn.com/dms/image/v2/D560BAQHaZmcA_R-t_g/company-logo_100_100/company-logo_100_100/0/1739215420974/generis_group_logo?e=1792627200&v=beta&t=7V7FYcB5ZpF1sTqhxNfJYSVbIT-Gr3UI58kPPFCzl9s",
+                    "width": 100,
+                    "height": 100
+                  }
+                ]
+              }
+            },
+            {
+              "position": "Recruiting Intern",
+              "location": null,
+              "employmentType": "Internship",
+              "workplaceType": null,
+              "companyName": "Kerry Search Partners",
+              "companyUniversalName": "kerry-search-partners",
+              "companyLinkedinUrl": "https://www.linkedin.com/company/kerry-search-partners/",
+              "companyId": "13266861",
+              "duration": "3 mos",
+              "description": null,
+              "skills": null,
+              "startDate": {
+                "month": "Jul",
+                "year": 2023,
+                "text": "Jul 2023"
+              },
+              "endDate": {
+                "month": "Sep",
+                "year": 2023,
+                "text": "Sep 2023"
+              },
+              "companyLogo": {
+                "url": "https://media.licdn.com/dms/image/v2/D4E0BAQHbaEM1NReW5g/company-logo_400_400/B4EZyPSOK4IEAc-/0/1771930444832/kerry_search_partners_logo?e=1792627200&v=beta&t=63Jfxlm9VttiwX3cZdzx0QZNMX22MJxnEDM-KmdGfOA",
+                "sizes": [
+                  {
+                    "url": "https://media.licdn.com/dms/image/v2/D4E0BAQHbaEM1NReW5g/company-logo_400_400/B4EZyPSOK4IEAc-/0/1771930444832/kerry_search_partners_logo?e=1792627200&v=beta&t=63Jfxlm9VttiwX3cZdzx0QZNMX22MJxnEDM-KmdGfOA",
+                    "width": 400,
+                    "height": 400
+                  },
+                  {
+                    "url": "https://media.licdn.com/dms/image/v2/D4E0BAQHbaEM1NReW5g/company-logo_200_200/B4EZyPSOK4IEAM-/0/1771930444832/kerry_search_partners_logo?e=1792627200&v=beta&t=i0Ka57EzFRt39gc-xustY7jVbV6c9ReP2xk64OS3-Uo",
+                    "width": 200,
+                    "height": 200
+                  },
+                  {
+                    "url": "https://media.licdn.com/dms/image/v2/D4E0BAQHbaEM1NReW5g/company-logo_100_100/B4EZyPSOK4IEAU-/0/1771930444832/kerry_search_partners_logo?e=1792627200&v=beta&t=9Iwu85S8pNeTzwB41LBlu96N2IVDwx_lwBu2X4RWvrk",
+                    "width": 100,
+                    "height": 100
+                  }
+                ]
+              }
+            },
+            {
+              "position": "Fulltime Student",
+              "location": "County Meath, Ireland",
+              "employmentType": null,
+              "workplaceType": null,
+              "companyName": "Maynooth University",
+              "companyUniversalName": "maynooth-university",
+              "companyLinkedinUrl": "https://www.linkedin.com/school/maynooth-university/",
+              "companyId": "15104581",
+              "duration": "3 yrs 1 mo",
+              "description": null,
+              "skills": null,
+              "startDate": {
+                "month": "Sep",
+                "year": 2020,
+                "text": "Sep 2020"
+              },
+              "endDate": {
+                "month": "Sep",
+                "year": 2023,
+                "text": "Sep 2023"
+              },
+              "companyLogo": {
+                "url": "https://media.licdn.com/dms/image/v2/C4E0BAQGNGtHSeHqncQ/company-logo_400_400/company-logo_400_400/0/1652437376562/maynooth_university_logo?e=1792627200&v=beta&t=o8O0ZnIslf7iT1iLhe5YY3GAhJ40BPKN9MSWOS9OlNk",
+                "sizes": [
+                  {
+                    "url": "https://media.licdn.com/dms/image/v2/C4E0BAQGNGtHSeHqncQ/company-logo_400_400/company-logo_400_400/0/1652437376562/maynooth_university_logo?e=1792627200&v=beta&t=o8O0ZnIslf7iT1iLhe5YY3GAhJ40BPKN9MSWOS9OlNk",
+                    "width": 400,
+                    "height": 400
+                  },
+                  {
+                    "url": "https://media.licdn.com/dms/image/v2/C4E0BAQGNGtHSeHqncQ/company-logo_200_200/company-logo_200_200/0/1652437376562/maynooth_university_logo?e=1792627200&v=beta&t=P1ZGb72nodJl5Fr-rc6IpJnriCpYO4Ti3iwCAaSyoY4",
+                    "width": 200,
+                    "height": 200
+                  },
+                  {
+                    "url": "https://media.licdn.com/dms/image/v2/C4E0BAQGNGtHSeHqncQ/company-logo_100_100/company-logo_100_100/0/1652437376562/maynooth_university_logo?e=1792627200&v=beta&t=LOWX91kUmBFozFNzuthUIgiMYAzf4mYe66ykGAJcRB4",
+                    "width": 100,
+                    "height": 100
+                  }
+                ]
+              }
+            }
+          ],
+          "education": [
+            {
+              "schoolName": "Maynooth University",
+              "description": null,
+              "insights": null,
+              "skills": null,
+              "schoolLinkedinUrl": "https://www.linkedin.com/company/15104581/",
+              "schoolId": "15104581",
+              "degree": "Bachelor of Arts - BA",
+              "fieldOfStudy": "Business management",
+              "period": "Sep 2021 - Sep 2023",
+              "startDate": {
+                "month": "Sep",
+                "year": 2021,
+                "text": "Sep 2021"
+              },
+              "endDate": {
+                "month": "Sep",
+                "year": 2023,
+                "text": "Sep 2023"
+              },
+              "schoolLogo": {
+                "url": "https://media.licdn.com/dms/image/v2/C4E0BAQGNGtHSeHqncQ/company-logo_400_400/company-logo_400_400/0/1652437376562/maynooth_university_logo?e=1792627200&v=beta&t=o8O0ZnIslf7iT1iLhe5YY3GAhJ40BPKN9MSWOS9OlNk",
+                "sizes": [
+                  {
+                    "url": "https://media.licdn.com/dms/image/v2/C4E0BAQGNGtHSeHqncQ/company-logo_400_400/company-logo_400_400/0/1652437376562/maynooth_university_logo?e=1792627200&v=beta&t=o8O0ZnIslf7iT1iLhe5YY3GAhJ40BPKN9MSWOS9OlNk",
+                    "width": 400,
+                    "height": 400
+                  },
+                  {
+                    "url": "https://media.licdn.com/dms/image/v2/C4E0BAQGNGtHSeHqncQ/company-logo_200_200/company-logo_200_200/0/1652437376562/maynooth_university_logo?e=1792627200&v=beta&t=P1ZGb72nodJl5Fr-rc6IpJnriCpYO4Ti3iwCAaSyoY4",
+                    "width": 200,
+                    "height": 200
+                  },
+                  {
+                    "url": "https://media.licdn.com/dms/image/v2/C4E0BAQGNGtHSeHqncQ/company-logo_100_100/company-logo_100_100/0/1652437376562/maynooth_university_logo?e=1792627200&v=beta&t=LOWX91kUmBFozFNzuthUIgiMYAzf4mYe66ykGAJcRB4",
+                    "width": 100,
+                    "height": 100
+                  }
+                ]
+              }
+            }
+          ],
+          "certifications": [],
+          "projects": [],
+          "volunteering": [],
+          "receivedRecommendations": [],
+          "skills": [
+            {
+              "name": "Cold Calling"
+            },
+            {
+              "name": "Sales",
+              "positions": [
+                "Endorsed by 1 person in the last 6 months"
+              ],
+              "endorsements": "3 endorsements"
+            }
+          ],
+          "publications": [],
+          "courses": [],
+          "patents": [],
+          "honorsAndAwards": [],
+          "languages": [],
+          "organizations": [],
+          "causes": [],
+          "featured": {
+            "images": [],
+            "link": null,
+            "title": null,
+            "subtitle": null,
+            "slides": [
+              {
+                "title": "Free Tool → Find Your Cold Call Fix",
+                "subtitle": "Modern Seller",
+                "description": null,
+                "url": "https://xray.modernseller.ai",
+                "image": {
+                  "url": "https://media.licdn.com/dms/image/v2/D4E2DAQGUhcEXFN06sw/profile-treasury-image-shrink_8192_8192/B4EaD3z8__JoAU-/0/1790863987034?e=1791738000&v=beta&t=8hQSa22GfWiRw_av721Vlc4iMmnq4wX3QwwEEVRawG0"
+                }
+              },
+              {
+                "title": "Apply Now → Modern Seller Accelerator",
+                "subtitle": "modernseller.ai",
+                "description": null,
+                "url": "https://modernseller.ai/",
+                "image": {
+                  "url": "https://media.licdn.com/dms/image/v2/D4E2DAQFcHAMtYjVKSw/profile-treasury-image-shrink_8192_8192/B4EaC8NGucI4AU-/0/1789863947717?e=1791738000&v=beta&t=qwpC_Oh_m5rhe19rSLLziyACx_c2de62dh0YiHKsfBQ"
+                }
+              }
+            ]
+          },
+          "composeOptionType": "PREMIUM_INMAIL",
+          "moreProfiles": [],
+          "sectionTotals": {
+            "experience": 7,
+            "education": 1,
+            "certifications": 0,
+            "receivedRecommendations": 0,
+            "skills": 12,
+            "courses": 0,
+            "languages": 0,
+            "projects": 0,
+            "volunteering": 0,
+            "publications": 0,
+            "patents": 0,
+            "organizations": 0,
+            "honorsAndAwards": 0,
+            "causes": 0
+          },
+          "interests": [
+            {
+              "interestName": "Top Voices",
+              "elements": [
+                {
+                  "title": "Gary Neville",
+                  "subtitle": "Owner at Relentless Group",
+                  "link": "https://www.linkedin.com/in/gary-neville-036502211",
+                  "caption": "900,451 followers",
+                  "image": {
+                    "url": "https://media.licdn.com/dms/image/v2/D4E03AQH5qaeYzl8olg/profile-displayphoto-shrink_800_800/profile-displayphoto-shrink_800_800/0/1705770942545?e=1792627200&v=beta&t=-FOw9hYGE7Znafw3x3sEceV3QtjxBv8FucDFqYKmF8A"
+                  }
+                },
+                {
+                  "title": "Sahil Bloom",
+                  "subtitle": "NYT Bestselling Author | Entrepreneur | Investor",
+                  "link": "https://www.linkedin.com/in/sahilbloom",
+                  "caption": "723,780 followers",
+                  "image": {
+                    "url": "https://media.licdn.com/dms/image/v2/D4E03AQFdgn2OU81oKQ/profile-displayphoto-shrink_800_800/profile-displayphoto-shrink_800_800/0/1667155655120?e=1792627200&v=beta&t=b4PbR9AwpYbeCmtkxE8b0VMTaM7lP5MDs4UuejjPDb0"
+                  }
+                }
+              ]
+            },
+            {
+              "interestName": "Companies",
+              "elements": [
+                {
+                  "title": "Salesforce",
+                  "subtitle": null,
+                  "link": "https://www.linkedin.com/company/3185/",
+                  "caption": "6,843,783 followers",
+                  "image": {
+                    "url": "https://media.licdn.com/dms/image/v2/D560BAQFuQMSI3zgmRw/company-logo_400_400/B56Z3aploQGoAY-/0/1777489828808/salesforce_logo?e=1792627200&v=beta&t=wFfIoaiKYpCXeOkVaS9df0tuJ1oPGszNwKeG-ciG0D0"
+                  }
+                },
+                {
+                  "title": "Hays",
+                  "subtitle": null,
+                  "link": "https://www.linkedin.com/company/3486/",
+                  "caption": "10,255,634 followers",
+                  "image": {
+                    "url": "https://media.licdn.com/dms/image/v2/D4E0BAQETReujByGYaw/company-logo_400_400/B4EZfKYuQyGwAY-/0/1751447168431/hays_logo?e=1792627200&v=beta&t=12I2DhNnTAgJK_Iyum87HjbeIzFOes1m91YbxQBva38"
+                  }
+                }
+              ]
+            },
+            {
+              "interestName": "Groups",
+              "elements": [
+                {
+                  "title": "SDRs Helping SDRs",
+                  "subtitle": null,
+                  "link": "https://www.linkedin.com/groups/16888183",
+                  "caption": "1,827 members",
+                  "image": {
+                    "url": "https://media.licdn.com/dms/image/v2/D5607AQF3OR4eGbberQ/group-logo_image-shrink_400x400/B56aDvBjZgH0AU-/0/1790716557236?e=1791738000&v=beta&t=Oda5LuMk-QKvp5ER5cbUobfVRLXcNJmHHqdgUSUBx-s"
+                  }
+                },
+                {
+                  "title": "Richmond CIO Forum",
+                  "subtitle": null,
+                  "link": "https://www.linkedin.com/groups/62674",
+                  "caption": "6,245 members",
+                  "image": {
+                    "url": "https://media.licdn.com/dms/image/v2/C4E07AQFdPVj2HtpZSA/group-logo_image-shrink_400x400/group-logo_image-shrink_400x400/0/1631004064615?e=1791738000&v=beta&t=k9bv8Ix9vKrdiKDCeamnNeEvDuWKf3F4qbjunZbtlG4"
+                  }
+                }
+              ]
+            },
+            {
+              "interestName": "Newsletters",
+              "elements": [
+                {
+                  "title": "How To Make Money On LinkedIn",
+                  "subtitle": "Stop wasting time. Start getting clients.",
+                  "link": "https://www.linkedin.com/newsletters/7162292564967059456",
+                  "caption": "Published daily",
+                  "image": {
+                    "url": "https://media.licdn.com/dms/image/v2/D5612AQEXlkDCwMA8Tg/series-logo_image-shrink_300_300/B56ZwxIksgIEAQ-/0/1770350857619?e=1792627200&v=beta&t=rtZ7QWsI_h3UeXgpwMZQN-X0oS0yI4Dhqj44anxCAjU"
+                  }
+                },
+                {
+                  "title": "Create Possibilities",
+                  "subtitle": "Tips, tricks, and resources for members who want to grow their community, increase engagement, and create great content.",
+                  "link": "https://www.linkedin.com/newsletters/7026669590701035521",
+                  "caption": "Published monthly",
+                  "image": {
+                    "url": "https://media.licdn.com/dms/image/v2/D4E12AQH7I--OnPIryg/series-logo_image-shrink_300_300/series-logo_image-shrink_300_300/0/1704731644888?e=1792627200&v=beta&t=R7ouVATHwpWYXWUHuPs-4wV06csY3yDzgMQAttBBWGo"
+                  }
+                }
+              ]
+            },
+            {
+              "interestName": "Schools",
+              "elements": [
+                {
+                  "title": "Y Combinator",
+                  "subtitle": null,
+                  "link": "https://www.linkedin.com/school/167872/",
+                  "caption": "1,830,804 followers",
+                  "image": {
+                    "url": "https://media.licdn.com/dms/image/v2/C4D0BAQGPzdBPNxrmEg/company-logo_400_400/company-logo_400_400/0/1673555093250/y_combinator_logo?e=1792627200&v=beta&t=3AdpdhxK8XdlJTdCgArPb5MtpzY3v6ezzqH-uVlCoQo"
+                  }
+                },
+                {
+                  "title": "Maynooth University",
+                  "subtitle": null,
+                  "link": "https://www.linkedin.com/school/15104581/",
+                  "caption": "88,534 followers",
+                  "image": {
+                    "url": "https://media.licdn.com/dms/image/v2/C4E0BAQGNGtHSeHqncQ/company-logo_400_400/company-logo_400_400/0/1652437376562/maynooth_university_logo?e=1792627200&v=beta&t=o8O0ZnIslf7iT1iLhe5YY3GAhJ40BPKN9MSWOS9OlNk"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        "postedAt": {
+          "timestamp": 1791116699948,
+          "date": "2026-10-04T12:24:59.948Z",
+          "postedAgoShort": "4h",
+          "postedAgoText": "4 hours ago • Visible to anyone on or off LinkedIn"
+        },
+        "postImages": [
+          {
+            "url": "https://media.licdn.com/dms/image/v2/D4E22AQFwSFOZ20-0dA/feedshare-shrink_1280/B4EaEG399ZH4AM-/0/1791116697803?e=1792627200&v=beta&t=XDtjpBWm7t1PefVFz8UELBsBCgMAhx6mZjrQpsJBnXg",
+            "width": 1122,
+            "height": 1402
+          }
+        ],
+        "socialContent": {
+          "hideCommentsCount": false,
+          "hideReactionsCount": false,
+          "hideSocialActivityCounts": false,
+          "hideShareAction": true,
+          "hideSendAction": true,
+          "hideRepostsCount": false,
+          "hideViewsCount": false,
+          "trustInterventionBanner": null,
+          "hideReactAction": false,
+          "hideCommentAction": false,
+          "shareUrl": "https://www.linkedin.com/posts/thelukeross_want-an-opener-that-books-meetings-stop-activity-7512487939059195904-piNt?",
+          "showContributionExperience": false,
+          "showSocialDetail": true
+        },
+        "comments": [],
+        "header": {
+          "text": null
+        },
+        "entityId": "7512487939059195904",
+        "shareUrn": "urn:li:share:7512487936706318336",
+        "shareLinkedinUrl": "https://www.linkedin.com/feed/update/urn:li:share:7512487936706318336",
+        "engagement": {
+          "id": "7512487939059195904",
+          "likes": 7,
+          "comments": 1,
+          "shares": 1,
+          "reactions": [
+            {
+              "type": "LIKE",
+              "count": 6
+            },
+            {
+              "type": "EMPATHY",
+              "count": 1
+            }
+          ]
+        },
+        "reactions": [],
+        "reactionIds": [],
+        "commentIds": [],
+        "query": {
+          "sortBy": "date",
+          "page": 1,
+          "search": "sales AND \"open to work\"",
+          "postedLimit": "week"
+        }
+      },
+      "extractedCandidateId": "cand_1791132838947_8ygv8"
+    },
+    {
+      "id": "post_1791132807042_o7eo6",
+      "platform": "LinkedIn",
+      "collectionMethod": "Apify",
+      "content": "NON-IT CAREER OPPORTUNITIES | USA 🇺🇸 & CANADA 🇨🇦⁣\n⁣\nWe’re connecting with professionals exploring full-time Non-IT career opportunities across the USA and Canada.⁣\n⁣\nRoles Include:⁣\n• Business Analyst⁣\n• Project Coordinator⁣\n• Operations Coordinator⁣\n• Supply Chain Analyst⁣\n• Procurement Specialist⁣\n• Financial Analyst⁣\n• Accountant⁣\n• HR Coordinator / HR Specialist⁣\n• Talent Acquisition Specialist⁣\n• Sales & Business Development⁣\n• Customer Success Specialist⁣\n• Administrative Coordinator⁣\n• Logistics Coordinator⁣\n• Healthcare Administration⁣\n⁣\nExperience: 0–8+ Years | Entry-Level & Experienced Professionals⁣\n⁣\nKey Areas:⁣\nBusiness Operations | Finance | Accounting | HR | Sales | Supply Chain | Procurement | Logistics | Administration | Healthcare Operations⁣\n⁣\nWork Mode: Remote | Hybrid | On-site⁣\n⁣\nWork Authorization:⁣\n🇺🇸 USA: OPT | STEM OPT | H4-EAD | Green Card | U.S. Citizens⁣\n🇨🇦 Canada: PR | Open Work Permit | Valid Work Permit | Canadian Citizens⁣\n⁣\nCandidates requiring new visa sponsorship or work authorization are not eligible.⁣\n⁣\nInterested in exploring opportunities?⁣\nComment “INTERESTED” or DM your Resume + Current Location + Work Authorization Status.⁣\n⁣\n#NonITJobs #USAJobs #CanadaJobs #BusinessAnalyst #SupplyChainJobs #FinanceJobs #HRJobs #OperationsJobs #CareerOpportunities #Hiring",
+      "sourceUrl": "https://www.linkedin.com/posts/yug-trivedi-991280270_nonitjobs-usajobs-canadajobs-activity-7512512168689352704-70gP",
+      "externalId": "7512512168689352704",
+      "authorIdentifier": "https://www.linkedin.com/in/yug-trivedi-991280270",
+      "authorName": "Yug Trivedi",
+      "authorHeadline": "Business Development Executive at HireNest Global | Client Acquisition | Lead Generation | Market Expansion",
+      "authorLocation": "[object Object]",
+      "authorProfileUrl": "https://www.linkedin.com/in/yug-trivedi-991280270",
+      "postedAt": {
+        "timestamp": 1791122476742,
+        "date": "2026-10-04T14:01:16.742Z",
+        "postedAgoShort": "2h",
+        "postedAgoText": "2 hours ago • Visible to anyone on or off LinkedIn"
+      },
+      "receivedAt": "2026-10-04T16:53:27.042Z",
+      "extractionState": "extracted",
+      "rawPayload": {
+        "type": "post",
+        "id": "7512512168689352704",
+        "linkedinUrl": "https://www.linkedin.com/posts/yug-trivedi-991280270_nonitjobs-usajobs-canadajobs-activity-7512512168689352704-70gP",
+        "content": "NON-IT CAREER OPPORTUNITIES | USA 🇺🇸 & CANADA 🇨🇦⁣\n⁣\nWe’re connecting with professionals exploring full-time Non-IT career opportunities across the USA and Canada.⁣\n⁣\nRoles Include:⁣\n• Business Analyst⁣\n• Project Coordinator⁣\n• Operations Coordinator⁣\n• Supply Chain Analyst⁣\n• Procurement Specialist⁣\n• Financial Analyst⁣\n• Accountant⁣\n• HR Coordinator / HR Specialist⁣\n• Talent Acquisition Specialist⁣\n• Sales & Business Development⁣\n• Customer Success Specialist⁣\n• Administrative Coordinator⁣\n• Logistics Coordinator⁣\n• Healthcare Administration⁣\n⁣\nExperience: 0–8+ Years | Entry-Level & Experienced Professionals⁣\n⁣\nKey Areas:⁣\nBusiness Operations | Finance | Accounting | HR | Sales | Supply Chain | Procurement | Logistics | Administration | Healthcare Operations⁣\n⁣\nWork Mode: Remote | Hybrid | On-site⁣\n⁣\nWork Authorization:⁣\n🇺🇸 USA: OPT | STEM OPT | H4-EAD | Green Card | U.S. Citizens⁣\n🇨🇦 Canada: PR | Open Work Permit | Valid Work Permit | Canadian Citizens⁣\n⁣\nCandidates requiring new visa sponsorship or work authorization are not eligible.⁣\n⁣\nInterested in exploring opportunities?⁣\nComment “INTERESTED” or DM your Resume + Current Location + Work Authorization Status.⁣\n⁣\n#NonITJobs #USAJobs #CanadaJobs #BusinessAnalyst #SupplyChainJobs #FinanceJobs #HRJobs #OperationsJobs #CareerOpportunities #Hiring",
+        "contentAttributes": [],
+        "author": {
+          "id": "ACoAAEI_ZX0B6TFk7adGmzriwxfViPkDRdXoLIs",
+          "universalName": null,
+          "publicIdentifier": "yug-trivedi-991280270",
+          "type": "profile",
+          "name": "Yug Trivedi",
+          "linkedinUrl": "https://www.linkedin.com/in/yug-trivedi-991280270",
+          "info": "Business Development Executive at HireNest Global | Client Acquisition | Lead Generation | Market Expansion",
+          "website": null,
+          "websiteLabel": null,
+          "avatar": {
+            "url": "https://media.licdn.com/dms/image/v2/D4D03AQH2T9RsIEqRoA/profile-displayphoto-crop_800_800/B4DaA5aOqlHoAI-/0/1787669576728?e=1792627200&v=beta&t=G_PoBIlT7lR4yHqJIuLLFKfCDCNkXqJrziDD7KoDcds",
+            "width": 800,
+            "height": 800
+          },
+          "urn": "1111451005",
+          "profileId": "ACoAAEI_ZX0B6TFk7adGmzriwxfViPkDRdXoLIs",
+          "firstName": "Yug",
+          "lastName": "Trivedi",
+          "emails": [],
+          "headline": "Business Development Executive at HireNest Global | Client Acquisition | Lead Generation | Market Expansion",
+          "openToWork": false,
+          "hiring": false,
+          "premium": false,
+          "influencer": false,
+          "memorialized": false,
+          "creator": false,
+          "location": {
+            "linkedinText": "Greater Ahmedabad Area",
+            "countryCode": "IN",
+            "parsed": {
+              "text": "Ahmedabad, India",
+              "countryCode": "IN",
+              "regionCode": null,
+              "country": "India",
+              "countryFull": "India",
+              "state": "Gujarat",
+              "city": "Ahmedabad"
+            }
+          },
+          "objectUrn": "1111451005",
+          "registeredAt": "2023-03-28T11:47:20.335Z",
+          "topSkills": [],
+          "connectionsCount": 294,
+          "followerCount": 2022,
+          "verified": true,
+          "about": null,
+          "currentPosition": [
+            {
+              "position": "Business Development Executive",
+              "location": "United States",
+              "employmentType": "Full-time",
+              "workplaceType": "Remote",
+              "companyName": "HireNest Global",
+              "companyUniversalName": "hirenest-globall",
+              "companyLinkedinUrl": "https://www.linkedin.com/company/hirenest-globall/",
+              "companyId": "110468497",
+              "duration": "10 mos",
+              "description": "Business Development Executive responsible for driving business growth through strategic outreach, client relationship management, and lead generation activities. Working remotely with a focus on expanding market presence in the United States and building long-term professional partnerships.",
+              "skills": null,
+              "startDate": {
+                "month": "Jan",
+                "year": 2026,
+                "text": "Jan 2026"
+              },
+              "endDate": {
+                "text": "Present"
+              },
+              "companyLogo": {
+                "url": "https://media.licdn.com/dms/image/v2/D4D0BAQH7J6ewgWrdCA/company-logo_400_400/B4DZ5LoGD_JYAY-/0/1779385262577/hirenest_globalls_logo?e=1792627200&v=beta&t=kXwXBkO2ISJvSQ_5FVWYkUxuv7-yDSo2G4merPbf5Vw",
+                "sizes": [
+                  {
+                    "url": "https://media.licdn.com/dms/image/v2/D4D0BAQH7J6ewgWrdCA/company-logo_400_400/B4DZ5LoGD_JYAY-/0/1779385262577/hirenest_globalls_logo?e=1792627200&v=beta&t=kXwXBkO2ISJvSQ_5FVWYkUxuv7-yDSo2G4merPbf5Vw",
+                    "width": 400,
+                    "height": 400
+                  },
+                  {
+                    "url": "https://media.licdn.com/dms/image/v2/D4D0BAQH7J6ewgWrdCA/company-logo_200_200/B4DZ5LoGD_JYAI-/0/1779385262577/hirenest_globalls_logo?e=1792627200&v=beta&t=JMHlvarRXqK66hQ2nfuVbXxf4omLEbWnHLDEBiop7Wg",
+                    "width": 200,
+                    "height": 200
+                  },
+                  {
+                    "url": "https://media.licdn.com/dms/image/v2/D4D0BAQH7J6ewgWrdCA/company-logo_100_100/B4DZ5LoGD_JYAM-/0/1779385262577/hirenest_globalls_logo?e=1792627200&v=beta&t=dhduy-Q6BW0P_lwoYWZwvJts37aWvrNOPfrADXloxBs",
+                    "width": 100,
+                    "height": 100
+                  }
+                ]
+              }
+            }
+          ],
+          "profileTopEducation": [
+            {
+              "schoolName": "RK University",
+              "description": "Pursuing pharmaceutical education with a strong focus on healthcare knowledge, patient care, and medical sciences. Gaining practical understanding of pharmacology, drug development, healthcare systems, and pharmaceutical practices through academic learning and collaborative projects.\n\nActively involved in professional development, communication activities, and teamwork while building analytical and problem-solving skills relevant to the healthcare and pharmaceutical industry.",
+              "insights": "Grade: 8.8\nActivities and societies: Business Development Club\nEntrepreneurship Activities\nNetworking & Career Development\nTeam Collaboration Projects\nEvent Coordination",
+              "skills": null,
+              "schoolLinkedinUrl": "https://www.linkedin.com/company/2921378/",
+              "schoolId": "2921378",
+              "degree": "Doctor of Pharmacy - PharmD",
+              "fieldOfStudy": "Pharmacy",
+              "period": "May 2021 - May 2027",
+              "startDate": {
+                "month": "May",
+                "year": 2021,
+                "text": "May 2021"
+              },
+              "endDate": {
+                "month": "May",
+                "year": 2027,
+                "text": "May 2027"
+              },
+              "schoolLogo": {
+                "url": "https://media.licdn.com/dms/image/v2/C560BAQF7v1Q1dZv9Lg/company-logo_400_400/company-logo_400_400/0/1651825224321/rkuniversity_logo?e=1792627200&v=beta&t=E82zX_ewTe2H9FcmaeXmbWLvgRzhjMU2MjmgxfBPG6Q",
+                "sizes": [
+                  {
+                    "url": "https://media.licdn.com/dms/image/v2/C560BAQF7v1Q1dZv9Lg/company-logo_400_400/company-logo_400_400/0/1651825224321/rkuniversity_logo?e=1792627200&v=beta&t=E82zX_ewTe2H9FcmaeXmbWLvgRzhjMU2MjmgxfBPG6Q",
+                    "width": 400,
+                    "height": 400
+                  },
+                  {
+                    "url": "https://media.licdn.com/dms/image/v2/C560BAQF7v1Q1dZv9Lg/company-logo_200_200/company-logo_200_200/0/1651825224321/rkuniversity_logo?e=1792627200&v=beta&t=rJPptMyTp-gfJspPAkxAvviU1PZbd6bVzFYDD_ha2hY",
+                    "width": 200,
+                    "height": 200
+                  },
+                  {
+                    "url": "https://media.licdn.com/dms/image/v2/C560BAQF7v1Q1dZv9Lg/company-logo_100_100/company-logo_100_100/0/1651825224321/rkuniversity_logo?e=1792627200&v=beta&t=Q74qwu33USIG_EAZBW-YHPc7CVJcdPBG4us_QETUGps",
+                    "width": 100,
+                    "height": 100
+                  }
+                ]
+              }
+            }
+          ],
+          "profileActions": [],
+          "profilePicture": {
+            "url": "https://media.licdn.com/dms/image/v2/D4D03AQH2T9RsIEqRoA/profile-displayphoto-crop_800_800/B4DaA5aOqlHoAI-/0/1787669576728?e=1792627200&v=beta&t=G_PoBIlT7lR4yHqJIuLLFKfCDCNkXqJrziDD7KoDcds",
+            "sizes": [
+              {
+                "url": "https://media.licdn.com/dms/image/v2/D4D03AQH2T9RsIEqRoA/profile-displayphoto-crop_800_800/B4DaA5aOqlHoAI-/0/1787669576728?e=1792627200&v=beta&t=G_PoBIlT7lR4yHqJIuLLFKfCDCNkXqJrziDD7KoDcds",
+                "width": 800,
+                "height": 800
+              },
+              {
+                "url": "https://media.licdn.com/dms/image/v2/D4D03AQH2T9RsIEqRoA/profile-displayphoto-scale_400_400/B4DaA5aOqlHoAg-/0/1787669576728?e=1792627200&v=beta&t=2tT6-6lX5z2a47x9LcGD016DzIiPRIrsrq9W5iksZXE",
+                "width": 400,
+                "height": 400
+              },
+              {
+                "url": "https://media.licdn.com/dms/image/v2/D4D03AQH2T9RsIEqRoA/profile-displayphoto-scale_200_200/B4DaA5aOqlHoAc-/0/1787669576728?e=1792627200&v=beta&t=IKNvNl4lHLk9gykZJNk4Cex4_NUH2PgwgLqWX5GYOLg",
+                "width": 200,
+                "height": 200
+              },
+              {
+                "url": "https://media.licdn.com/dms/image/v2/D4D03AQH2T9RsIEqRoA/profile-displayphoto-scale_100_100/B4DaA5aOqlHoAY-/0/1787669576728?e=1792627200&v=beta&t=q3yCGLCE35a39zt2wfeQMYHo-CVsSpah0aaqqD_YHkM",
+                "width": 100,
+                "height": 100
+              }
+            ]
+          },
+          "coverPicture": {
+            "url": "https://media.licdn.com/dms/image/v2/D4D16AQHjsYiRVSBzrg/profile-displaybackgroundimage-shrink_350_1400/B4DaA5aVOBKQAU-/0/1787669599348?e=1792627200&v=beta&t=P_46ZTRE6zEQxXZvAutytyqKbscLkDRt6nlF1b4gHhc",
+            "sizes": [
+              {
+                "url": "https://media.licdn.com/dms/image/v2/D4D16AQHjsYiRVSBzrg/profile-displaybackgroundimage-shrink_350_1400/B4DaA5aVOBKQAU-/0/1787669599348?e=1792627200&v=beta&t=P_46ZTRE6zEQxXZvAutytyqKbscLkDRt6nlF1b4gHhc",
+                "width": 1400,
+                "height": 350
+              },
+              {
+                "url": "https://media.licdn.com/dms/image/v2/D4D16AQHjsYiRVSBzrg/profile-displaybackgroundimage-shrink_200_800/B4DaA5aVOBKQAQ-/0/1787669599348?e=1792627200&v=beta&t=QB_4L4cKxOEAjDTu2RqN2JjM6Qzo2ZDGiG_oOv35fTM",
+                "width": 800,
+                "height": 200
+              }
+            ]
+          },
+          "photo": "https://media.licdn.com/dms/image/v2/D4D03AQH2T9RsIEqRoA/profile-displayphoto-crop_800_800/B4DaA5aOqlHoAI-/0/1787669576728?e=1792627200&v=beta&t=G_PoBIlT7lR4yHqJIuLLFKfCDCNkXqJrziDD7KoDcds",
+          "profileLocales": [
+            {
+              "country": "US",
+              "language": "en"
+            }
+          ],
+          "primaryLocale": {
+            "country": "US",
+            "language": "en"
+          },
+          "multiLocaleHeadline": [
+            {
+              "headline": "Business Development Executive at HireNest Global | Client Acquisition | Lead Generation | Market Expansion",
+              "locale": "en_US"
+            }
+          ],
+          "services": null,
+          "experience": [
+            {
+              "position": "Business Development Executive",
+              "location": "United States",
+              "employmentType": "Full-time",
+              "workplaceType": "Remote",
+              "companyName": "HireNest Global",
+              "companyUniversalName": "hirenest-globall",
+              "companyLinkedinUrl": "https://www.linkedin.com/company/hirenest-globall/",
+              "companyId": "110468497",
+              "duration": "10 mos",
+              "description": "Business Development Executive responsible for driving business growth through strategic outreach, client relationship management, and lead generation activities. Working remotely with a focus on expanding market presence in the United States and building long-term professional partnerships.",
+              "skills": null,
+              "startDate": {
+                "month": "Jan",
+                "year": 2026,
+                "text": "Jan 2026"
+              },
+              "endDate": {
+                "text": "Present"
+              },
+              "companyLogo": {
+                "url": "https://media.licdn.com/dms/image/v2/D4D0BAQH7J6ewgWrdCA/company-logo_400_400/B4DZ5LoGD_JYAY-/0/1779385262577/hirenest_globalls_logo?e=1792627200&v=beta&t=kXwXBkO2ISJvSQ_5FVWYkUxuv7-yDSo2G4merPbf5Vw",
+                "sizes": [
+                  {
+                    "url": "https://media.licdn.com/dms/image/v2/D4D0BAQH7J6ewgWrdCA/company-logo_400_400/B4DZ5LoGD_JYAY-/0/1779385262577/hirenest_globalls_logo?e=1792627200&v=beta&t=kXwXBkO2ISJvSQ_5FVWYkUxuv7-yDSo2G4merPbf5Vw",
+                    "width": 400,
+                    "height": 400
+                  },
+                  {
+                    "url": "https://media.licdn.com/dms/image/v2/D4D0BAQH7J6ewgWrdCA/company-logo_200_200/B4DZ5LoGD_JYAI-/0/1779385262577/hirenest_globalls_logo?e=1792627200&v=beta&t=JMHlvarRXqK66hQ2nfuVbXxf4omLEbWnHLDEBiop7Wg",
+                    "width": 200,
+                    "height": 200
+                  },
+                  {
+                    "url": "https://media.licdn.com/dms/image/v2/D4D0BAQH7J6ewgWrdCA/company-logo_100_100/B4DZ5LoGD_JYAM-/0/1779385262577/hirenest_globalls_logo?e=1792627200&v=beta&t=dhduy-Q6BW0P_lwoYWZwvJts37aWvrNOPfrADXloxBs",
+                    "width": 100,
+                    "height": 100
+                  }
+                ]
+              }
+            }
+          ],
+          "education": [
+            {
+              "schoolName": "RK University",
+              "description": "Pursuing pharmaceutical education with a strong focus on healthcare knowledge, patient care, and medical sciences. Gaining practical understanding of pharmacology, drug development, healthcare systems, and pharmaceutical practices through academic learning and collaborative projects.\n\nActively involved in professional development, communication activities, and teamwork while building analytical and problem-solving skills relevant to the healthcare and pharmaceutical industry.",
+              "insights": "Grade: 8.8\nActivities and societies: Business Development Club\nEntrepreneurship Activities\nNetworking & Career Development\nTeam Collaboration Projects\nEvent Coordination",
+              "skills": null,
+              "schoolLinkedinUrl": "https://www.linkedin.com/company/2921378/",
+              "schoolId": "2921378",
+              "degree": "Doctor of Pharmacy - PharmD",
+              "fieldOfStudy": "Pharmacy",
+              "period": "May 2021 - May 2027",
+              "startDate": {
+                "month": "May",
+                "year": 2021,
+                "text": "May 2021"
+              },
+              "endDate": {
+                "month": "May",
+                "year": 2027,
+                "text": "May 2027"
+              },
+              "schoolLogo": {
+                "url": "https://media.licdn.com/dms/image/v2/C560BAQF7v1Q1dZv9Lg/company-logo_400_400/company-logo_400_400/0/1651825224321/rkuniversity_logo?e=1792627200&v=beta&t=E82zX_ewTe2H9FcmaeXmbWLvgRzhjMU2MjmgxfBPG6Q",
+                "sizes": [
+                  {
+                    "url": "https://media.licdn.com/dms/image/v2/C560BAQF7v1Q1dZv9Lg/company-logo_400_400/company-logo_400_400/0/1651825224321/rkuniversity_logo?e=1792627200&v=beta&t=E82zX_ewTe2H9FcmaeXmbWLvgRzhjMU2MjmgxfBPG6Q",
+                    "width": 400,
+                    "height": 400
+                  },
+                  {
+                    "url": "https://media.licdn.com/dms/image/v2/C560BAQF7v1Q1dZv9Lg/company-logo_200_200/company-logo_200_200/0/1651825224321/rkuniversity_logo?e=1792627200&v=beta&t=rJPptMyTp-gfJspPAkxAvviU1PZbd6bVzFYDD_ha2hY",
+                    "width": 200,
+                    "height": 200
+                  },
+                  {
+                    "url": "https://media.licdn.com/dms/image/v2/C560BAQF7v1Q1dZv9Lg/company-logo_100_100/company-logo_100_100/0/1651825224321/rkuniversity_logo?e=1792627200&v=beta&t=Q74qwu33USIG_EAZBW-YHPc7CVJcdPBG4us_QETUGps",
+                    "width": 100,
+                    "height": 100
+                  }
+                ]
+              }
+            }
+          ],
+          "certifications": [],
+          "projects": [],
+          "volunteering": [],
+          "receivedRecommendations": [],
+          "skills": [
+            {
+              "name": "Business Development Consultancy",
+              "positions": [
+                "Business Development Executive at HireNest Global"
+              ]
+            },
+            {
+              "name": "New Business Development",
+              "positions": [
+                "Business Development Executive at HireNest Global"
+              ]
+            }
+          ],
+          "publications": [],
+          "courses": [],
+          "patents": [],
+          "honorsAndAwards": [],
+          "languages": [],
+          "organizations": [],
+          "causes": [],
+          "featured": null,
+          "composeOptionType": "UPSELL",
+          "moreProfiles": [],
+          "sectionTotals": {
+            "experience": 1,
+            "education": 1,
+            "certifications": 0,
+            "receivedRecommendations": 0,
+            "skills": 5,
+            "courses": 0,
+            "languages": 0,
+            "projects": 0,
+            "volunteering": 0,
+            "publications": 0,
+            "patents": 0,
+            "organizations": 0,
+            "honorsAndAwards": 0,
+            "causes": 0
+          },
+          "interests": [
+            {
+              "interestName": "Companies",
+              "elements": [
+                {
+                  "title": "Pfizer",
+                  "subtitle": null,
+                  "link": "https://www.linkedin.com/company/1185/",
+                  "caption": "7,219,068 followers",
+                  "image": {
+                    "url": "https://media.licdn.com/dms/image/v2/D4D0BAQERpLAiIJVVMw/company-logo_400_400/B4DZf1t8KvGsAY-/0/1752174150996/pfizer_logo?e=1792627200&v=beta&t=OOne17rLf9-T31oH11f5DsiE5mriDM5QcTtdgDCKuCA"
+                  }
+                },
+                {
+                  "title": "Sanofi",
+                  "subtitle": null,
+                  "link": "https://www.linkedin.com/company/1642/",
+                  "caption": "5,118,949 followers",
+                  "image": {
+                    "url": "https://media.licdn.com/dms/image/v2/D4D0BAQHsJk0YlILSag/company-logo_400_400/B4DZ9xFBlSIYAU-/0/1784308570676/sanofi_logo?e=1792627200&v=beta&t=oqtfUQwlKzWVLkcky4O3aiYccwI_UjaO4k3RSrgevoY"
+                  }
+                }
+              ]
+            },
+            {
+              "interestName": "Newsletters",
+              "elements": [
+                {
+                  "title": "AI Frontier by Indegene",
+                  "subtitle": "Making sense of AI for pharma leaders. Curated frontier-AI signals, what they mean for life sciences.",
+                  "link": "https://www.linkedin.com/newsletters/7490273158323789824",
+                  "caption": "Published monthly",
+                  "image": {
+                    "url": "https://media.licdn.com/dms/image/v2/D4D12AQFJPROLP_eieg/series-logo_image-shrink_300_300/B4DZ_LJvVCIIAU-/0/1785819756235?e=1792627200&v=beta&t=Zc_HavDicsuwcKhy4XVfc2dswnYk0wkUsW8uuI8tong"
+                  }
+                },
+                {
+                  "title": "Create Possibilities",
+                  "subtitle": "Tips, tricks, and resources for members who want to grow their community, increase engagement, and create great content.",
+                  "link": "https://www.linkedin.com/newsletters/7026669590701035521",
+                  "caption": "Published monthly",
+                  "image": {
+                    "url": "https://media.licdn.com/dms/image/v2/D4E12AQH7I--OnPIryg/series-logo_image-shrink_300_300/series-logo_image-shrink_300_300/0/1704731644888?e=1792627200&v=beta&t=R7ouVATHwpWYXWUHuPs-4wV06csY3yDzgMQAttBBWGo"
+                  }
+                }
+              ]
+            },
+            {
+              "interestName": "Schools",
+              "elements": [
+                {
+                  "title": "RK University",
+                  "subtitle": null,
+                  "link": "https://www.linkedin.com/school/2921378/",
+                  "caption": "26,616 followers",
+                  "image": {
+                    "url": "https://media.licdn.com/dms/image/v2/C560BAQF7v1Q1dZv9Lg/company-logo_400_400/company-logo_400_400/0/1651825224321/rkuniversity_logo?e=1792627200&v=beta&t=E82zX_ewTe2H9FcmaeXmbWLvgRzhjMU2MjmgxfBPG6Q"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        "postedAt": {
+          "timestamp": 1791122476742,
+          "date": "2026-10-04T14:01:16.742Z",
+          "postedAgoShort": "2h",
+          "postedAgoText": "2 hours ago • Visible to anyone on or off LinkedIn"
+        },
+        "postImages": [],
+        "socialContent": {
+          "hideCommentsCount": false,
+          "hideReactionsCount": false,
+          "hideSocialActivityCounts": false,
+          "hideShareAction": true,
+          "hideSendAction": true,
+          "hideRepostsCount": false,
+          "hideViewsCount": false,
+          "trustInterventionBanner": null,
+          "hideReactAction": false,
+          "hideCommentAction": false,
+          "shareUrl": "https://www.linkedin.com/posts/yug-trivedi-991280270_nonitjobs-usajobs-canadajobs-activity-7512512168689352704-70gP?",
+          "showContributionExperience": false,
+          "showSocialDetail": true
+        },
+        "comments": [],
+        "header": {
+          "text": null
+        },
+        "entityId": "7512512168689352704",
+        "shareUrn": "urn:li:share:7511897247941296128",
+        "shareLinkedinUrl": "https://www.linkedin.com/feed/update/urn:li:share:7511897247941296128",
+        "engagement": {
+          "id": "7512512168689352704",
+          "likes": 0,
+          "comments": 1,
+          "shares": 0,
+          "reactions": []
+        },
+        "reactions": [],
+        "reactionIds": [],
+        "commentIds": [],
+        "query": {
+          "sortBy": "date",
+          "page": 1,
+          "search": "sales AND \"open to work\"",
+          "postedLimit": "week"
+        }
+      },
+      "extractedCandidateId": "cand_1791132839868_2ixni"
+    }
+  ],
+  "scanRuns": [
+    {
+      "id": "run_1791132795761_y7xl",
+      "runAt": "2026-10-04T16:53:59.868Z",
+      "triggerType": "find_candidates",
+      "mode": "live",
+      "receivedPostsCount": 5,
+      "extractedCandidatesCount": 5,
+      "duplicatesFoundCount": 0,
+      "failuresCount": 0,
+      "durationMs": 44102,
+      "status": "success",
+      "message": "[Live Mode] Apify harvestapi/linkedin-post-search run completed: 5 posts retrieved, 5 candidates validated, 0 duplicates prevented.",
+      "queryConfig": {
+        "timeWindow": "7d",
+        "limit": 5,
+        "postedLimit": "week",
+        "maxPosts": 5,
+        "useSmallTestQuery": true
+      }
+    },
+    {
+      "id": "run_1791132695440_ndpl",
+      "runAt": "2026-10-04T16:51:52.105Z",
+      "triggerType": "find_candidates",
+      "mode": "live",
+      "receivedPostsCount": 5,
+      "extractedCandidatesCount": 0,
+      "duplicatesFoundCount": 0,
+      "failuresCount": 5,
+      "durationMs": 16665,
+      "status": "failed",
+      "message": "[Live Mode] Apify harvestapi/linkedin-post-search run completed: 5 posts retrieved, 0 candidates validated, 0 duplicates prevented.",
+      "queryConfig": {
+        "timeWindow": "7d",
+        "limit": 5,
+        "postedLimit": "week",
+        "maxPosts": 5,
+        "useSmallTestQuery": true
+      }
+    },
+    {
+      "id": "run_1791132637467_3wo4",
+      "runAt": "2026-10-04T16:50:47.682Z",
+      "triggerType": "find_candidates",
+      "mode": "live",
+      "receivedPostsCount": 5,
+      "extractedCandidatesCount": 0,
+      "duplicatesFoundCount": 0,
+      "failuresCount": 5,
+      "durationMs": 10215,
+      "status": "failed",
+      "message": "[Live Mode] Apify harvestapi/linkedin-post-search run completed: 5 posts retrieved, 0 candidates validated, 0 duplicates prevented.",
+      "queryConfig": {
+        "timeWindow": "7d",
+        "limit": 5,
+        "postedLimit": "week",
+        "maxPosts": 5,
+        "useSmallTestQuery": true
+      }
+    }
+  ],
+  "criteria": {
+    "requiredKeywords": [
+      "sales",
+      "account executive",
+      "business development",
+      "quota",
+      "client acquisition",
+      "sales manager"
+    ],
+    "excludedIndustries": [],
+    "minExperienceYears": 1,
+    "maxExperienceYears": 10,
+    "excludeSeniorLeadership": true,
+    "strictRecruiterAdFiltering": true,
+    "locationFilter": "India",
+    "targetCountry": "India",
+    "allowBankingIndustry": true
+  },
+  "schedule": {
+    "scheduledTimes": [
+      "09:00",
+      "18:00"
+    ],
+    "timezone": "Asia/Kolkata",
+    "isPaused": false,
+    "lastRunAt": "2026-10-04T16:53:59.868Z",
+    "nextRunAt": "2026-10-04T12:30:00.000Z",
+    "cronSecret": "rdc_secret_cron_token_live_9a8b7c"
+  },
+  "connections": {
+    "apify": {
+      "actorId": "harvestapi/linkedin-post-search",
+      "isConfigured": true,
+      "lastRunAt": "2026-10-04T16:53:59.868Z",
+      "status": "connected"
+    },
+    "telegram": {
+      "botToken": "",
+      "permittedChatIds": [
+        "-1002345678901",
+        "@sales_jobseekers_hub"
+      ],
+      "webhookUrl": "https://ais-dev-y4kj63tf3c3olzwwtdavrt-753012129268.asia-southeast1.run.app/api/telegram/webhook",
+      "isConnected": false,
+      "status": "setup_required",
+      "lastSyncAt": null,
+      "errorMessage": "Bot token not configured. Telegram webhook awaiting verification."
+    },
+    "linkedin": {
+      "provider": "apify",
+      "apiKey": "",
+      "isConnected": true,
+      "status": "connected",
+      "lastSyncAt": null
+    }
+  }
+}

@@ -1,0 +1,6 @@
+{
+  "name": "Recruitment Data Collector",
+  "description": "Collects candidate job-seeking posts from LinkedIn and Telegram, extracts structured candidate details using Gemini, filters against customizable criteria, and provides deduplication, review, and export.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
