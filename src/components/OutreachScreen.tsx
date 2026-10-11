@@ -50,8 +50,35 @@ export const OutreachScreen: React.FC<OutreachScreenProps> = ({
   const [editingDraft, setEditingDraft] = useState<{ subject: string; body: string } | null>(null);
   const [isSendingSingle, setIsSendingSingle] = useState(false);
   const [isBatchSending, setIsBatchSending] = useState(false);
+  const [isResettingSimulated, setIsResettingSimulated] = useState(false);
   const [batchResult, setBatchResult] = useState<{ sentCount: number; failedCount: number; errors: string[] } | null>(null);
   const [sendError, setSendError] = useState<string | null>(null);
+
+  // Simulated / Test mode sent count (emails that were simulated rather than delivered via real Gmail API)
+  const simulatedSentCount = candidates.filter(c => {
+    if (c.outreachStatus !== 'Sent') return false;
+    const msg = outreachMessages?.find(m => m.candidateId === c.id);
+    return !msg || msg.isTestModeSend || msg.providerMessageId?.startsWith('talenthub_') || msg.providerMessageId?.startsWith('test_sim_') || msg.providerMessageId?.startsWith('gmail_sim_');
+  }).length;
+
+  const handleResetSimulatedSends = async () => {
+    try {
+      setIsResettingSimulated(true);
+      const res = await fetch('/api/outreach/reset-simulated-sends', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ mode }),
+      });
+      const body = await res.json();
+      if (!res.ok) throw new Error(body.error || 'Reset failed');
+      showToast(`Successfully moved ${body.resetCount || 0} candidates back to "Approved" status!`, 'success');
+      await onRefresh();
+    } catch (err: any) {
+      showToast(err.message, 'error');
+    } finally {
+      setIsResettingSimulated(false);
+    }
+  };
 
   // Status counts
   const draftCount = candidates.filter(c => c.outreachStatus === 'Draft' || !c.outreachStatus).length;
@@ -317,11 +344,47 @@ export const OutreachScreen: React.FC<OutreachScreenProps> = ({
                 Connect Gmail Account
               </button>
             )}
-            <span className="text-[11px] font-mono px-2 py-0.5 rounded bg-slate-950/60 border border-slate-800">
-              Registration Form: {outreachSettings?.googleFormUrl || 'https://forms.gle/bfsitalenthub'}
-            </span>
+            <a
+              href="/apply"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-[11px] font-mono px-2.5 py-1 rounded-lg bg-indigo-950/70 hover:bg-indigo-900 border border-indigo-800 text-indigo-300 flex items-center space-x-1.5 transition cursor-pointer"
+              title="Open and test the Candidate Registration / Expression of Interest Form"
+            >
+              <span>Candidate Form Portal (/apply)</span>
+              <ExternalLink className="w-3 h-3 text-indigo-400" />
+            </a>
           </div>
         </div>
+
+        {/* Simulated / Test Mode Recovery Banner */}
+        {simulatedSentCount > 0 && (
+          <div className="p-3.5 rounded-xl border border-amber-800/80 bg-amber-950/40 text-amber-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+            <div className="flex items-center space-x-2.5">
+              <AlertTriangle className="w-5 h-5 text-amber-400 shrink-0" />
+              <div>
+                <span className="font-semibold block text-amber-100">
+                  {simulatedSentCount} Candidates marked "Sent" in Test / Simulation Mode
+                </span>
+                <p className="text-[11px] text-amber-300/80 mt-0.5">
+                  These were logged locally with simulated test identifiers and were not sent to Google Gmail servers. Click below to move them back to <strong>Approved</strong> status for live dispatch.
+                </p>
+              </div>
+            </div>
+            <button
+              onClick={handleResetSimulatedSends}
+              disabled={isResettingSimulated}
+              className="px-3.5 py-1.5 rounded-lg bg-amber-600 hover:bg-amber-500 text-white font-semibold text-xs transition flex items-center space-x-1.5 shrink-0 shadow-sm disabled:opacity-50 cursor-pointer"
+            >
+              {isResettingSimulated ? (
+                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+              ) : (
+                <RotateCcw className="w-3.5 h-3.5" />
+              )}
+              <span>Reset {simulatedSentCount} to Approved</span>
+            </button>
+          </div>
+        )}
 
         {/* 6 Outreach Status Filters Bar */}
         <div className="grid grid-cols-2 sm:grid-cols-6 gap-2 pt-2 border-t border-slate-800">

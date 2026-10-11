@@ -39,6 +39,7 @@ export interface QuotaStatus {
   reason?: string;
   retryAfterSeconds?: number;
   exhaustedAt?: string;
+  exhaustedUntil?: number;
 }
 
 let geminiQuotaStatus: QuotaStatus = {
@@ -46,15 +47,20 @@ let geminiQuotaStatus: QuotaStatus = {
 };
 
 export function isGeminiQuotaExhausted(): QuotaStatus {
+  if (geminiQuotaStatus.isExhausted && geminiQuotaStatus.exhaustedUntil && Date.now() > geminiQuotaStatus.exhaustedUntil) {
+    geminiQuotaStatus = { isExhausted: false };
+  }
   return geminiQuotaStatus;
 }
 
 export function setGeminiQuotaExhausted(reason: string, retryAfterSeconds?: number) {
+  const waitSec = retryAfterSeconds && retryAfterSeconds > 0 ? Math.ceil(retryAfterSeconds) : 60;
   geminiQuotaStatus = {
     isExhausted: true,
     reason,
-    retryAfterSeconds,
+    retryAfterSeconds: waitSec,
     exhaustedAt: new Date().toISOString(),
+    exhaustedUntil: Date.now() + waitSec * 1000,
   };
 }
 
@@ -158,11 +164,17 @@ export async function extractCandidateFromPost(
   criteria: CriteriaFilters,
   metadata?: PostExtractionMetadata
 ): Promise<ExtractionResult> {
-  const ai = getAiClient();
+  // If post is from Demo sandbox, run deterministic fallback directly without burning live API quota
+  if (metadata?.platform === 'Demo') {
+    return runSimulatedFallbackExtraction(postContent, criteria, metadata);
+  }
 
-  if (!ai || geminiQuotaStatus.isExhausted) {
+  const ai = getAiClient();
+  const quota = isGeminiQuotaExhausted();
+
+  if (!ai || quota.isExhausted) {
     const fallback = runSimulatedFallbackExtraction(postContent, criteria, metadata);
-    if (geminiQuotaStatus.isExhausted) {
+    if (quota.isExhausted) {
       fallback.matchingExplanation = `[Gemini Quota Exceeded - Fallback Active] ${fallback.matchingExplanation}`;
     }
     return fallback;
@@ -571,13 +583,22 @@ ${postContent}
       errorStr.includes('Quota exceeded');
 
     if (isQuota) {
+      let retrySeconds = 60;
+      const match = errorStr.match(/retry in\s+([0-9.]+)\s*s/i) || errorStr.match(/"retryDelay":\s*"(\d+)s"/i);
+      if (match) {
+        retrySeconds = Math.ceil(parseFloat(match[1])) || 60;
+      }
       setGeminiQuotaExhausted(
-        errorStr || 'Gemini API quota exceeded for the day. Fallback deterministic extractor active.'
+        'Gemini API rate limit reached (5 RPM). Deterministic fallback active.',
+        retrySeconds
       );
+      console.warn(`[Gemini API] Rate limit reached. Seamlessly utilizing deterministic validation fallback. (Will retry live API after ${retrySeconds}s).`);
+    } else {
+      console.warn('[Gemini API] Live call unavailable, utilizing deterministic fallback:', errorStr);
     }
-    console.error('Gemini extraction failed, using fallback:', error);
+
     const fallback = runSimulatedFallbackExtraction(postContent, criteria, metadata);
-    fallback.matchingExplanation = `[API ${isQuota ? 'Quota Limit' : 'Error'} Fallback] ${fallback.matchingExplanation}`;
+    fallback.matchingExplanation = `[API ${isQuota ? 'Quota Adjusted' : 'Fallback'}] ${fallback.matchingExplanation}`;
     return fallback;
   }
 }

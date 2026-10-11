@@ -5,7 +5,7 @@ export const DEFAULT_OUTREACH_SETTINGS: OutreachSettings = {
   senderEmail: 'bfsitalenthub@gmail.com',
   replyToEmail: 'bfsitalenthub@gmail.com',
   provider: 'gmail_workspace',
-  googleFormUrl: 'https://forms.gle/bfsitalenthub',
+  googleFormUrl: '', // Defaults to the active built-in /apply Expression of Interest portal
   sendingMode: 'auto_send', // Automatically dispatch outreach for matched candidates with email
   gmailConnected: false,
   gmailConnectedEmail: 'bfsitalenthub@gmail.com',

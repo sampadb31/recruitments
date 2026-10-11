@@ -47,6 +47,7 @@ import {
   generateCandidateDraft,
   handleCandidateOptOut,
   DEFAULT_OUTREACH_SETTINGS,
+  setServerOrigin,
 } from './src/server/outreachService.ts';
 
 dotenv.config();
@@ -60,6 +61,15 @@ const isProduction = process.env.NODE_ENV === 'production';
 
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+
+// Dynamically capture public host for emails and links
+app.use((req: Request, _res: Response, next) => {
+  const host = req.get('host');
+  if (host && !host.includes('localhost:3000')) {
+    setServerOrigin(`${req.protocol}://${host}`);
+  }
+  next();
+});
 
 // 1. Health and Status (Scoped to selected mode to ensure Demo Sandbox never shows Live Apify logs)
 app.get('/api/status', (req: Request, res: Response) => {
@@ -92,6 +102,13 @@ app.get('/api/status', (req: Request, res: Response) => {
 app.get('/api/data', (req: Request, res: Response) => {
   const mode = (req.query.mode as string) === 'live' ? 'live' : 'demo';
   const data = getDatabase(mode);
+  const session = getGmailSessionStatus();
+  if (data.outreachSettings) {
+    data.outreachSettings.gmailConnected = session.isConnected;
+    if (!session.isConnected) {
+      data.outreachSettings.gmailConnectedAt = null;
+    }
+  }
   res.json(data);
 });
 
@@ -525,6 +542,116 @@ app.post('/api/gmail/test', async (req: Request, res: Response) => {
   }
 });
 
+// Send Verification Test Email via Gmail SMTP / App Password
+app.post('/api/smtp/test', async (req: Request, res: Response) => {
+  const mode = (req.body.mode as string) === 'live' ? 'live' : 'demo';
+  const db = getDatabase(mode);
+  const targetEmail = (req.body.toEmail || db.outreachSettings.senderEmail || 'bfsitalenthub@gmail.com').trim();
+  const host = (req.body.host || db.outreachSettings.smtpConfig?.host || 'smtp.gmail.com').trim();
+  const port = Number(req.body.port || db.outreachSettings.smtpConfig?.port || 465);
+  const user = (req.body.user || db.outreachSettings.smtpConfig?.auth?.user || db.outreachSettings.senderEmail || 'bfsitalenthub@gmail.com').trim();
+  const pass = (req.body.pass || db.outreachSettings.smtpConfig?.auth?.pass || '').replace(/\s+/g, '');
+
+  if (!pass) {
+    res.status(400).json({
+      success: false,
+      error: 'Google App Password is required. Please enter your 16-character App Password to test Gmail SMTP.',
+    });
+    return;
+  }
+
+  try {
+    const nm: any = await import('nodemailer');
+    const createTransport = nm.default?.createTransport || nm.createTransport;
+    const transporter = createTransport({
+      host,
+      port,
+      secure: port === 465,
+      auth: { user, pass },
+      tls: { rejectUnauthorized: false },
+    });
+
+    const testSubject = `[Verification Test] BFSITalentHub Gmail SMTP Verification`;
+    const formUrl = `${req.protocol}://${req.get('host')}/apply`;
+    const testBody = `Hello,\n\nThis is a real verified test email sent directly from bfsitalenthub@gmail.com using Gmail SMTP & Google App Password authentication.\n\nIntegration Status: ACTIVE & VERIFIED ON GOOGLE SERVERS\nSender Name: ${db.outreachSettings.senderName || 'BFSITalentHub'}\nCandidate Application Portal: ${formUrl}\nTimestamp: ${new Date().toISOString()}\n\nCandidate recruitment emails are ready to dispatch directly to inboxes.`;
+
+    const info = await transporter.sendMail({
+      from: `"${db.outreachSettings.senderName || 'BFSITalentHub'}" <${user}>`,
+      to: targetEmail,
+      replyTo: db.outreachSettings.replyToEmail || user,
+      subject: testSubject,
+      text: testBody,
+    });
+
+    // Save successful SMTP config to database
+    if (!db.outreachSettings.smtpConfig) {
+      db.outreachSettings.smtpConfig = { host, port, secure: port === 465, auth: { user, pass } };
+    } else {
+      db.outreachSettings.smtpConfig.host = host;
+      db.outreachSettings.smtpConfig.port = port;
+      db.outreachSettings.smtpConfig.secure = port === 465;
+      db.outreachSettings.smtpConfig.auth = { user, pass };
+    }
+    db.outreachSettings.provider = 'smtp';
+    db.outreachSettings.lastTestedAt = new Date().toISOString();
+    db.outreachSettings.lastTestStatus = 'success';
+    db.outreachSettings.lastTestRecipient = targetEmail;
+    db.outreachSettings.lastTestMessage = `Verified: Test email delivered via Gmail SMTP (Message ID: ${info.messageId}).`;
+    saveDatabase(db, mode);
+
+    res.json({
+      success: true,
+      messageId: info.messageId,
+      recipient: targetEmail,
+      message: `Verified: Real test email delivered to ${targetEmail} via Gmail SMTP! Check your Sent folder and inbox.`,
+    });
+  } catch (err: any) {
+    db.outreachSettings.lastTestedAt = new Date().toISOString();
+    db.outreachSettings.lastTestStatus = 'failed';
+    db.outreachSettings.lastTestRecipient = targetEmail;
+    db.outreachSettings.lastTestMessage = `SMTP failed: ${err.message}`;
+    saveDatabase(db, mode);
+
+    res.status(400).json({
+      success: false,
+      error: `Gmail SMTP authentication failed: ${err.message}. If using Gmail, make sure you generated a 16-character Google App Password from myaccount.google.com/apppasswords.`,
+    });
+  }
+});
+
+// Reset Simulated Sends back to "Approved" so real emails can be dispatched
+app.post('/api/outreach/reset-simulated-sends', (req: Request, res: Response) => {
+  const mode = (req.body.mode as string) === 'live' ? 'live' : 'demo';
+  const db = getDatabase(mode);
+
+  let resetCount = 0;
+  for (const c of db.candidates) {
+    // Check if candidate is marked Sent but was sent via test/simulated mode
+    if (c.outreachStatus === 'Sent') {
+      const msg = db.outreachMessages.find(m => m.candidateId === c.id);
+      if (!msg || msg.isTestModeSend || msg.providerMessageId?.startsWith('talenthub_') || msg.providerMessageId?.startsWith('test_sim_') || msg.providerMessageId?.startsWith('gmail_sim_')) {
+        c.outreachStatus = 'Approved';
+        c.outreachDeliveryStatus = undefined;
+        c.outreachSentAt = null;
+        resetCount++;
+      }
+    }
+  }
+
+  // Filter out the simulated messages so the message log is clean
+  db.outreachMessages = db.outreachMessages.filter(
+    m => !m.isTestModeSend && !m.providerMessageId?.startsWith('talenthub_') && !m.providerMessageId?.startsWith('test_sim_') && !m.providerMessageId?.startsWith('gmail_sim_')
+  );
+
+  saveDatabase(db, mode);
+
+  res.json({
+    success: true,
+    resetCount,
+    message: `Successfully reset ${resetCount} simulated candidate records back to "Approved" status. You can now send real emails using Batch Send.`,
+  });
+});
+
 // Approve Candidate Draft Email
 app.post('/api/outreach/approve-candidate', (req: Request, res: Response) => {
   const { candidateId, mode } = req.body;
@@ -733,6 +860,123 @@ app.get('/api/outreach/unsubscribe', (req: Request, res: Response) => {
       </body>
     </html>
   `);
+});
+
+// Candidate Registration Form Info Endpoint
+app.get('/api/candidate/form-info', (req: Request, res: Response) => {
+  const { token, email, mode = 'live' } = req.query as { token?: string; email?: string; mode?: string };
+  const targetMode = mode === 'demo' ? 'demo' : 'live';
+  const db = getDatabase(targetMode);
+
+  let candidate = db.candidates.find(
+    c => (token && c.formToken === token) || (email && c.email && c.email.toLowerCase() === email.toLowerCase())
+  );
+
+  // If not found in target mode, try alternate mode
+  if (!candidate) {
+    const altDb = getDatabase(targetMode === 'live' ? 'demo' : 'live');
+    candidate = altDb.candidates.find(
+      c => (token && c.formToken === token) || (email && c.email && c.email.toLowerCase() === email.toLowerCase())
+    );
+  }
+
+  res.json({
+    success: true,
+    candidate: candidate
+      ? {
+          id: candidate.id,
+          name: candidate.name,
+          email: candidate.email,
+          phone: candidate.phone,
+          currentRole: candidate.currentOrPreviousRole,
+          employer: candidate.employer,
+          location: candidate.currentWorkLocation,
+          totalExperienceYears: candidate.totalExperienceYears,
+          linkedInProfileUrl: candidate.profileUrl,
+          sector: candidate.sector,
+          outreachStatus: candidate.outreachStatus,
+        }
+      : null,
+    outreachSettings: {
+      organizationDescription: db.outreachSettings.organizationDescription,
+      rolesBeingSourced: db.outreachSettings.rolesBeingSourced,
+      senderName: db.outreachSettings.senderName,
+      googleFormUrl: db.outreachSettings.googleFormUrl,
+    },
+  });
+});
+
+// Candidate Form Submission Endpoint
+app.post('/api/candidate/submit-form', (req: Request, res: Response) => {
+  const { token, email, fields, mode = 'live' } = req.body;
+  if (!fields || !fields.fullName || !fields.email) {
+    res.status(400).json({ error: 'Full name and email are required fields.' });
+    return;
+  }
+
+  const modes: ('demo' | 'live')[] = [mode === 'demo' ? 'demo' : 'live', mode === 'demo' ? 'live' : 'demo'];
+  let matchedCandidate = null;
+  let targetDb = null;
+  let activeMode: 'demo' | 'live' = 'live';
+
+  for (const m of modes) {
+    const db = getDatabase(m);
+    const cand = db.candidates.find(
+      c => (token && c.formToken === token) || (email && c.email && c.email.toLowerCase() === email.toLowerCase())
+    );
+    if (cand) {
+      matchedCandidate = cand;
+      targetDb = db;
+      activeMode = m;
+      break;
+    }
+  }
+
+  if (!matchedCandidate || !targetDb) {
+    // If not found in existing candidates, still accept submission into current db
+    targetDb = getDatabase(mode === 'demo' ? 'demo' : 'live');
+    activeMode = mode === 'demo' ? 'demo' : 'live';
+  }
+
+  const responseId = `resp_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
+  const submissionRecord = {
+    id: responseId,
+    candidateId: matchedCandidate ? matchedCandidate.id : `cand_external_${Date.now()}`,
+    token: token || `tok_${Date.now()}`,
+    submittedAt: new Date().toISOString(),
+    submissionIp: req.ip,
+    fields,
+    sourcePlatform: matchedCandidate?.sourcePostIds?.length ? ('LinkedIn' as const) : ('Demo' as const),
+    sourcePostUrl: matchedCandidate?.postUrl || null,
+    recruiterNotes: 'Candidate submitted Expression of Interest registration form.',
+  };
+
+  if (!Array.isArray(targetDb.candidateResponses)) {
+    targetDb.candidateResponses = [];
+  }
+  targetDb.candidateResponses.unshift(submissionRecord);
+
+  if (matchedCandidate) {
+    matchedCandidate.outreachStatus = 'Applied';
+    matchedCandidate.candidateResponseId = responseId;
+    matchedCandidate.formSubmittedAt = new Date().toISOString();
+    matchedCandidate.engagementStatus = 'New Response';
+    if (fields.mobile && !matchedCandidate.phone) matchedCandidate.phone = fields.mobile;
+    if (fields.currentEmployerDesignation && !matchedCandidate.currentOrPreviousRole) {
+      matchedCandidate.currentOrPreviousRole = fields.currentEmployerDesignation;
+    }
+    if (fields.currentCityState && !matchedCandidate.currentWorkLocation) {
+      matchedCandidate.currentWorkLocation = fields.currentCityState;
+    }
+  }
+
+  saveDatabase(targetDb, activeMode);
+
+  res.json({
+    success: true,
+    message: 'Your expression of interest has been successfully submitted to BFSITalentHub.',
+    responseId,
+  });
 });
 
 // 14. Scheduled Cloud Scheduler Endpoint

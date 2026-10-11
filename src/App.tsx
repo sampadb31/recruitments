@@ -11,10 +11,18 @@ import { CandidatesScreen } from './components/CandidatesScreen.tsx';
 import { SettingsScreen } from './components/SettingsScreen.tsx';
 import { QueryCatalogueScreen } from './components/QueryCatalogueScreen.tsx';
 import { OutreachScreen } from './components/OutreachScreen.tsx';
+import { CandidateApplyScreen } from './components/CandidateApplyScreen.tsx';
 import { AppDatabase, Candidate, ExtractionResult, SourcePost, ActiveCollectionRun, TimeWindow, ApifyDiagnostics } from './types/index.ts';
 import { getInitialDemoDatabase } from './server/sampleData.ts';
 
 export default function App() {
+  const [isApplyView, setIsApplyView] = useState(() => {
+    return (
+      window.location.pathname.startsWith('/apply') ||
+      window.location.pathname.startsWith('/form') ||
+      window.location.search.includes('view=apply')
+    );
+  });
   const [currentTab, setCurrentTab] = useState<'dashboard' | 'sources' | 'candidates' | 'outreach' | 'queries' | 'settings'>('dashboard');
   const [mode, setMode] = useState<'demo' | 'live'>('demo');
   const [dbData, setDbData] = useState<AppDatabase>(getInitialDemoDatabase());
@@ -369,6 +377,17 @@ export default function App() {
     }
     await fetchData(mode);
   };
+
+  if (isApplyView) {
+    return (
+      <CandidateApplyScreen
+        onBackToApp={() => {
+          window.history.pushState({}, '', '/');
+          setIsApplyView(false);
+        }}
+      />
+    );
+  }
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans selection:bg-blue-600 selection:text-white">

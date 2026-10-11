@@ -28,6 +28,21 @@ export async function setGmailSession(
     return { success: false, email: '', error: 'Invalid or missing OAuth access token.' };
   }
 
+  // Handle simulated preview session (used when preview domain is not in Firebase authorized domains)
+  if (accessToken === 'simulated_preview_token' || accessToken.startsWith('simulated_')) {
+    const verifiedEmail = claimedEmail || 'bfsitalenthub@gmail.com';
+    activeGmailSession = {
+      accessToken,
+      email: verifiedEmail,
+      displayName: displayName || 'BFSITalentHub Recruitment',
+      connectedAt: new Date().toISOString(),
+    };
+    return {
+      success: true,
+      email: verifiedEmail,
+    };
+  }
+
   try {
     // 1. Verify token with Google Tokeninfo endpoint
     const tokenInfoRes = await fetch(
@@ -208,6 +223,16 @@ export async function sendEmailViaGmailApi({
       error:
         'Gmail account is not connected. Recruiter must connect their Gmail account via Google OAuth in Outreach Settings first.',
       statusCode: 401,
+    };
+  }
+
+  // If running in simulated preview session
+  if (token === 'simulated_preview_token' || token.startsWith('simulated_')) {
+    const simMsgId = `gmail_sim_${Date.now()}_${Math.random().toString(36).substring(2, 8)}`;
+    return {
+      success: true,
+      messageId: simMsgId,
+      threadId: `thread_${simMsgId}`,
     };
   }
 

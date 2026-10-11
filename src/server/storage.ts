@@ -16,7 +16,7 @@ import { getInitialDemoDatabase, initialSamplePosts } from './sampleData.ts';
 import { extractCandidateFromPost } from './gemini.ts';
 import { fetchLinkedInPostsViaApify, isApifyConfigured, mapTimeToPostedLimit } from './apify.ts';
 import { DEFAULT_QUERY_CATALOGUE, INITIAL_QUERY_CONFIG } from './queryCatalogue.ts';
-import { generateCandidateDraft, sendOutreachEmail, isValidEmailSyntax, normalizeEmail } from './outreachService.ts';
+import { generateCandidateDraft, sendOutreachEmail, isValidEmailSyntax, normalizeEmail, getServerOrigin } from './outreachService.ts';
 
 const DATA_DIR = path.resolve(process.cwd(), 'data');
 
@@ -407,6 +407,11 @@ export async function startCandidateCollectionRun(
             }...`
           );
 
+          if (mode === 'live') {
+            // Pacing delay to avoid exceeding free-tier RPM limits
+            await new Promise(r => setTimeout(r, 1200));
+          }
+
           const extraction = await extractCandidateFromPost(post.content, db.criteria, {
             platform: post.platform,
             sourceUrl: post.sourceUrl || undefined,
@@ -489,7 +494,7 @@ export async function startCandidateCollectionRun(
               candidate: cand,
               settings: db.outreachSettings,
               db,
-              origin: 'http://localhost:3000',
+              origin: getServerOrigin(),
             });
 
             if (sendResult.success) {
@@ -721,6 +726,10 @@ export async function runExtractionProcess(
 
   for (const post of pendingPosts) {
     try {
+      if (mode === 'live') {
+        await new Promise(r => setTimeout(r, 1200));
+      }
+
       const extraction = await extractCandidateFromPost(post.content, db.criteria, {
         platform: post.platform,
         sourceUrl: post.sourceUrl || undefined,

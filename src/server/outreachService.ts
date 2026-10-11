@@ -11,6 +11,16 @@ import { sendEmailViaGmailApi, getGmailSessionStatus } from './gmailService.ts';
 
 export { DEFAULT_OUTREACH_SETTINGS };
 
+let currentServerOrigin = process.env.APP_URL || 'http://localhost:3000';
+export function setServerOrigin(origin: string) {
+  if (origin && !origin.includes('localhost:3000')) {
+    currentServerOrigin = origin;
+  }
+}
+export function getServerOrigin(): string {
+  return currentServerOrigin;
+}
+
 // RFC 5322 compatible email syntax validator
 export function isValidEmailSyntax(email: string | null | undefined): boolean {
   if (!email || typeof email !== 'string') return false;
@@ -166,7 +176,7 @@ export function evaluateCandidateEligibility(
 export function buildPersonalizedEmail(
   candidate: Candidate,
   settings: OutreachSettings,
-  origin: string = 'http://localhost:3000'
+  origin: string = getServerOrigin()
 ): { subject: string; body: string } {
   // First name extraction
   let firstName = 'there';
@@ -197,11 +207,20 @@ export function buildPersonalizedEmail(
   // Sender name
   const senderName = settings.senderName || 'BFSITalentHub';
 
-  // Google Form registration link
-  const formUrl = settings.googleFormUrl || 'https://forms.gle/bfsitalenthub';
+  // Candidate registration form link
+  // If user configured a custom valid Google Form URL, use it; otherwise use the working in-app Expression of Interest portal
+  const token = candidate.formToken || candidate.id;
+  const isCustomGoogleForm =
+    settings.googleFormUrl &&
+    settings.googleFormUrl.trim() !== '' &&
+    settings.googleFormUrl !== 'https://forms.gle/bfsitalenthub' &&
+    (settings.googleFormUrl.includes('docs.google.com/forms') || settings.googleFormUrl.includes('forms.gle'));
+
+  const formUrl = isCustomGoogleForm
+    ? settings.googleFormUrl
+    : `${origin}/apply?token=${token}&email=${encodeURIComponent(candidate.email || '')}`;
 
   // Unsubscribe link
-  const token = candidate.formToken || candidate.id;
   const unsubscribeUrl = `${origin}/api/outreach/unsubscribe?token=${token}&email=${encodeURIComponent(
     candidate.email || ''
   )}`;
@@ -228,6 +247,9 @@ export function buildPersonalizedEmail(
     .replace(/\[Configured sender name\]/gi, senderName)
     .replace(/\[sender email\]/gi, settings.senderEmail || 'bfsitalenthub@gmail.com')
     .replace(/\[unsubscribe link\]/gi, unsubscribeUrl);
+
+  // Guarantee that any legacy template text referencing the 404 placeholder uses the active formUrl
+  body = body.replace(/https:\/\/forms\.gle\/bfsitalenthub/g, formUrl);
 
   // Strip any accidental stray square brackets
   body = body.replace(/\[.*?\]/g, '');
@@ -308,7 +330,22 @@ export async function sendOutreachEmail({
   // Compose subject and body
   const draft = buildPersonalizedEmail(candidate, settings, origin);
   const subject = subjectOverride || candidate.draftEmail?.subject || draft.subject;
-  const bodyText = bodyOverride || candidate.draftEmail?.body || draft.body;
+  let bodyText = bodyOverride || candidate.draftEmail?.body || draft.body;
+
+  // If body references the 404 placeholder, replace with active application portal link
+  if (bodyText.includes('https://forms.gle/bfsitalenthub')) {
+    const isCustomGoogleForm =
+      settings.googleFormUrl &&
+      settings.googleFormUrl.trim() !== '' &&
+      settings.googleFormUrl !== 'https://forms.gle/bfsitalenthub' &&
+      (settings.googleFormUrl.includes('docs.google.com/forms') || settings.googleFormUrl.includes('forms.gle'));
+    const token = candidate.formToken || candidate.id;
+    const activeFormUrl = isCustomGoogleForm
+      ? settings.googleFormUrl
+      : `${origin}/apply?token=${token}&email=${encodeURIComponent(candidate.email || '')}`;
+    bodyText = bodyText.replace(/https:\/\/forms\.gle\/bfsitalenthub/g, activeFormUrl);
+  }
+
   const toEmail = candidate.email.trim();
   const toName = candidate.name || 'Candidate';
 
@@ -346,36 +383,27 @@ export async function sendOutreachEmail({
   // 2. Gmail Workspace Provider (Primary OAuth 2.0 Integration)
   if (settings.provider === 'gmail_workspace') {
     const gmailStatus = getGmailSessionStatus();
-    if (!gmailStatus.isConnected) {
-      // If Gmail OAuth session is not connected, record the outreach delivery from bfsitalenthub@gmail.com
-      const autoMsgId = `talenthub_${Date.now()}_${Math.random().toString(36).substring(2, 8)}`;
-      const msgRecord: OutreachMessage = {
-        id: `msg_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
-        candidateId: candidate.id,
-        candidateEmail: toEmail,
-        candidateName: toName,
-        formToken: candidate.formToken || candidate.id,
-        subject,
-        body: bodyText,
-        deliveryStatus: 'sent',
-        sentAt: new Date().toISOString(),
-        queuedAt: new Date().toISOString(),
-        retryCount: 0,
-        maxRetries: 3,
-        providerMessageId: autoMsgId,
-        unsubscribeToken: candidate.formToken || candidate.id,
-        isTestModeSend: true,
-      };
 
-      db.outreachMessages.unshift(msgRecord);
-      candidate.outreachStatus = 'Sent';
-      candidate.outreachDeliveryStatus = 'sent';
-      candidate.outreachSentAt = new Date().toISOString();
+    // If OAuth session is not connected, check if SMTP App Password is provided
+    if (!gmailStatus.isConnected) {
+      if (settings.smtpConfig?.auth?.pass && settings.smtpConfig.auth.pass.trim()) {
+        // Fall back to sending via SMTP with App Password
+        return dispatchViaSmtp({
+          candidate,
+          settings,
+          db,
+          subject,
+          bodyText,
+          toEmail,
+          toName,
+        });
+      }
 
       return {
-        success: true,
-        messageId: autoMsgId,
-        deliveryStatus: 'sent',
+        success: false,
+        deliveryStatus: 'failed',
+        error:
+          'Gmail account is not connected. Re-connect Gmail via OAuth or enter your 16-character Gmail App Password under Settings > Outreach to dispatch real emails.',
       };
     }
 
@@ -431,74 +459,15 @@ export async function sendOutreachEmail({
 
   // 3. SMTP Provider
   if (settings.provider === 'smtp') {
-    if (!settings.smtpConfig || !settings.smtpConfig.host) {
-      return {
-        success: false,
-        deliveryStatus: 'failed',
-        error: 'SMTP configuration is incomplete: host is required.',
-      };
-    }
-
-    try {
-      const nm: any = await import('nodemailer');
-      const createTransport = nm.default?.createTransport || nm.createTransport;
-      const transporter = createTransport({
-        host: settings.smtpConfig.host,
-        port: settings.smtpConfig.port || 587,
-        secure: Boolean(settings.smtpConfig.secure),
-        auth:
-          settings.smtpConfig.auth?.user && settings.smtpConfig.auth?.pass
-            ? {
-                user: settings.smtpConfig.auth.user,
-                pass: settings.smtpConfig.auth.pass,
-              }
-            : undefined,
-        tls: { rejectUnauthorized: false },
-      });
-
-      const info = await transporter.sendMail({
-        from: `"${settings.senderName}" <${settings.senderEmail}>`,
-        to: `"${toName}" <${toEmail}>`,
-        replyTo: settings.replyToEmail || settings.senderEmail,
-        subject,
-        text: bodyText,
-      });
-
-      const msgRecord: OutreachMessage = {
-        id: `msg_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
-        candidateId: candidate.id,
-        candidateEmail: toEmail,
-        candidateName: toName,
-        formToken: candidate.formToken || candidate.id,
-        subject,
-        body: bodyText,
-        deliveryStatus: 'sent',
-        sentAt: new Date().toISOString(),
-        queuedAt: new Date().toISOString(),
-        retryCount: 0,
-        maxRetries: 3,
-        providerMessageId: info.messageId,
-        unsubscribeToken: candidate.formToken || candidate.id,
-      };
-      db.outreachMessages.unshift(msgRecord);
-      candidate.outreachStatus = 'Sent';
-      candidate.outreachDeliveryStatus = 'sent';
-      candidate.outreachSentAt = new Date().toISOString();
-
-      return {
-        success: true,
-        messageId: info.messageId,
-        deliveryStatus: 'sent',
-      };
-    } catch (err: any) {
-      candidate.outreachStatus = 'Failed';
-      candidate.outreachDeliveryStatus = 'failed';
-      return {
-        success: false,
-        deliveryStatus: 'failed',
-        error: `SMTP error: ${err.message}`,
-      };
-    }
+    return dispatchViaSmtp({
+      candidate,
+      settings,
+      db,
+      subject,
+      bodyText,
+      toEmail,
+      toName,
+    });
   }
 
   return {
@@ -506,6 +475,102 @@ export async function sendOutreachEmail({
     deliveryStatus: 'failed',
     error: `Unsupported provider: ${settings.provider}`,
   };
+}
+
+/**
+ * Dispatches an email via SMTP (Nodemailer) with full support for Gmail App Passwords
+ */
+export async function dispatchViaSmtp({
+  candidate,
+  settings,
+  db,
+  subject,
+  bodyText,
+  toEmail,
+  toName,
+}: {
+  candidate: Candidate;
+  settings: OutreachSettings;
+  db: AppDatabase;
+  subject: string;
+  bodyText: string;
+  toEmail: string;
+  toName: string;
+}): Promise<{
+  success: boolean;
+  messageId?: string;
+  deliveryStatus: 'sent' | 'failed';
+  error?: string;
+}> {
+  const host = settings.smtpConfig?.host || 'smtp.gmail.com';
+  const port = settings.smtpConfig?.port || (host === 'smtp.gmail.com' ? 465 : 587);
+  const secure = settings.smtpConfig?.secure ?? (port === 465);
+  const user = settings.smtpConfig?.auth?.user || settings.senderEmail || 'bfsitalenthub@gmail.com';
+  const pass = settings.smtpConfig?.auth?.pass;
+
+  if (!pass || !pass.trim()) {
+    return {
+      success: false,
+      deliveryStatus: 'failed',
+      error: 'SMTP password / Google App Password is required in Settings to send real emails.',
+    };
+  }
+
+  try {
+    const nm: any = await import('nodemailer');
+    const createTransport = nm.default?.createTransport || nm.createTransport;
+    const transporter = createTransport({
+      host,
+      port,
+      secure,
+      auth: { user, pass: pass.replace(/\s+/g, '') }, // remove any accidental spaces in 16-char app password
+      tls: { rejectUnauthorized: false },
+    });
+
+    const info = await transporter.sendMail({
+      from: `"${settings.senderName || 'BFSITalentHub'}" <${user}>`,
+      to: `"${toName}" <${toEmail}>`,
+      replyTo: settings.replyToEmail || user,
+      subject,
+      text: bodyText,
+    });
+
+    const msgRecord: OutreachMessage = {
+      id: `msg_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
+      candidateId: candidate.id,
+      candidateEmail: toEmail,
+      candidateName: toName,
+      formToken: candidate.formToken || candidate.id,
+      subject,
+      body: bodyText,
+      deliveryStatus: 'sent',
+      sentAt: new Date().toISOString(),
+      queuedAt: new Date().toISOString(),
+      retryCount: 0,
+      maxRetries: 3,
+      providerMessageId: info.messageId,
+      unsubscribeToken: candidate.formToken || candidate.id,
+      isTestModeSend: false,
+    };
+    db.outreachMessages.unshift(msgRecord);
+    candidate.outreachStatus = 'Sent';
+    candidate.outreachDeliveryStatus = 'sent';
+    candidate.outreachSentAt = new Date().toISOString();
+
+    return {
+      success: true,
+      messageId: info.messageId,
+      deliveryStatus: 'sent',
+    };
+  } catch (err: any) {
+    candidate.outreachStatus = 'Failed';
+    candidate.outreachDeliveryStatus = 'failed';
+    return {
+      success: false,
+      deliveryStatus: 'failed',
+      error: `SMTP error (${host}): ${err.message}`,
+    };
+  }
 }
 
 /**
