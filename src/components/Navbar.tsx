@@ -11,16 +11,20 @@ import {
   Loader2,
   AlertCircle,
   Trash2,
+  Mail,
+  CheckCircle2,
 } from 'lucide-react';
-import { ActiveCollectionRun } from '../types/index.ts';
+import { ActiveCollectionRun, ApifyDiagnostics } from '../types/index.ts';
 
 interface NavbarProps {
-  currentTab: 'dashboard' | 'sources' | 'candidates' | 'queries' | 'settings';
-  setCurrentTab: (tab: 'dashboard' | 'sources' | 'candidates' | 'queries' | 'settings') => void;
+  currentTab: 'dashboard' | 'sources' | 'candidates' | 'outreach' | 'queries' | 'settings';
+  setCurrentTab: (tab: 'dashboard' | 'sources' | 'candidates' | 'outreach' | 'queries' | 'settings') => void;
   mode: 'demo' | 'live';
   setMode: (mode: 'demo' | 'live') => void;
   geminiConfigured: boolean;
   apifyConfigured: boolean;
+  apifyDiagnostics?: ApifyDiagnostics | null;
+  gmailConnected?: boolean;
   onFindCandidates: () => void;
   onResetDemo: () => void;
   onClearDatabase?: () => void;
@@ -37,6 +41,8 @@ export const Navbar: React.FC<NavbarProps> = ({
   setMode,
   geminiConfigured,
   apifyConfigured,
+  apifyDiagnostics,
+  gmailConnected,
   onFindCandidates,
   onResetDemo,
   onClearDatabase,
@@ -100,25 +106,53 @@ export const Navbar: React.FC<NavbarProps> = ({
               </button>
             </div>
 
-            {/* Apify Provider Status */}
+            {/* Gmail Provider Status */}
             <div
               className={`hidden lg:flex items-center space-x-1.5 px-2.5 py-1 rounded-full text-xs border ${
+                gmailConnected
+                  ? 'bg-emerald-950/60 border-emerald-700/50 text-emerald-300'
+                  : 'bg-slate-800/60 border-slate-700/50 text-slate-400'
+              }`}
+              title={
+                gmailConnected
+                  ? 'Gmail OAuth 2.0 connected and ready to send'
+                  : 'Recruiter Gmail: Not Connected'
+              }
+            >
+              <Mail className={`w-3.5 h-3.5 ${gmailConnected ? 'text-emerald-400' : 'text-slate-400'}`} />
+              <span>{gmailConnected ? 'Gmail Active' : 'Gmail Offline'}</span>
+            </div>
+
+            {/* Apify Provider Status */}
+            <div
+              onClick={() => setCurrentTab('settings')}
+              className={`hidden lg:flex items-center space-x-1.5 px-2.5 py-1 rounded-full text-xs border cursor-pointer transition ${
                 apifyConfigured
                   ? 'bg-blue-950/60 border-blue-700/50 text-blue-300'
-                  : 'bg-amber-950/50 border-amber-700/50 text-amber-300'
+                  : apifyDiagnostics?.isPlaceholder
+                  ? 'bg-amber-950/80 border-amber-500/80 text-amber-200 hover:bg-amber-900/80'
+                  : 'bg-amber-950/50 border-amber-700/50 text-amber-300 hover:bg-amber-900/50'
               }`}
               title={
                 apifyConfigured
                   ? 'Apify actor harvestapi/linkedin-post-search ready'
-                  : 'Setup Required: APIFY_API_TOKEN secret is not set in environment'
+                  : apifyDiagnostics?.isPlaceholder
+                  ? 'APIFY_API_TOKEN is set to placeholder "MY_APIFY_API_TOKEN". Click Settings to view instructions.'
+                  : 'Setup Required: APIFY_API_TOKEN secret is not set in environment. Click Settings to view instructions.'
               }
             >
               {apifyConfigured ? (
                 <Sparkles className="w-3.5 h-3.5 text-blue-400" />
               ) : (
-                <AlertCircle className="w-3.5 h-3.5 text-amber-400" />
+                <AlertCircle className="w-3.5 h-3.5 text-amber-400 animate-pulse" />
               )}
-              <span>{apifyConfigured ? 'Apify Connected' : 'Apify: Setup Required'}</span>
+              <span>
+                {apifyConfigured
+                  ? 'Apify Connected'
+                  : apifyDiagnostics?.isPlaceholder
+                  ? 'Apify: Placeholder Token'
+                  : 'Apify: Setup Required'}
+              </span>
             </div>
 
             {/* Primary "Find Candidates" Button */}
@@ -189,6 +223,19 @@ export const Navbar: React.FC<NavbarProps> = ({
             <span className="ml-1 px-1.5 py-0.2 rounded-full bg-slate-800 text-[10px] text-slate-300">
               {totalCandidates}
             </span>
+          </button>
+
+          <button
+            onClick={() => setCurrentTab('outreach')}
+            className={`flex items-center space-x-2 px-3.5 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+              currentTab === 'outreach'
+                ? 'bg-indigo-600/20 text-indigo-400 border border-indigo-500/30'
+                : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800'
+            }`}
+          >
+            <Mail className="w-4 h-4" />
+            <span>Recruiter Outreach</span>
+            {gmailConnected && <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>}
           </button>
 
           <button

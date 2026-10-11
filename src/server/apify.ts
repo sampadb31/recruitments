@@ -59,9 +59,171 @@ export class ApifyApiError extends Error {
   }
 }
 
+export interface ApifyDiagnostics {
+  isConfigured: boolean;
+  rawPresent: boolean;
+  isPlaceholder: boolean;
+  hasValidPrefix: boolean;
+  keySource: string;
+  maskedSample?: string;
+  message: string;
+  remedy: string;
+}
+
+export function getApifyToken(): string | null {
+  const token =
+    process.env.APIFY_API_TOKEN ||
+    process.env.APIFY_TOKEN ||
+    process.env.APIFY_API_KEY ||
+    process.env.APIFY_KEY;
+
+  if (!token) return null;
+  const trimmed = token.trim();
+  const placeholders = [
+    'MY_APIFY_API_TOKEN',
+    'MY_APIFY_TOKEN',
+    'YOUR_APIFY_API_TOKEN',
+    'YOUR_APIFY_TOKEN',
+    'INSERT_APIFY_TOKEN_HERE',
+    '<APIFY_API_TOKEN>',
+    'apify_api_token_here',
+  ];
+
+  if (trimmed === '' || placeholders.includes(trimmed)) {
+    return null;
+  }
+  return trimmed;
+}
+
 export function isApifyConfigured(): boolean {
-  const token = process.env.APIFY_API_TOKEN;
-  return Boolean(token && token !== 'MY_APIFY_API_TOKEN' && token.trim() !== '');
+  return Boolean(getApifyToken());
+}
+
+export function getApifyDiagnostics(): ApifyDiagnostics {
+  const raw =
+    process.env.APIFY_API_TOKEN ||
+    process.env.APIFY_TOKEN ||
+    process.env.APIFY_API_KEY ||
+    process.env.APIFY_KEY ||
+    '';
+
+  const trimmed = raw.trim();
+  const rawPresent = trimmed.length > 0;
+  const isPlaceholder =
+    trimmed === 'MY_APIFY_API_TOKEN' ||
+    trimmed === 'MY_APIFY_TOKEN' ||
+    trimmed === 'YOUR_APIFY_API_TOKEN' ||
+    trimmed === 'YOUR_APIFY_TOKEN' ||
+    trimmed === 'INSERT_APIFY_TOKEN_HERE' ||
+    trimmed === '<APIFY_API_TOKEN>' ||
+    trimmed === 'apify_api_token_here';
+
+  const validToken = getApifyToken();
+  const hasValidPrefix = Boolean(validToken && validToken.startsWith('apify_api_'));
+
+  let keySource = 'process.env.APIFY_API_TOKEN';
+  if (process.env.APIFY_TOKEN) keySource = 'process.env.APIFY_TOKEN';
+  else if (process.env.APIFY_API_KEY) keySource = 'process.env.APIFY_API_KEY';
+  else if (process.env.APIFY_KEY) keySource = 'process.env.APIFY_KEY';
+
+  if (!rawPresent) {
+    return {
+      isConfigured: false,
+      rawPresent: false,
+      isPlaceholder: false,
+      hasValidPrefix: false,
+      keySource,
+      message: 'APIFY_API_TOKEN secret is not set in AI Studio Secrets.',
+      remedy:
+        'In AI Studio, click on Settings > Secrets. Add a secret with Key: APIFY_API_TOKEN and Value: your personal Apify token from https://console.apify.com/account/integrations (starts with "apify_api_").',
+    };
+  }
+
+  if (isPlaceholder) {
+    return {
+      isConfigured: false,
+      rawPresent: true,
+      isPlaceholder: true,
+      hasValidPrefix: false,
+      keySource,
+      maskedSample: trimmed,
+      message: `APIFY_API_TOKEN is currently set to placeholder value "${trimmed}".`,
+      remedy:
+        'The secret currently holds the placeholder string "MY_APIFY_API_TOKEN" rather than your real Apify API token. Go to AI Studio Settings > Secrets, edit APIFY_API_TOKEN, and replace "MY_APIFY_API_TOKEN" with your real token from https://console.apify.com/account/integrations (starts with "apify_api_...").',
+    };
+  }
+
+  return {
+    isConfigured: true,
+    rawPresent: true,
+    isPlaceholder: false,
+    hasValidPrefix,
+    keySource,
+    maskedSample: `${trimmed.slice(0, 10)}...${trimmed.slice(-4)}`,
+    message: hasValidPrefix
+      ? 'Apify API token configured with valid format (starts with "apify_api_").'
+      : 'Apify API token configured (custom format).',
+    remedy: 'Token is active.',
+  };
+}
+
+/**
+ * Validates Apify token credentials against Apify user endpoint without consuming actor compute units
+ */
+export async function verifyApifyCredentials(): Promise<{
+  success: boolean;
+  username?: string;
+  email?: string;
+  plan?: string;
+  error?: string;
+  statusCode?: number;
+}> {
+  const token = getApifyToken();
+  if (!token) {
+    const diag = getApifyDiagnostics();
+    return {
+      success: false,
+      error: diag.message,
+      statusCode: 400,
+    };
+  }
+
+  try {
+    const res = await fetch('https://api.apify.com/v2/users/me', {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (!res.ok) {
+      const errText = await res.text();
+      let parsed = errText;
+      try {
+        const json = JSON.parse(errText);
+        parsed = json.error?.message || json.message || errText;
+      } catch {}
+
+      return {
+        success: false,
+        error: `Apify authentication error (HTTP ${res.status}): ${parsed}`,
+        statusCode: res.status,
+      };
+    }
+
+    const data = await res.json();
+    return {
+      success: true,
+      username: data.data?.username,
+      email: data.data?.email,
+      plan: data.data?.plan?.id || data.data?.plan?.name || 'Active',
+    };
+  } catch (err: any) {
+    return {
+      success: false,
+      error: `Network error connecting to Apify: ${err.message}`,
+      statusCode: 500,
+    };
+  }
 }
 
 /**
@@ -96,10 +258,11 @@ export async function fetchLinkedInPostsViaApify(
   params: ApifySearchParams,
   onProgress?: (message: string) => void
 ): Promise<ApifyPostItem[]> {
-  const token = process.env.APIFY_API_TOKEN;
+  const token = getApifyToken();
 
-  if (!token || token === 'MY_APIFY_API_TOKEN' || token.trim() === '') {
-    throw new Error('SETUP_REQUIRED: APIFY_API_TOKEN secret is not configured on the server. Please add your Apify API token in the AI Studio Secrets panel.');
+  if (!token) {
+    const diag = getApifyDiagnostics();
+    throw new Error(`SETUP_REQUIRED: ${diag.message} ${diag.remedy}`);
   }
 
   // 1. Map UI's timeWindow ("7d" -> "week", "24h" -> "24h")

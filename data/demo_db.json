@@ -70,7 +70,15 @@
         "jobSeekingStatement": "I am actively seeking a new role in Mumbai or Pune.",
         "postDate": "2026-10-03T14:30:00.000Z"
       },
-      "formToken": "tok_cand_verify_02_pharma_fd7bcaa719668bb8"
+      "formToken": "tok_cand_verify_02_pharma_fd7bcaa719668bb8",
+      "outreachStatus": "Sent",
+      "draftEmail": {
+        "subject": "Oppourtunity in banking",
+        "body": "Hi Rohit,\n\nI came across your LinkedIn post about seeking a job opportunity.\n\nBFSITalentHub is inviting expressions of interest for various career opportunities with a reputed bank.\n\nIf you’d like to be considered for relevant opportunities, please submit your details through this form:\nhttps://forms.gle/bfsitalenthub\n\nOur recruitment team will review your submission and may contact you if a suitable opportunity becomes available.\n\nThis is an automated invitation. Please submit your details through the form.\n\nRegards,\nBFSITalentHub\n\nIf you do not wish to receive further recruitment emails from us, you can opt out here: http://localhost:3000/api/outreach/unsubscribe?token=tok_cand_verify_02_pharma_fd7bcaa719668bb8&email=rohit.deshmukh%40pharmamail.com",
+        "generatedAt": "2026-10-11T08:53:07.434Z"
+      },
+      "outreachDeliveryStatus": "sent",
+      "outreachSentAt": "2026-10-11T08:39:47.804Z"
     },
     {
       "id": "cand_verify_07_hiring_managers",
@@ -142,7 +150,15 @@
         "jobSeekingStatement": "I am exploring new opportunities in Mumbai. Please connect me with hiring managers in the FMCG sector!",
         "postDate": "2026-10-03T09:15:00.000Z"
       },
-      "formToken": "tok_cand_verify_07_hiring_managers_b6f1db6a76a64e4c"
+      "formToken": "tok_cand_verify_07_hiring_managers_b6f1db6a76a64e4c",
+      "outreachStatus": "Sent",
+      "draftEmail": {
+        "subject": "Oppourtunity in banking",
+        "body": "Hi Priya,\n\nI came across your LinkedIn post about seeking a job opportunity.\n\nBFSITalentHub is inviting expressions of interest for various career opportunities with a reputed bank.\n\nIf you’d like to be considered for relevant opportunities, please submit your details through this form:\nhttps://forms.gle/bfsitalenthub\n\nOur recruitment team will review your submission and may contact you if a suitable opportunity becomes available.\n\nThis is an automated invitation. Please submit your details through the form.\n\nRegards,\nBFSITalentHub\n\nIf you do not wish to receive further recruitment emails from us, you can opt out here: http://localhost:3000/api/outreach/unsubscribe?token=tok_cand_verify_07_hiring_managers_b6f1db6a76a64e4c&email=priya.sharma91%40example.com",
+        "generatedAt": "2026-10-11T08:53:07.434Z"
+      },
+      "outreachDeliveryStatus": "sent",
+      "outreachSentAt": "2026-10-11T08:39:47.804Z"
     },
     {
       "id": "cand_verify_08_nbfc",
@@ -204,7 +220,15 @@
       "lastUpdatedAt": "2026-10-10T10:26:42.369Z",
       "isManuallyCorrected": false,
       "manuallyCorrectedFields": [],
-      "formToken": "tok_cand_verify_08_nbfc_ab0109aad7d6422d"
+      "formToken": "tok_cand_verify_08_nbfc_ab0109aad7d6422d",
+      "outreachStatus": "Sent",
+      "draftEmail": {
+        "subject": "Oppourtunity in banking",
+        "body": "Hi Karthik,\n\nI came across your LinkedIn post about seeking a job opportunity.\n\nBFSITalentHub is inviting expressions of interest for various career opportunities with a reputed bank.\n\nIf you’d like to be considered for relevant opportunities, please submit your details through this form:\nhttps://forms.gle/bfsitalenthub\n\nOur recruitment team will review your submission and may contact you if a suitable opportunity becomes available.\n\nThis is an automated invitation. Please submit your details through the form.\n\nRegards,\nBFSITalentHub\n\nIf you do not wish to receive further recruitment emails from us, you can opt out here: http://localhost:3000/api/outreach/unsubscribe?token=tok_cand_verify_08_nbfc_ab0109aad7d6422d&email=karthik.raman%40nbfcmail.in",
+        "generatedAt": "2026-10-11T08:53:07.434Z"
+      },
+      "outreachDeliveryStatus": "sent",
+      "outreachSentAt": "2026-10-11T08:39:47.804Z"
     },
     {
       "id": "cand_verify_04_unknown_exp",
@@ -266,7 +290,13 @@
       "lastUpdatedAt": "2026-10-10T10:26:42.368Z",
       "isManuallyCorrected": false,
       "manuallyCorrectedFields": [],
-      "formToken": "tok_cand_verify_04_unknown_exp_00d9b7466f92da59"
+      "formToken": "tok_cand_verify_04_unknown_exp_00d9b7466f92da59",
+      "outreachStatus": "Draft",
+      "draftEmail": {
+        "subject": "Oppourtunity in banking",
+        "body": "Hi Amit,\n\nI came across your LinkedIn post about seeking a job opportunity.\n\nBFSITalentHub is inviting expressions of interest for various career opportunities with a reputed bank.\n\nIf you’d like to be considered for relevant opportunities, please submit your details through this form:\nhttps://forms.gle/bfsitalenthub\n\nOur recruitment team will review your submission and may contact you if a suitable opportunity becomes available.\n\nThis is an automated invitation. Please submit your details through the form.\n\nRegards,\nBFSITalentHub\n\nIf you do not wish to receive further recruitment emails from us, you can opt out here: http://localhost:3000/api/outreach/unsubscribe?token=tok_cand_verify_04_unknown_exp_00d9b7466f92da59&email=amit.verma%40paintmail.com",
+        "generatedAt": "2026-10-11T08:53:07.434Z"
+      }
     },
     {
       "id": "cand_verify_05_tech_engineer",
@@ -328,7 +358,15 @@
       "lastUpdatedAt": "2026-10-10T10:26:42.369Z",
       "isManuallyCorrected": false,
       "manuallyCorrectedFields": [],
-      "formToken": "tok_cand_verify_05_tech_engineer_e04ca20cc7f6e605"
+      "formToken": "tok_cand_verify_05_tech_engineer_e04ca20cc7f6e605",
+      "outreachStatus": "Sent",
+      "draftEmail": {
+        "subject": "Oppourtunity in banking",
+        "body": "Hi Rahul,\n\nI came across your LinkedIn post about seeking a job opportunity.\n\nBFSITalentHub is inviting expressions of interest for various career opportunities with a reputed bank.\n\nIf you’d like to be considered for relevant opportunities, please submit your details through this form:\nhttps://forms.gle/bfsitalenthub\n\nOur recruitment team will review your submission and may contact you if a suitable opportunity becomes available.\n\nThis is an automated invitation. Please submit your details through the form.\n\nRegards,\nBFSITalentHub\n\nIf you do not wish to receive further recruitment emails from us, you can opt out here: http://localhost:3000/api/outreach/unsubscribe?token=tok_cand_verify_05_tech_engineer_e04ca20cc7f6e605&email=rahul.tech%40devmail.io",
+        "generatedAt": "2026-10-11T08:53:07.434Z"
+      },
+      "outreachDeliveryStatus": "sent",
+      "outreachSentAt": "2026-10-11T08:39:47.804Z"
     },
     {
       "id": "cand_verify_06_outside_india",
@@ -390,7 +428,13 @@
       "lastUpdatedAt": "2026-10-10T10:26:42.369Z",
       "isManuallyCorrected": false,
       "manuallyCorrectedFields": [],
-      "formToken": "tok_cand_verify_06_outside_india_5c0bceaad19cb933"
+      "formToken": "tok_cand_verify_06_outside_india_5c0bceaad19cb933",
+      "outreachStatus": "Draft",
+      "draftEmail": {
+        "subject": "Oppourtunity in banking",
+        "body": "Hi Alex,\n\nI came across your LinkedIn post about seeking a job opportunity.\n\nBFSITalentHub is inviting expressions of interest for various career opportunities with a reputed bank.\n\nIf you’d like to be considered for relevant opportunities, please submit your details through this form:\nhttps://forms.gle/bfsitalenthub\n\nOur recruitment team will review your submission and may contact you if a suitable opportunity becomes available.\n\nThis is an automated invitation. Please submit your details through the form.\n\nRegards,\nBFSITalentHub\n\nIf you do not wish to receive further recruitment emails from us, you can opt out here: http://localhost:3000/api/outreach/unsubscribe?token=tok_cand_verify_06_outside_india_5c0bceaad19cb933&email=alex.chen.sales%40techmail.io",
+        "generatedAt": "2026-10-11T08:53:07.434Z"
+      }
     }
   ],
   "posts": [
@@ -555,6 +599,26 @@
   ],
   "scanRuns": [
     {
+      "id": "run_1791707986592_yt0h",
+      "runAt": "2026-10-11T08:39:47.804Z",
+      "triggerType": "find_candidates",
+      "mode": "demo",
+      "receivedPostsCount": 8,
+      "extractedCandidatesCount": 0,
+      "duplicatesFoundCount": 8,
+      "failuresCount": 0,
+      "durationMs": 1206,
+      "status": "success",
+      "message": "[Demo Sandbox] Simulated collection completed: 8 sample posts processed, 0 candidates validated.",
+      "queryConfig": {
+        "timeWindow": "24h",
+        "limit": 20,
+        "postedLimit": "24h",
+        "maxPosts": 20,
+        "useSmallTestQuery": false
+      }
+    },
+    {
       "id": "run_verify_canonical",
       "runAt": "2026-10-03T19:10:00.000Z",
       "triggerType": "find_candidates",
@@ -617,7 +681,7 @@
     ],
     "timezone": "Asia/Kolkata",
     "isPaused": false,
-    "lastRunAt": "2026-10-04T03:30:00.000Z",
+    "lastRunAt": "2026-10-11T08:39:47.804Z",
     "nextRunAt": "2026-10-04T12:30:00.000Z",
     "cronSecret": "rdc_secret_cron_token_live_9a8b7c"
   },
@@ -650,8 +714,8 @@
   },
   "outreachSettings": {
     "senderName": "BFSITalentHub",
-    "senderEmail": "recruitment@bfsitalenthub.in",
-    "replyToEmail": "careers@bfsitalenthub.in",
+    "senderEmail": "talenthubbfsi@gmail.com",
+    "replyToEmail": "talenthubbfsi@gmail.com",
     "provider": "test_mode",
     "smtpConfig": {
       "host": "smtp.mailtrap.io",
@@ -667,17 +731,89 @@
     },
     "organizationDescription": "BFSITalentHub is a premier talent discovery and placement network connecting banking, financial services, fintech, and commercial sales professionals with leading institutions across India.",
     "rolesBeingSourced": "Commercial Sales, Branch Banking, Loan Officers, B2B Account Executives, Wealth Advisors, and Territory Sales Managers",
-    "emailSubjectTemplate": "Explore opportunities in [relevant role area]",
-    "emailBodyTemplate": "Hi [First Name / there],\n\nI came across your [source platform] post mentioning that you are exploring new opportunities in [verified role area].\n\nWe are collecting expressions of interest for [configured recruitment scope]. If you would like to be considered for relevant opportunities, please share your details through the link below:\n\n[Candidate-specific form link]\n\nOur recruitment team will review your details and may contact you where there is a suitable match.\n\nThis is an automated invitation. Please submit your details through the form.\n\nRegards,\n[Configured sender name]\n\nIf you do not wish to receive further recruitment emails from us, you can opt out here: [unsubscribe link]",
+    "emailSubjectTemplate": "Oppourtunity in banking",
+    "emailBodyTemplate": "Hi [First Name / there],\n\nI came across your LinkedIn post about seeking a job opportunity.\n\nBFSITalentHub is inviting expressions of interest for various career opportunities with a reputed bank.\n\nIf you’d like to be considered for relevant opportunities, please submit your details through this form:\n[Google Form Registration Link]\n\nOur recruitment team will review your submission and may contact you if a suitable opportunity becomes available.\n\nThis is an automated invitation. Please submit your details through the form.\n\nRegards,\nBFSITalentHub\n\nIf you do not wish to receive further recruitment emails from us, you can opt out here: [unsubscribe link]",
     "dailySendingLimit": 50,
     "delayBetweenEmailsSeconds": 5,
-    "automaticOutreachEnabled": false,
+    "automaticOutreachEnabled": true,
     "testMode": true,
     "lastTestedAt": null,
     "lastTestStatus": null,
-    "lastTestMessage": null
+    "lastTestMessage": null,
+    "gmailConnectedEmail": "talenthubbfsi@gmail.com",
+    "googleFormUrl": "https://forms.gle/bfsitalenthub",
+    "sendingMode": "auto_send"
   },
-  "outreachMessages": [],
+  "outreachMessages": [
+    {
+      "id": "msg_1791707987804_atwq1",
+      "candidateId": "cand_verify_05_tech_engineer",
+      "candidateEmail": "rahul.tech@devmail.io",
+      "candidateName": "Rahul Verma",
+      "formToken": "tok_cand_verify_05_tech_engineer_e04ca20cc7f6e605",
+      "subject": "Explore opportunities in Senior Backend Software Engineer",
+      "body": "Hi Rahul,\n\nI came across your  post mentioning that you are exploring new opportunities in Senior Backend Software Engineer.\n\nWe are collecting expressions of interest for Commercial Sales, Branch Banking, Loan Officers, B2B Account Executives, Wealth Advisors, and Territory Sales Managers. If you would like to be considered for relevant opportunities, please share your details through the link below:\n\nhttps://forms.gle/bfsitalenthub\n\nOur recruitment team will review your details and may contact you where there is a suitable match.\n\nThis is an automated invitation. Please submit your details through the form.\n\nRegards,\nBFSITalentHub\n\nIf you do not wish to receive further recruitment emails from us, you can opt out here: http://localhost:3000/api/outreach/unsubscribe?token=tok_cand_verify_05_tech_engineer_e04ca20cc7f6e605&email=rahul.tech%40devmail.io",
+      "deliveryStatus": "sent",
+      "sentAt": "2026-10-11T08:39:47.804Z",
+      "queuedAt": "2026-10-11T08:39:47.804Z",
+      "retryCount": 0,
+      "maxRetries": 3,
+      "providerMessageId": "test_sim_1791707987804_neubahr",
+      "unsubscribeToken": "tok_cand_verify_05_tech_engineer_e04ca20cc7f6e605",
+      "isTestModeSend": true
+    },
+    {
+      "id": "msg_1791707987804_m6yyb",
+      "candidateId": "cand_verify_08_nbfc",
+      "candidateEmail": "karthik.raman@nbfcmail.in",
+      "candidateName": "Karthik Raman",
+      "formToken": "tok_cand_verify_08_nbfc_ab0109aad7d6422d",
+      "subject": "Explore opportunities in Loan Sales Manager",
+      "body": "Hi Karthik,\n\nI came across your  post mentioning that you are exploring new opportunities in Loan Sales Manager.\n\nWe are collecting expressions of interest for Commercial Sales, Branch Banking, Loan Officers, B2B Account Executives, Wealth Advisors, and Territory Sales Managers. If you would like to be considered for relevant opportunities, please share your details through the link below:\n\nhttps://forms.gle/bfsitalenthub\n\nOur recruitment team will review your details and may contact you where there is a suitable match.\n\nThis is an automated invitation. Please submit your details through the form.\n\nRegards,\nBFSITalentHub\n\nIf you do not wish to receive further recruitment emails from us, you can opt out here: http://localhost:3000/api/outreach/unsubscribe?token=tok_cand_verify_08_nbfc_ab0109aad7d6422d&email=karthik.raman%40nbfcmail.in",
+      "deliveryStatus": "sent",
+      "sentAt": "2026-10-11T08:39:47.804Z",
+      "queuedAt": "2026-10-11T08:39:47.804Z",
+      "retryCount": 0,
+      "maxRetries": 3,
+      "providerMessageId": "test_sim_1791707987804_c6cjo3d",
+      "unsubscribeToken": "tok_cand_verify_08_nbfc_ab0109aad7d6422d",
+      "isTestModeSend": true
+    },
+    {
+      "id": "msg_1791707987804_j5ydb",
+      "candidateId": "cand_verify_07_hiring_managers",
+      "candidateEmail": "priya.sharma91@example.com",
+      "candidateName": "Priya Sharma",
+      "formToken": "tok_cand_verify_07_hiring_managers_b6f1db6a76a64e4c",
+      "subject": "Explore opportunities in Senior Sales Executive",
+      "body": "Hi Priya,\n\nI came across your  post mentioning that you are exploring new opportunities in Senior Sales Executive.\n\nWe are collecting expressions of interest for Commercial Sales, Branch Banking, Loan Officers, B2B Account Executives, Wealth Advisors, and Territory Sales Managers. If you would like to be considered for relevant opportunities, please share your details through the link below:\n\nhttps://forms.gle/bfsitalenthub\n\nOur recruitment team will review your details and may contact you where there is a suitable match.\n\nThis is an automated invitation. Please submit your details through the form.\n\nRegards,\nBFSITalentHub\n\nIf you do not wish to receive further recruitment emails from us, you can opt out here: http://localhost:3000/api/outreach/unsubscribe?token=tok_cand_verify_07_hiring_managers_b6f1db6a76a64e4c&email=priya.sharma91%40example.com",
+      "deliveryStatus": "sent",
+      "sentAt": "2026-10-11T08:39:47.804Z",
+      "queuedAt": "2026-10-11T08:39:47.804Z",
+      "retryCount": 0,
+      "maxRetries": 3,
+      "providerMessageId": "test_sim_1791707987804_9jy44lx",
+      "unsubscribeToken": "tok_cand_verify_07_hiring_managers_b6f1db6a76a64e4c",
+      "isTestModeSend": true
+    },
+    {
+      "id": "msg_1791707987804_55j1t",
+      "candidateId": "cand_verify_02_pharma",
+      "candidateEmail": "rohit.deshmukh@pharmamail.com",
+      "candidateName": "Rohit Deshmukh",
+      "formToken": "tok_cand_verify_02_pharma_fd7bcaa719668bb8",
+      "subject": "Explore opportunities in Area Sales Manager / Medical Representative",
+      "body": "Hi Rohit,\n\nI came across your  post mentioning that you are exploring new opportunities in Area Sales Manager / Medical Representative.\n\nWe are collecting expressions of interest for Commercial Sales, Branch Banking, Loan Officers, B2B Account Executives, Wealth Advisors, and Territory Sales Managers. If you would like to be considered for relevant opportunities, please share your details through the link below:\n\nhttps://forms.gle/bfsitalenthub\n\nOur recruitment team will review your details and may contact you where there is a suitable match.\n\nThis is an automated invitation. Please submit your details through the form.\n\nRegards,\nBFSITalentHub\n\nIf you do not wish to receive further recruitment emails from us, you can opt out here: http://localhost:3000/api/outreach/unsubscribe?token=tok_cand_verify_02_pharma_fd7bcaa719668bb8&email=rohit.deshmukh%40pharmamail.com",
+      "deliveryStatus": "sent",
+      "sentAt": "2026-10-11T08:39:47.804Z",
+      "queuedAt": "2026-10-11T08:39:47.804Z",
+      "retryCount": 0,
+      "maxRetries": 3,
+      "providerMessageId": "test_sim_1791707987804_qtvexln",
+      "unsubscribeToken": "tok_cand_verify_02_pharma_fd7bcaa719668bb8",
+      "isTestModeSend": true
+    }
+  ],
   "candidateResponses": [],
   "suppressionList": []
 }

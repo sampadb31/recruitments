@@ -16,6 +16,7 @@ import { getInitialDemoDatabase, initialSamplePosts } from './sampleData.ts';
 import { extractCandidateFromPost } from './gemini.ts';
 import { fetchLinkedInPostsViaApify, isApifyConfigured, mapTimeToPostedLimit } from './apify.ts';
 import { DEFAULT_QUERY_CATALOGUE, INITIAL_QUERY_CONFIG } from './queryCatalogue.ts';
+import { generateCandidateDraft, sendOutreachEmail, isValidEmailSyntax, normalizeEmail } from './outreachService.ts';
 
 const DATA_DIR = path.resolve(process.cwd(), 'data');
 
@@ -104,11 +105,25 @@ export function getDatabase(mode: 'demo' | 'live' = 'demo'): AppDatabase {
       parsed.suppressionList = [];
     }
 
-    // Ensure candidates have formToken
+    // Ensure candidates have formToken, outreachStatus, and draftEmail
     let modified = false;
     for (const c of parsed.candidates) {
       if (!c.formToken) {
         c.formToken = `tok_${c.id}_${crypto.randomBytes(8).toString('hex')}`;
+        modified = true;
+      }
+      if (!c.outreachStatus) {
+        if (c.candidateResponseId) {
+          c.outreachStatus = 'Responded';
+        } else if (c.outreachDeliveryStatus === 'sent') {
+          c.outreachStatus = 'Sent';
+        } else {
+          c.outreachStatus = 'Draft';
+        }
+        modified = true;
+      }
+      if (!c.draftEmail && c.email) {
+        c.draftEmail = generateCandidateDraft(c, parsed.outreachSettings);
         modified = true;
       }
     }
@@ -127,6 +142,12 @@ export function getDatabase(mode: 'demo' | 'live' = 'demo'): AppDatabase {
 
 export function saveDatabase(db: AppDatabase, mode: 'demo' | 'live' = 'demo') {
   const filepath = mode === 'live' ? LIVE_FILE : DEMO_FILE;
+  // Security guarantee: NEVER write OAuth tokens or secrets to disk
+  if (db.outreachSettings) {
+    delete (db.outreachSettings as any).gmailAccessToken;
+    delete (db.outreachSettings as any).accessToken;
+    delete (db.outreachSettings as any).token;
+  }
   fs.writeFileSync(filepath, JSON.stringify(db, null, 2), 'utf-8');
 }
 
@@ -419,6 +440,83 @@ export async function startCandidateCollectionRun(
           );
         }
         activeRun.updatedAt = new Date().toISOString();
+      }
+
+      // ---------------------------------------------------------
+      // AUTOMATED 1ST OUTREACH PIPELINE (ZERO MANUAL INTERVENTION)
+      // Any candidate under "Matches Criteria" having their email id
+      // fetched automatically gets the 1st outreach mail sent from
+      // bfsitalenthub@gmail.com immediately after data extraction.
+      // ---------------------------------------------------------
+      activeRun.logs.push(
+        `[${new Date().toLocaleTimeString()}] [AUTO-OUTREACH] Evaluating candidates for immediate automated 1st outreach (Sender: bfsitalenthub@gmail.com)...`
+      );
+
+      // Enforce sender email identity: bfsitalenthub@gmail.com whoever the user is
+      db.outreachSettings.senderEmail = 'bfsitalenthub@gmail.com';
+      db.outreachSettings.replyToEmail = 'bfsitalenthub@gmail.com';
+
+      const eligibleForAutoOutreach = db.candidates.filter(c => {
+        // 1. Must be under matched criteria
+        if (c.criteriaTag !== 'Matches Criteria') return false;
+        // 2. Must not be a recruiter vacancy ad or seeking for others
+        if (c.isRecruiterAd || c.isSeekingForOthers) return false;
+        // 3. Must have valid email fetched
+        if (!c.email || !isValidEmailSyntax(c.email)) return false;
+        // 4. Must not be on suppression list
+        const norm = normalizeEmail(c.email);
+        if (c.isUnsubscribed || db.suppressionList?.some(s => normalizeEmail(s.email) === norm)) return false;
+        // 5. Must not already have received outreach
+        if (c.outreachStatus === 'Sent' || c.outreachStatus === 'Applied' || c.outreachStatus === 'Responded' || c.outreachSentAt) return false;
+        if (db.outreachMessages?.some(m => (m.candidateId === c.id || normalizeEmail(m.candidateEmail) === norm) && m.deliveryStatus === 'sent')) return false;
+
+        return true;
+      });
+
+      let autoOutreachSentCount = 0;
+      if (eligibleForAutoOutreach.length > 0) {
+        activeRun.logs.push(
+          `[${new Date().toLocaleTimeString()}] [AUTO-OUTREACH] Found ${eligibleForAutoOutreach.length} candidate(s) under Matched Criteria with email fetched. Automatically dispatching 1st outreach mail from bfsitalenthub@gmail.com...`
+        );
+
+        for (const cand of eligibleForAutoOutreach) {
+          activeRun.logs.push(
+            `[${new Date().toLocaleTimeString()}] [AUTO-OUTREACH] Sending 1st outreach email to ${cand.name || 'Candidate'} <${cand.email}> from bfsitalenthub@gmail.com...`
+          );
+
+          try {
+            const sendResult = await sendOutreachEmail({
+              candidate: cand,
+              settings: db.outreachSettings,
+              db,
+              origin: 'http://localhost:3000',
+            });
+
+            if (sendResult.success) {
+              autoOutreachSentCount++;
+              activeRun.logs.push(
+                `[${new Date().toLocaleTimeString()}] [AUTO-OUTREACH] [DELIVERED] 1st outreach mail sent to ${cand.name || cand.email} from bfsitalenthub@gmail.com (Message ID: ${sendResult.messageId || 'auto_dispatched'}).`
+              );
+            } else {
+              activeRun.logs.push(
+                `[${new Date().toLocaleTimeString()}] [AUTO-OUTREACH] [NOTICE] 1st outreach recorded for ${cand.name || cand.email}: ${sendResult.error || 'Saved in queue'}`
+              );
+            }
+          } catch (autoErr: any) {
+            activeRun.logs.push(
+              `[${new Date().toLocaleTimeString()}] [AUTO-OUTREACH] [ERROR] Failed to send outreach to ${cand.email}: ${autoErr.message}`
+            );
+          }
+          activeRun.updatedAt = new Date().toISOString();
+        }
+
+        activeRun.logs.push(
+          `[${new Date().toLocaleTimeString()}] [AUTO-OUTREACH] Complete: ${autoOutreachSentCount} outreach email(s) dispatched from bfsitalenthub@gmail.com with zero manual intervention.`
+        );
+      } else {
+        activeRun.logs.push(
+          `[${new Date().toLocaleTimeString()}] [AUTO-OUTREACH] No new uncontacted candidates with email found under Matched Criteria in this run.`
+        );
       }
 
       // Record ScanRun

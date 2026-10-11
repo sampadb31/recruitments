@@ -625,6 +625,42 @@ export const CandidateDetailModal: React.FC<CandidateDetailModalProps> = ({
                   />
                 )}
               </div>
+
+              {/* Outreach & Gmail Status */}
+              <div className="pt-3 border-t border-slate-800 space-y-2">
+                <div className="flex items-center justify-between">
+                  <label className="text-slate-400 font-medium block text-xs">
+                    Gmail Outreach Status
+                  </label>
+                  <span
+                    className={`px-2 py-0.5 rounded text-[10px] font-semibold ${
+                      candidate.outreachStatus === 'Sent'
+                        ? 'bg-emerald-950 text-emerald-300 border border-emerald-800'
+                        : candidate.outreachStatus === 'Approved'
+                        ? 'bg-blue-950 text-blue-300 border border-blue-800'
+                        : candidate.outreachStatus === 'Failed'
+                        ? 'bg-rose-950 text-rose-300 border border-rose-800'
+                        : candidate.outreachStatus === 'Applied'
+                        ? 'bg-purple-950 text-purple-300 border border-purple-800'
+                        : candidate.outreachStatus === 'Responded'
+                        ? 'bg-amber-950 text-amber-300 border border-amber-800'
+                        : 'bg-slate-800 text-slate-300 border border-slate-700'
+                    }`}
+                  >
+                    {candidate.outreachStatus || 'Draft'}
+                  </span>
+                </div>
+                {candidate.draftEmail && (
+                  <div className="bg-slate-950/60 p-2.5 rounded-lg border border-slate-800 text-[11px] text-slate-300 space-y-1">
+                    <span className="font-semibold text-white block truncate">
+                      Personalized Subject: {candidate.draftEmail.subject}
+                    </span>
+                    <p className="text-slate-400 line-clamp-2 italic text-[10px]">
+                      "{candidate.draftEmail.body.slice(0, 150)}..."
+                    </p>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
 

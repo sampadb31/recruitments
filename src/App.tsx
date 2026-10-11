@@ -10,17 +10,19 @@ import { SourcesScreen } from './components/SourcesScreen.tsx';
 import { CandidatesScreen } from './components/CandidatesScreen.tsx';
 import { SettingsScreen } from './components/SettingsScreen.tsx';
 import { QueryCatalogueScreen } from './components/QueryCatalogueScreen.tsx';
-import { AppDatabase, Candidate, ExtractionResult, SourcePost, ActiveCollectionRun, TimeWindow } from './types/index.ts';
+import { OutreachScreen } from './components/OutreachScreen.tsx';
+import { AppDatabase, Candidate, ExtractionResult, SourcePost, ActiveCollectionRun, TimeWindow, ApifyDiagnostics } from './types/index.ts';
 import { getInitialDemoDatabase } from './server/sampleData.ts';
 
 export default function App() {
-  const [currentTab, setCurrentTab] = useState<'dashboard' | 'sources' | 'candidates' | 'queries' | 'settings'>('dashboard');
+  const [currentTab, setCurrentTab] = useState<'dashboard' | 'sources' | 'candidates' | 'outreach' | 'queries' | 'settings'>('dashboard');
   const [mode, setMode] = useState<'demo' | 'live'>('demo');
   const [dbData, setDbData] = useState<AppDatabase>(getInitialDemoDatabase());
   const [isLoading, setIsLoading] = useState(true);
   const [isScanning, setIsScanning] = useState(false);
   const [geminiConfigured, setGeminiConfigured] = useState(true);
   const [apifyConfigured, setApifyConfigured] = useState(false);
+  const [apifyDiagnostics, setApifyDiagnostics] = useState<ApifyDiagnostics | null>(null);
   const [activeRun, setActiveRun] = useState<ActiveCollectionRun | null>(null);
   const [toastMessage, setToastMessage] = useState<{ type: 'success' | 'error' | 'info'; text: string } | null>(null);
 
@@ -43,6 +45,9 @@ export default function App() {
 
       setGeminiConfigured(Boolean(statusRes.geminiConfigured));
       setApifyConfigured(Boolean(statusRes.apifyConfigured));
+      if (statusRes.apifyDiagnostics) {
+        setApifyDiagnostics(statusRes.apifyDiagnostics);
+      }
       // Only set activeRun if it matches the selected mode, or null
       if (statusRes.activeRun && statusRes.activeRun.mode === selectedMode) {
         setActiveRun(statusRes.activeRun);
@@ -121,10 +126,18 @@ export default function App() {
   ) => {
     // If live mode and apify is not configured, inform user clearly
     if (mode === 'live' && !apifyConfigured) {
-      showToast(
-        'Setup Required: APIFY_API_TOKEN secret is not set in Secrets. Add it in AI Studio Settings > Secrets.',
-        'error'
-      );
+      if (apifyDiagnostics?.isPlaceholder) {
+        showToast(
+          `Setup Required: APIFY_API_TOKEN is set to placeholder value "${apifyDiagnostics.maskedSample}". Go to AI Studio Settings > Secrets and replace it with your personal Apify token (starts with "apify_api_").`,
+          'error'
+        );
+      } else {
+        showToast(
+          apifyDiagnostics?.message ||
+            'Setup Required: APIFY_API_TOKEN secret is not set in Secrets. Add it in AI Studio Settings > Secrets.',
+          'error'
+        );
+      }
       return;
     }
 
@@ -370,6 +383,8 @@ export default function App() {
         }}
         geminiConfigured={geminiConfigured}
         apifyConfigured={apifyConfigured}
+        apifyDiagnostics={apifyDiagnostics}
+        gmailConnected={Boolean(dbData.outreachSettings?.gmailConnected)}
         onFindCandidates={() => handleFindCandidates('7d', 20)}
         onResetDemo={handleResetDemo}
         onClearDatabase={handleClearDatabase}
@@ -415,6 +430,7 @@ export default function App() {
                 activeRun={activeRun}
                 geminiConfigured={geminiConfigured}
                 apifyConfigured={apifyConfigured}
+                apifyDiagnostics={apifyDiagnostics}
                 onSaveCorrection={handleSaveCorrection}
               />
             )}
@@ -441,6 +457,16 @@ export default function App() {
               />
             )}
 
+            {currentTab === 'outreach' && (
+              <OutreachScreen
+                data={dbData}
+                mode={mode}
+                onRefresh={() => fetchData(mode)}
+                onNavigateToSettings={() => setCurrentTab('settings')}
+                showToast={showToast}
+              />
+            )}
+
             {currentTab === 'queries' && (
               <QueryCatalogueScreen mode={mode} />
             )}
@@ -452,6 +478,9 @@ export default function App() {
                 onUpdateSettings={handleUpdateSettings}
                 geminiConfigured={geminiConfigured}
                 apifyConfigured={apifyConfigured}
+                apifyDiagnostics={apifyDiagnostics}
+                onRefreshStatus={() => fetchData(mode)}
+                showToast={showToast}
               />
             )}
           </>

@@ -151,6 +151,14 @@ export interface CandidateEvidence {
   profileUrl?: string;
 }
 
+export type OutreachStatus =
+  | 'Draft'
+  | 'Approved'
+  | 'Sent'
+  | 'Failed'
+  | 'Responded'
+  | 'Applied';
+
 export interface Candidate {
   id: string;
   name: string | null;
@@ -189,6 +197,7 @@ export interface Candidate {
   recruiterNotes?: string;
   // Outreach & Candidate Response workflow fields
   formToken?: string;
+  outreachStatus?: OutreachStatus;
   outreachDeliveryStatus?: OutreachDeliveryStatus;
   eligibilityStatus?: CandidateEligibilityStatus;
   eligibilityReason?: string;
@@ -199,6 +208,11 @@ export interface Candidate {
   isUnsubscribed?: boolean;
   unsubscribedAt?: string | null;
   candidateResponseId?: string | null;
+  draftEmail?: {
+    subject: string;
+    body: string;
+    generatedAt: string;
+  } | null;
 }
 
 export interface AppErrorDetails {
@@ -285,6 +299,17 @@ export interface ScheduleSettings {
   cronSecret: string;
 }
 
+export interface ApifyDiagnostics {
+  isConfigured: boolean;
+  rawPresent: boolean;
+  isPlaceholder: boolean;
+  hasValidPrefix: boolean;
+  keySource: string;
+  maskedSample?: string;
+  message: string;
+  remedy: string;
+}
+
 export interface ConnectionsConfig {
   apify: {
     actorId: string;
@@ -316,7 +341,12 @@ export interface OutreachSettings {
   senderName: string;
   senderEmail: string;
   replyToEmail: string;
-  provider: 'smtp' | 'sendgrid' | 'resend' | 'gmail_workspace' | 'test_mode';
+  provider: 'gmail_workspace' | 'smtp' | 'test_mode';
+  googleFormUrl: string;
+  sendingMode: 'require_approval' | 'auto_send';
+  gmailConnected: boolean;
+  gmailConnectedEmail?: string | null;
+  gmailConnectedAt?: string | null;
   smtpConfig?: {
     host: string;
     port: number;
@@ -326,10 +356,6 @@ export interface OutreachSettings {
       pass: string;
     };
   };
-  apiConfig?: {
-    apiKey: string;
-  };
-  gmailAccessToken?: string;
   organizationDescription: string;
   rolesBeingSourced: string;
   emailSubjectTemplate: string;
@@ -341,6 +367,7 @@ export interface OutreachSettings {
   lastTestedAt?: string | null;
   lastTestStatus?: 'success' | 'failed' | null;
   lastTestMessage?: string | null;
+  lastTestRecipient?: string | null;
 }
 
 export type OutreachDeliveryStatus =

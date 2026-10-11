@@ -660,6 +660,26 @@ export const CandidatesScreen: React.FC<CandidatesScreenProps> = ({
                         </span>
 
                         <div className="flex items-center space-x-1.5">
+                          {candidate.outreachStatus && (
+                            <span
+                              className={`px-2 py-0.5 rounded text-[10px] font-semibold ${
+                                candidate.outreachStatus === 'Sent'
+                                  ? 'bg-emerald-950 text-emerald-300 border border-emerald-800'
+                                  : candidate.outreachStatus === 'Approved'
+                                  ? 'bg-blue-950 text-blue-300 border border-blue-800'
+                                  : candidate.outreachStatus === 'Failed'
+                                  ? 'bg-rose-950 text-rose-300 border border-rose-800'
+                                  : candidate.outreachStatus === 'Applied'
+                                  ? 'bg-purple-950 text-purple-300 border border-purple-800'
+                                  : candidate.outreachStatus === 'Responded'
+                                  ? 'bg-amber-950 text-amber-300 border border-amber-800'
+                                  : 'bg-slate-800 text-slate-300 border border-slate-700'
+                              }`}
+                              title={`Outreach Status: ${candidate.outreachStatus}`}
+                            >
+                              {candidate.outreachStatus}
+                            </span>
+                          )}
                           {candidate.sector && (
                             <span className="px-2 py-0.5 rounded bg-blue-950 text-blue-300 border border-blue-800 text-[10px] font-bold uppercase tracking-wider">
                               {candidate.sector}

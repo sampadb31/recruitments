@@ -28,7 +28,26 @@ import {
   isGeminiConfigured,
   isGeminiQuotaExhausted,
 } from './src/server/gemini.ts';
-import { isApifyConfigured, runApifySmallVerificationTest, mapTimeToPostedLimit } from './src/server/apify.ts';
+import {
+  isApifyConfigured,
+  runApifySmallVerificationTest,
+  mapTimeToPostedLimit,
+  getApifyDiagnostics,
+  verifyApifyCredentials,
+} from './src/server/apify.ts';
+import {
+  getGmailSessionStatus,
+  setGmailSession,
+  clearGmailSession,
+  sendEmailViaGmailApi,
+} from './src/server/gmailService.ts';
+import {
+  sendOutreachEmail,
+  buildPersonalizedEmail,
+  generateCandidateDraft,
+  handleCandidateOptOut,
+  DEFAULT_OUTREACH_SETTINGS,
+} from './src/server/outreachService.ts';
 
 dotenv.config();
 
@@ -48,6 +67,8 @@ app.get('/api/status', (req: Request, res: Response) => {
   const currentRun = getCurrentActiveRun(mode);
   const latestRun = getLatestRunForMode(mode);
   const quota = isGeminiQuotaExhausted();
+  const gmailSession = getGmailSessionStatus();
+  const apifyDiagnostics = getApifyDiagnostics();
 
   res.json({
     status: 'ok',
@@ -56,6 +77,9 @@ app.get('/api/status', (req: Request, res: Response) => {
     geminiQuotaExhausted: quota.isExhausted,
     geminiQuotaReason: quota.reason,
     apifyConfigured: isApifyConfigured(),
+    apifyDiagnostics,
+    gmailSession,
+    gmailConnected: gmailSession.isConnected,
     activeRun: currentRun || latestRun,
     isCurrentlyRunning: Boolean(currentRun),
     timestamp: new Date().toISOString(),
@@ -98,9 +122,12 @@ app.post('/api/runs/find-candidates', async (req: Request, res: Response) => {
 
   // Check credentials if live mode
   if (mode === 'live' && !isApifyConfigured()) {
+    const diag = getApifyDiagnostics();
     res.status(400).json({
       setupRequired: true,
-      error: 'Setup Required: APIFY_API_TOKEN secret is not configured on the server. Please add your Apify API token in the AI Studio Secrets panel before running live collection.',
+      error: diag.message,
+      remedy: diag.remedy,
+      diagnostics: diag,
     });
     return;
   }
@@ -142,9 +169,12 @@ app.post('/api/runs/find-candidates', async (req: Request, res: Response) => {
 // 4b. Dedicated Quick Integration Test (Small 5-Post Request)
 app.post('/api/runs/verify-apify-test', async (req: Request, res: Response) => {
   if (!isApifyConfigured()) {
+    const diag = getApifyDiagnostics();
     res.status(400).json({
       setupRequired: true,
-      error: 'Setup Required: APIFY_API_TOKEN is not configured.',
+      error: diag.message,
+      remedy: diag.remedy,
+      diagnostics: diag,
     });
     return;
   }
@@ -159,6 +189,34 @@ app.post('/api/runs/verify-apify-test', async (req: Request, res: Response) => {
       errorDetails: err.errorDetails,
     });
   }
+});
+
+// 4c. Lightweight Apify Token Validation (Auth test without starting actor)
+app.get('/api/apify/verify', async (_req: Request, res: Response) => {
+  const diag = getApifyDiagnostics();
+  if (!diag.isConfigured) {
+    res.json({
+      configured: false,
+      diagnostics: diag,
+      user: null,
+      error: diag.message,
+    });
+    return;
+  }
+
+  const result = await verifyApifyCredentials();
+  res.json({
+    configured: result.success,
+    diagnostics: diag,
+    user: result.success
+      ? {
+          username: result.username,
+          email: result.email,
+          plan: result.plan,
+        }
+      : null,
+    error: result.error,
+  });
 });
 
 // 5. Check Active Run Status & Progress
@@ -339,9 +397,342 @@ app.post('/api/settings', (req: Request, res: Response) => {
   if (req.body.connections) {
     db.connections = { ...db.connections, ...req.body.connections };
   }
+  if (req.body.outreachSettings) {
+    db.outreachSettings = { ...db.outreachSettings, ...req.body.outreachSettings };
+  }
 
   saveDatabase(db, mode);
-  res.json({ message: 'Settings updated successfully.', criteria: db.criteria, schedule: db.schedule, connections: db.connections });
+  res.json({
+    message: 'Settings updated successfully.',
+    criteria: db.criteria,
+    schedule: db.schedule,
+    connections: db.connections,
+    outreachSettings: db.outreachSettings,
+  });
+});
+
+// ==========================================
+// GMAIL & OUTREACH WORKFLOW ENDPOINTS
+// ==========================================
+
+// Check Gmail OAuth Session Status
+app.get('/api/gmail/status', (_req: Request, res: Response) => {
+  const session = getGmailSessionStatus();
+  res.json(session);
+});
+
+// Connect Recruiter Gmail Account via OAuth
+app.post('/api/gmail/connect', async (req: Request, res: Response) => {
+  const { accessToken, email, displayName } = req.body;
+  if (!accessToken) {
+    res.status(400).json({ error: 'OAuth accessToken is required.' });
+    return;
+  }
+
+  const result = await setGmailSession(accessToken, email, displayName);
+  if (!result.success) {
+    res.status(400).json({ error: result.error || 'Failed to authenticate Gmail session.' });
+    return;
+  }
+
+  // Update outreachSettings across modes to reflect connection without saving access token!
+  const modes: ('demo' | 'live')[] = ['demo', 'live'];
+  for (const m of modes) {
+    const db = getDatabase(m);
+    if (!db.outreachSettings) {
+      db.outreachSettings = { ...DEFAULT_OUTREACH_SETTINGS };
+    }
+    db.outreachSettings.gmailConnected = true;
+    db.outreachSettings.gmailConnectedEmail = result.email;
+    db.outreachSettings.gmailConnectedAt = new Date().toISOString();
+    // Outreach happens from talenthubbfsi@gmail.com whoever the user is
+    db.outreachSettings.senderEmail = 'talenthubbfsi@gmail.com';
+    db.outreachSettings.replyToEmail = 'talenthubbfsi@gmail.com';
+    saveDatabase(db, m);
+  }
+
+  res.json({
+    success: true,
+    email: result.email,
+    message: `Gmail account ${result.email} successfully connected with gmail.send permission.`,
+  });
+});
+
+// Disconnect Gmail Account
+app.post('/api/gmail/disconnect', (_req: Request, res: Response) => {
+  clearGmailSession();
+  const modes: ('demo' | 'live')[] = ['demo', 'live'];
+  for (const m of modes) {
+    const db = getDatabase(m);
+    if (db.outreachSettings) {
+      db.outreachSettings.gmailConnected = false;
+      db.outreachSettings.gmailConnectedAt = null;
+    }
+    saveDatabase(db, m);
+  }
+  res.json({ success: true, message: 'Gmail session cleared.' });
+});
+
+// Send Verification Test Email via Gmail API
+app.post('/api/gmail/test', async (req: Request, res: Response) => {
+  const mode = (req.body.mode as string) === 'live' ? 'live' : 'demo';
+  const db = getDatabase(mode);
+  const session = getGmailSessionStatus();
+
+  if (!session.isConnected) {
+    res.status(400).json({
+      success: false,
+      error: 'Gmail account is not connected. Click "Connect Gmail" to authorize your recruiter account.',
+    });
+    return;
+  }
+
+  const targetEmail = (req.body.toEmail || session.email || 'talenthubbfsi@gmail.com').trim();
+  const testSubject = `[Verification Test] BFSITalentHub Recruitment Gmail API Integration`;
+  const formUrl = db.outreachSettings.googleFormUrl || 'https://forms.gle/bfsitalenthub';
+  const testBody = `Hello,\n\nThis is a verified test email sent directly from your connected Gmail account (${session.email}) via the Google Gmail API (users.messages.send with permission: https://www.googleapis.com/auth/gmail.send).\n\nIntegration Status: ACTIVE & VERIFIED\nSender Name: ${db.outreachSettings.senderName || 'BFSITalentHub'}\nRegistration Link: ${formUrl}\nTimestamp: ${new Date().toISOString()}\n\nCandidate outreach emails are ready to be sent using your Gmail address.`;
+
+  const result = await sendEmailViaGmailApi({
+    to: targetEmail,
+    subject: testSubject,
+    bodyText: testBody,
+    senderName: db.outreachSettings.senderName || 'BFSITalentHub Recruitment',
+    replyTo: db.outreachSettings.replyToEmail || session.email || undefined,
+  });
+
+  // Record test results in database
+  db.outreachSettings.lastTestedAt = new Date().toISOString();
+  db.outreachSettings.lastTestStatus = result.success ? 'success' : 'failed';
+  db.outreachSettings.lastTestRecipient = targetEmail;
+  db.outreachSettings.lastTestMessage = result.success
+    ? `Verified: Email sent successfully via Gmail API (Message ID: ${result.messageId}).`
+    : result.error || 'Test email failed.';
+  saveDatabase(db, mode);
+
+  if (result.success) {
+    res.json({
+      success: true,
+      messageId: result.messageId,
+      recipient: targetEmail,
+      message: `Test email successfully sent to ${targetEmail} via Gmail API.`,
+    });
+  } else {
+    res.status(result.statusCode || 500).json({
+      success: false,
+      error: result.error,
+      recipient: targetEmail,
+    });
+  }
+});
+
+// Approve Candidate Draft Email
+app.post('/api/outreach/approve-candidate', (req: Request, res: Response) => {
+  const { candidateId, mode } = req.body;
+  const db = getDatabase(mode === 'live' ? 'live' : 'demo');
+  const candidate = db.candidates.find(c => c.id === candidateId);
+
+  if (!candidate) {
+    res.status(404).json({ error: 'Candidate not found.' });
+    return;
+  }
+
+  candidate.outreachStatus = 'Approved';
+  saveDatabase(db, mode === 'live' ? 'live' : 'demo');
+
+  res.json({
+    success: true,
+    candidateId,
+    outreachStatus: candidate.outreachStatus,
+    message: `Outreach draft for ${candidate.name || 'Candidate'} approved by recruiter.`,
+  });
+});
+
+// Update Candidate Outreach Status (Draft, Approved, Sent, Failed, Responded, Applied)
+app.post('/api/outreach/update-status', (req: Request, res: Response) => {
+  const { candidateId, status, mode } = req.body;
+  const validStatuses = ['Draft', 'Approved', 'Sent', 'Failed', 'Responded', 'Applied'];
+
+  if (!validStatuses.includes(status)) {
+    res.status(400).json({ error: `Invalid status. Must be one of: ${validStatuses.join(', ')}` });
+    return;
+  }
+
+  const db = getDatabase(mode === 'live' ? 'live' : 'demo');
+  const candidate = db.candidates.find(c => c.id === candidateId);
+
+  if (!candidate) {
+    res.status(404).json({ error: 'Candidate not found.' });
+    return;
+  }
+
+  candidate.outreachStatus = status;
+  if (status === 'Sent' && !candidate.outreachSentAt) {
+    candidate.outreachSentAt = new Date().toISOString();
+  }
+  saveDatabase(db, mode === 'live' ? 'live' : 'demo');
+
+  res.json({
+    success: true,
+    candidateId,
+    outreachStatus: candidate.outreachStatus,
+    message: `Status updated to ${status}.`,
+  });
+});
+
+// Generate / Regenerate Personalized Draft for Candidate
+app.post('/api/outreach/generate-draft', (req: Request, res: Response) => {
+  const { candidateId, mode } = req.body;
+  const db = getDatabase(mode === 'live' ? 'live' : 'demo');
+  const candidate = db.candidates.find(c => c.id === candidateId);
+
+  if (!candidate) {
+    res.status(404).json({ error: 'Candidate not found.' });
+    return;
+  }
+
+  const origin = `${req.protocol}://${req.get('host')}`;
+  candidate.draftEmail = generateCandidateDraft(candidate, db.outreachSettings, origin);
+  saveDatabase(db, mode === 'live' ? 'live' : 'demo');
+
+  res.json({
+    success: true,
+    draft: candidate.draftEmail,
+  });
+});
+
+// Send Single Candidate Outreach Email
+app.post('/api/outreach/send-single', async (req: Request, res: Response) => {
+  const { candidateId, mode, subject, body } = req.body;
+  const db = getDatabase(mode === 'live' ? 'live' : 'demo');
+  const candidate = db.candidates.find(c => c.id === candidateId);
+
+  if (!candidate) {
+    res.status(404).json({ error: 'Candidate not found.' });
+    return;
+  }
+
+  const origin = `${req.protocol}://${req.get('host')}`;
+  const sendResult = await sendOutreachEmail({
+    candidate,
+    settings: db.outreachSettings,
+    db,
+    subjectOverride: subject,
+    bodyOverride: body,
+    origin,
+  });
+
+  saveDatabase(db, mode === 'live' ? 'live' : 'demo');
+
+  if (sendResult.success) {
+    res.json({
+      success: true,
+      messageId: sendResult.messageId,
+      candidateId,
+      outreachStatus: candidate.outreachStatus,
+      message: `Email successfully sent to ${candidate.email} via Gmail API.`,
+    });
+  } else {
+    res.status(400).json({
+      success: false,
+      error: sendResult.error || 'Failed to send outreach email.',
+      candidateId,
+      outreachStatus: candidate.outreachStatus,
+    });
+  }
+});
+
+// Batch Send Approved Outreach Emails
+app.post('/api/outreach/batch-send', async (req: Request, res: Response) => {
+  const { mode } = req.body;
+  const db = getDatabase(mode === 'live' ? 'live' : 'demo');
+  const origin = `${req.protocol}://${req.get('host')}`;
+
+  // If in require_approval mode: only send 'Approved' candidates.
+  // If in auto_send mode: can send 'Approved' and eligible 'Draft' candidates.
+  const isAuto = db.outreachSettings.sendingMode === 'auto_send';
+  const targetCandidates = db.candidates.filter(c => {
+    if (c.outreachStatus === 'Sent' || c.outreachStatus === 'Applied' || c.outreachStatus === 'Responded') return false;
+    if (c.isUnsubscribed) return false;
+    if (!c.email) return false;
+    if (isAuto) {
+      return c.outreachStatus === 'Approved' || c.outreachStatus === 'Draft';
+    }
+    return c.outreachStatus === 'Approved';
+  });
+
+  if (targetCandidates.length === 0) {
+    res.json({
+      success: true,
+      sentCount: 0,
+      failedCount: 0,
+      message: isAuto
+        ? 'No eligible pending candidate drafts available for sending.'
+        : 'No candidates in "Approved" status. Please review and approve candidate drafts first.',
+    });
+    return;
+  }
+
+  let sentCount = 0;
+  let failedCount = 0;
+  const errors: string[] = [];
+
+  for (const cand of targetCandidates) {
+    const result = await sendOutreachEmail({
+      candidate: cand,
+      settings: db.outreachSettings,
+      db,
+      origin,
+    });
+
+    if (result.success) {
+      sentCount++;
+    } else {
+      failedCount++;
+      if (result.error) errors.push(`${cand.name || cand.email}: ${result.error}`);
+    }
+
+    // Delay between sends to respect rate limits
+    if (db.outreachSettings.delayBetweenEmailsSeconds > 0) {
+      await new Promise(r => setTimeout(r, Math.min(db.outreachSettings.delayBetweenEmailsSeconds, 3) * 1000));
+    }
+  }
+
+  saveDatabase(db, mode === 'live' ? 'live' : 'demo');
+
+  res.json({
+    success: true,
+    sentCount,
+    failedCount,
+    errors,
+    message: `Batch send finished: ${sentCount} emails sent successfully, ${failedCount} failed.`,
+  });
+});
+
+// Candidate Unsubscribe / Opt-out Endpoint
+app.get('/api/outreach/unsubscribe', (req: Request, res: Response) => {
+  const { email, token } = req.query as { email?: string; token?: string };
+  if (!email && !token) {
+    res.status(400).send('Invalid unsubscribe link.');
+    return;
+  }
+
+  const modes: ('demo' | 'live')[] = ['demo', 'live'];
+  for (const m of modes) {
+    const db = getDatabase(m);
+    handleCandidateOptOut(email || '', token || '', db);
+    saveDatabase(db, m);
+  }
+
+  res.send(`
+    <html>
+      <head><title>Unsubscribed</title></head>
+      <body style="font-family: sans-serif; text-align: center; padding: 50px; background: #0f172a; color: #f8fafc;">
+        <h2 style="color: #38bdf8;">You Have Been Unsubscribed</h2>
+        <p>Your email address has been removed from BFSITalentHub recruitment outreach.</p>
+        <p style="color: #94a3b8; font-size: 13px;">No further recruitment invitations will be sent to this address.</p>
+      </body>
+    </html>
+  `);
 });
 
 // 14. Scheduled Cloud Scheduler Endpoint

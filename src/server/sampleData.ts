@@ -753,6 +753,7 @@ export function getInitialDemoDatabase(): AppDatabase {
     const respId = 'resp_priya_seed_001';
 
     priya.formToken = formToken;
+    priya.outreachStatus = 'Applied';
     priya.eligibilityStatus = 'eligible';
     priya.eligibilityReason = 'Verified sales candidate in Mumbai, India with explicit email.';
     priya.outreachDeliveryStatus = 'sent';
@@ -816,8 +817,18 @@ export function getInitialDemoDatabase(): AppDatabase {
     if (!c.formToken) {
       c.formToken = `tok_${c.id}_${Math.random().toString(36).slice(2, 10)}`;
     }
+    if (!c.outreachStatus) {
+      if (c.outreachDeliveryStatus === 'sent') {
+        c.outreachStatus = 'Sent';
+      } else if (c.candidateResponseId) {
+        c.outreachStatus = 'Responded';
+      } else {
+        c.outreachStatus = 'Draft';
+      }
+    }
     if (c.id === 'cand_verify_02_pharma') {
       c.eligibilityStatus = 'eligible';
+      c.outreachStatus = 'Approved';
       c.eligibilityReason = 'Area Sales Manager in pharma with verified email and Indian work location.';
     } else if (c.id === 'cand_verify_08_nbfc') {
       c.eligibilityStatus = 'eligible';

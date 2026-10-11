@@ -38,6 +38,7 @@ import {
   ActiveCollectionRun,
   CriteriaTag,
   AppErrorDetails,
+  ApifyDiagnostics,
 } from '../types/index.ts';
 import { CandidateDetailModal } from './CandidateDetailModal.tsx';
 
@@ -50,6 +51,7 @@ interface DashboardScreenProps {
   activeRun: ActiveCollectionRun | null;
   geminiConfigured: boolean;
   apifyConfigured: boolean;
+  apifyDiagnostics?: ApifyDiagnostics | null;
   onSaveCorrection: (id: string, updates: Partial<Candidate>) => Promise<void>;
 }
 
@@ -62,6 +64,7 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
   activeRun,
   geminiConfigured,
   apifyConfigured,
+  apifyDiagnostics,
   onSaveCorrection,
 }) => {
   const { candidates, posts, scanRuns, schedule } = data;
@@ -185,28 +188,52 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
         )}
       </div>
 
-      {/* Setup Required Banner if in Live mode and Apify token is missing */}
+      {/* Setup Required Banner if in Live mode and Apify token is missing or placeholder */}
       {mode === 'live' && !apifyConfigured && (
-        <div className="p-5 rounded-2xl bg-amber-950/60 border border-amber-800/80 text-amber-200 shadow-md space-y-2">
+        <div className={`p-5 rounded-2xl shadow-md space-y-2 border ${
+          apifyDiagnostics?.isPlaceholder
+            ? 'bg-amber-950/80 border-amber-500/80 text-amber-100 ring-1 ring-amber-500/40'
+            : 'bg-amber-950/60 border-amber-800/80 text-amber-200'
+        }`}>
           <div className="flex items-center space-x-2 font-bold text-sm text-amber-300">
             <AlertTriangle className="w-5 h-5 text-amber-400 shrink-0" />
-            <span>Setup Required: Apify harvestapi/linkedin-post-search Actor Connection</span>
+            <span>
+              {apifyDiagnostics?.isPlaceholder
+                ? 'Configuration Action Required: Placeholder Token Detected ("MY_APIFY_API_TOKEN")'
+                : 'Setup Required: Apify harvestapi/linkedin-post-search Actor Connection'}
+            </span>
           </div>
-          <p className="text-xs text-amber-200/90 leading-relaxed">
-            Live LinkedIn candidate harvesting requires your Apify API token. In AI Studio, open{' '}
-            <strong className="text-white underline">Settings &gt; Secrets</strong> and add{' '}
-            <code className="bg-amber-900/60 px-1.5 py-0.5 rounded font-mono text-amber-100">
-              APIFY_API_TOKEN
-            </code>
-            . As mandated, sample data is never displayed as live results.
-          </p>
-          <div className="pt-2 flex items-center space-x-3 text-xs">
+          {apifyDiagnostics?.isPlaceholder ? (
+            <p className="text-xs text-amber-100/90 leading-relaxed">
+              Your <code className="bg-amber-900/80 px-1.5 py-0.5 rounded font-mono text-amber-200">APIFY_API_TOKEN</code> secret exists in Google AI Studio, but its value is currently set to the placeholder text <strong className="text-amber-300">"MY_APIFY_API_TOKEN"</strong>. Please open <strong className="text-white underline">Settings &gt; Secrets</strong>, click Edit on <code className="bg-amber-900/80 px-1.5 py-0.5 rounded font-mono text-amber-200">APIFY_API_TOKEN</code>, and paste your actual token from Apify (starts with <code className="text-amber-200 font-mono">apify_api_...</code>).
+            </p>
+          ) : (
+            <p className="text-xs text-amber-200/90 leading-relaxed">
+              Live LinkedIn candidate harvesting requires your Apify API token. In AI Studio, open{' '}
+              <strong className="text-white underline">Settings &gt; Secrets</strong> and add{' '}
+              <code className="bg-amber-900/60 px-1.5 py-0.5 rounded font-mono text-amber-100">
+                APIFY_API_TOKEN
+              </code>
+              . As mandated, sample data is never displayed as live results.
+            </p>
+          )}
+          <div className="pt-2 flex flex-wrap items-center gap-3 text-xs">
             <button
               onClick={() => onNavigateTab('settings')}
-              className="px-3.5 py-1.5 rounded-lg bg-amber-900/70 hover:bg-amber-800 text-amber-100 font-semibold border border-amber-700/80 transition cursor-pointer"
+              className="px-3.5 py-1.5 rounded-lg bg-amber-800 hover:bg-amber-700 text-white font-semibold border border-amber-600 transition cursor-pointer flex items-center space-x-1.5 shadow"
             >
-              View Integration Settings
+              <span>Fix in Integration Settings</span>
+              <ChevronRight className="w-3.5 h-3.5" />
             </button>
+            <a
+              href="https://console.apify.com/account/integrations"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="px-3.5 py-1.5 rounded-lg bg-slate-900/80 hover:bg-slate-800 text-blue-300 font-medium border border-slate-700/80 transition flex items-center space-x-1"
+            >
+              <span>Get Token from Apify Console</span>
+              <ExternalLink className="w-3 h-3" />
+            </a>
             <span className="text-[11px] text-amber-400">
               Actor: harvestapi/linkedin-post-search
             </span>
@@ -228,11 +255,15 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
                     Apify Provider Request Diagnostics
                   </span>
                   <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-rose-900 text-rose-200 border border-rose-700">
-                    HTTP {currentErrorDetails?.httpStatus || 400}{' '}
-                    {currentErrorDetails?.statusText || 'Bad Request'}
+                    HTTP {currentErrorDetails?.httpStatus || (currentErrorMessage?.includes('403') ? 403 : 400)}{' '}
+                    {currentErrorDetails?.statusText || (currentErrorMessage?.includes('403') ? 'Forbidden' : 'Error')}
                   </span>
                   <span className="px-2 py-0.5 rounded text-[10px] font-mono bg-slate-900 text-amber-300 border border-amber-800/60">
-                    error.type: "invalid-input"
+                    {currentErrorDetails?.responseBody?.error?.type
+                      ? `error.type: "${currentErrorDetails.responseBody.error.type}"`
+                      : currentErrorMessage?.includes('Monthly usage hard limit')
+                      ? 'error.type: "platform-feature-disabled"'
+                      : 'error.type: "actor-execution-error"'}
                   </span>
                 </div>
                 <p className="text-xs text-rose-200/90 mt-0.5">
@@ -277,28 +308,51 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
 
           {/* Root cause badge & remedy text */}
           <div className="bg-slate-900/90 border border-slate-800 rounded-xl p-3.5 space-y-2 text-xs">
-            <div className="flex items-center space-x-2">
-              <span className="text-[11px] font-bold text-amber-400 uppercase tracking-wider">
-                Root Cause Identified:
-              </span>
-              <span className="px-2 py-0.5 rounded font-mono text-[11px] bg-amber-950 text-amber-300 border border-amber-800">
-                Rejected Field: input.postedLimit / input.maxPosts
-              </span>
-            </div>
-            <p className="text-slate-300 text-xs leading-relaxed">
-              Apify's <code className="text-indigo-300 font-mono">harvestapi/linkedin-post-search</code> actor
-              rejects internal UI values like <code className="text-rose-300 font-mono">"7d"</code> with HTTP 400
-              invalid-input. Allowed values are strictly:{' '}
-              <code className="text-emerald-300 font-mono">"24h", "week", "any", "1h", "month"</code>.
-              In addition, <code className="text-emerald-300 font-mono">maxPosts</code> must be an integer, and{' '}
-              <code className="text-emerald-300 font-mono">searchQueries</code> must be an array of strings (max 500 chars and &le; 5 Boolean operators).
-            </p>
-            <div className="text-[11px] text-slate-400 flex items-center space-x-2 pt-1 border-t border-slate-800">
-              <span className="text-emerald-400 font-semibold">Fix Applied:</span>
-              <span>
-                UI "7d" is mapped to "week", "24h" to "24h", maxPosts is cast to integer, and queries are verified.
-              </span>
-            </div>
+            {currentErrorMessage?.includes('Monthly usage hard limit') ||
+            currentErrorDetails?.responseBody?.error?.type === 'platform-feature-disabled' ? (
+              <>
+                <div className="flex items-center space-x-2">
+                  <span className="text-[11px] font-bold text-amber-400 uppercase tracking-wider">
+                    Root Cause Identified:
+                  </span>
+                  <span className="px-2 py-0.5 rounded font-mono text-[11px] bg-rose-950 text-rose-300 border border-rose-800">
+                    Apify Monthly Usage Limit Exceeded (Free Credit Exhausted)
+                  </span>
+                </div>
+                <p className="text-slate-300 text-xs leading-relaxed">
+                  Your Apify API key is <strong className="text-emerald-400 font-medium">valid and authenticated</strong>, but Apify blocked this run with <code className="text-rose-300 font-mono">HTTP 403 (platform-feature-disabled)</code> because your Apify account has reached its <strong>Monthly Usage Hard Limit</strong> ($5 free tier credit allowance).
+                </p>
+                <div className="text-[11px] text-slate-400 flex flex-wrap items-center gap-3 pt-1 border-t border-slate-800">
+                  <a
+                    href="https://console.apify.com/billing"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center space-x-1 text-blue-400 hover:text-blue-300 underline font-semibold"
+                  >
+                    <span>Check Apify Billing & Increase Limit</span>
+                    <ExternalLink className="w-3 h-3" />
+                  </a>
+                  <span className="text-slate-500">•</span>
+                  <span className="text-slate-300">
+                    Tip: Switch to <strong className="text-indigo-400">Demo Sandbox</strong> in the top header to run end-to-end extraction and evaluation without consuming Apify credits.
+                  </span>
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="flex items-center space-x-2">
+                  <span className="text-[11px] font-bold text-amber-400 uppercase tracking-wider">
+                    Root Cause Identified:
+                  </span>
+                  <span className="px-2 py-0.5 rounded font-mono text-[11px] bg-amber-950 text-amber-300 border border-amber-800">
+                    {currentErrorDetails?.rejectedField || 'Actor Execution Issue'}
+                  </span>
+                </div>
+                <p className="text-slate-300 text-xs leading-relaxed">
+                  {currentErrorDetails?.remedy || currentErrorMessage}
+                </p>
+              </>
+            )}
           </div>
 
           {/* Collapsible Inspection Details */}

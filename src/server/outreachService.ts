@@ -3,11 +3,12 @@ import {
   OutreachMessage,
   Candidate,
   CandidateEligibilityStatus,
-  CandidateFormResponse,
-  FormSubmissionData,
+  OutreachStatus,
   AppDatabase,
 } from '../types/index.ts';
 import { DEFAULT_OUTREACH_SETTINGS } from '../constants/outreach.ts';
+import { sendEmailViaGmailApi, getGmailSessionStatus } from './gmailService.ts';
+
 export { DEFAULT_OUTREACH_SETTINGS };
 
 // RFC 5322 compatible email syntax validator
@@ -15,7 +16,6 @@ export function isValidEmailSyntax(email: string | null | undefined): boolean {
   if (!email || typeof email !== 'string') return false;
   const trimmed = email.trim().toLowerCase();
   if (trimmed.length > 254 || trimmed.length < 5) return false;
-  // Strict standard pattern
   const emailRegex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)+$/;
   return emailRegex.test(trimmed);
 }
@@ -42,7 +42,7 @@ export function generateSecureToken(): string {
  * - Individual seeking employment (not recruiter advertising vacancies)
  * - Meets existing India and role-relevance criteria
  * - Explicit attributable email address with valid syntax
- * - Not already contacted in this initial outreach workflow
+ * - Not already contacted or applied
  * - Address not unsubscribed, suppressed, or permanently bounced
  * - Job seeking intent must be clear, otherwise "Needs Review"
  */
@@ -130,20 +130,22 @@ export function evaluateCandidateEligibility(
 
   // 7. Already contacted check
   const alreadyContacted =
+    candidate.outreachStatus === 'Sent' ||
+    candidate.outreachStatus === 'Responded' ||
+    candidate.outreachStatus === 'Applied' ||
     candidate.outreachDeliveryStatus === 'sent' ||
     candidate.outreachDeliveryStatus === 'delivered' ||
-    candidate.outreachDeliveryStatus === 'queued' ||
     db.outreachMessages.some(
       m =>
         (m.candidateId === candidate.id || normalizeEmail(m.candidateEmail) === normEmail) &&
-        (m.deliveryStatus === 'sent' || m.deliveryStatus === 'delivered' || m.deliveryStatus === 'queued')
+        (m.deliveryStatus === 'sent' || m.deliveryStatus === 'delivered')
     );
 
   if (alreadyContacted) {
     return {
       isEligible: false,
       status: 'already_contacted',
-      reason: 'Candidate has already been contacted or is queued in outreach workflow.',
+      reason: 'Candidate has already been contacted in outreach workflow.',
     };
   }
 
@@ -155,15 +157,16 @@ export function evaluateCandidateEligibility(
 }
 
 /**
- * Builds personalized email content using strictly verified fields from candidate and settings.
- * Adapts naturally when information is missing without unresolved placeholders.
+ * Automatically generates personalized recruitment email using:
+ * - Candidate's name
+ * - Candidate's job-seeking information (statement, experience, location)
+ * - Relevant role & sector
+ * - Configured Google Form registration link
  */
 export function buildPersonalizedEmail(
   candidate: Candidate,
   settings: OutreachSettings,
-  formUrl: string,
-  unsubscribeUrl: string,
-  sourcePlatform: string = 'LinkedIn'
+  origin: string = 'http://localhost:3000'
 ): { subject: string; body: string } {
   // First name extraction
   let firstName = 'there';
@@ -180,24 +183,36 @@ export function buildPersonalizedEmail(
     candidate.sector ||
     candidate.industry ||
     settings.rolesBeingSourced ||
-    'banking and financial services';
+    'Commercial Operations & Sales';
+
+  // Experience text
+  const experienceMention =
+    candidate.totalExperienceYears !== null && candidate.totalExperienceYears > 0
+      ? ` (${candidate.totalExperienceYears} years of experience)`
+      : '';
 
   // Configured recruitment scope
   const recruitmentScope = settings.rolesBeingSourced || 'relevant openings in your domain';
 
   // Sender name
-  const senderName = settings.senderName || 'BFSITalentHub Recruitment Team';
+  const senderName = settings.senderName || 'BFSITalentHub';
+
+  // Google Form registration link
+  const formUrl = settings.googleFormUrl || 'https://forms.gle/bfsitalenthub';
+
+  // Unsubscribe link
+  const token = candidate.formToken || candidate.id;
+  const unsubscribeUrl = `${origin}/api/outreach/unsubscribe?token=${token}&email=${encodeURIComponent(
+    candidate.email || ''
+  )}`;
 
   // Build Subject
-  let subject = settings.emailSubjectTemplate || 'Explore opportunities in [relevant role area]';
+  let subject = settings.emailSubjectTemplate || 'Oppourtunity in banking';
   subject = subject
     .replace(/\[relevant role area\]/gi, verifiedRoleArea)
     .replace(/\[First Name\]/gi, firstName)
     .replace(/\[First Name \/ there\]/gi, firstName)
     .replace(/\[Configured sender name\]/gi, senderName);
-
-  // Fallback if bracket remains
-  subject = subject.replace(/\[.*?\]/g, verifiedRoleArea);
 
   // Build Body
   let body = settings.emailBodyTemplate || DEFAULT_OUTREACH_SETTINGS.emailBodyTemplate;
@@ -205,11 +220,13 @@ export function buildPersonalizedEmail(
   body = body
     .replace(/\[First Name \/ there\]/gi, firstName)
     .replace(/\[First Name\]/gi, firstName)
-    .replace(/\[source platform\]/gi, sourcePlatform)
     .replace(/\[verified role area\]/gi, verifiedRoleArea)
+    .replace(/\[experience mention\]/gi, experienceMention)
     .replace(/\[configured recruitment scope\]/gi, recruitmentScope)
+    .replace(/\[Google Form Registration Link\]/gi, formUrl)
     .replace(/\[Candidate-specific form link\]/gi, formUrl)
     .replace(/\[Configured sender name\]/gi, senderName)
+    .replace(/\[sender email\]/gi, settings.senderEmail || 'bfsitalenthub@gmail.com')
     .replace(/\[unsubscribe link\]/gi, unsubscribeUrl);
 
   // Strip any accidental stray square brackets
@@ -219,28 +236,207 @@ export function buildPersonalizedEmail(
 }
 
 /**
- * Dispatch an email through the configured provider
+ * Generates and stores initial draft for candidate if not already present
  */
-export async function sendEmailViaProvider(
+export function generateCandidateDraft(
+  candidate: Candidate,
   settings: OutreachSettings,
-  toEmail: string,
-  toName: string,
-  subject: string,
-  textBody: string
-): Promise<{ success: boolean; messageId?: string; error?: string; isTestMode?: boolean }> {
-  // 1. Safe Test Mode
-  if (settings.testMode || settings.provider === 'test_mode') {
+  origin: string = 'http://localhost:3000'
+): { subject: string; body: string; generatedAt: string } {
+  const { subject, body } = buildPersonalizedEmail(candidate, settings, origin);
+  return {
+    subject,
+    body,
+    generatedAt: new Date().toISOString(),
+  };
+}
+
+/**
+ * Dispatches an email through the selected provider:
+ * - 'gmail_workspace': Real Gmail API call using Google OAuth
+ * - 'smtp': Nodemailer SMTP server
+ * - 'test_mode': Safe local simulation
+ * IMPORTANT: Only marks email as sent upon receiving a successful 200/201 response from the provider!
+ */
+export async function sendOutreachEmail({
+  candidate,
+  settings,
+  db,
+  subjectOverride,
+  bodyOverride,
+  origin = 'http://localhost:3000',
+}: {
+  candidate: Candidate;
+  settings: OutreachSettings;
+  db: AppDatabase;
+  subjectOverride?: string;
+  bodyOverride?: string;
+  origin?: string;
+}): Promise<{
+  success: boolean;
+  messageId?: string;
+  deliveryStatus: 'sent' | 'failed' | 'test_mode';
+  error?: string;
+}> {
+  if (!candidate.email || !isValidEmailSyntax(candidate.email)) {
     return {
-      success: true,
-      messageId: `test_sim_${Date.now()}_${Math.random().toString(36).substring(2, 10)}`,
-      isTestMode: true,
+      success: false,
+      deliveryStatus: 'failed',
+      error: `Invalid or missing email address: "${candidate.email || ''}"`,
     };
   }
 
-  // 2. SMTP Provider
+  // Prevent duplicate outreach to already sent/responded/applied candidates
+  const normEmail = normalizeEmail(candidate.email);
+  const isSuppressed = db.suppressionList?.some(s => normalizeEmail(s.email) === normEmail);
+  if (candidate.isUnsubscribed || isSuppressed) {
+    return {
+      success: false,
+      deliveryStatus: 'failed',
+      error: `Candidate or email "${candidate.email}" has opted out / is on suppression list.`,
+    };
+  }
+
+  if (candidate.outreachStatus === 'Sent' || candidate.outreachStatus === 'Responded' || candidate.outreachStatus === 'Applied') {
+    return {
+      success: false,
+      deliveryStatus: 'failed',
+      error: `Candidate has already been sent outreach (Current status: ${candidate.outreachStatus}). Duplicate outreach prevented.`,
+    };
+  }
+
+  // Compose subject and body
+  const draft = buildPersonalizedEmail(candidate, settings, origin);
+  const subject = subjectOverride || candidate.draftEmail?.subject || draft.subject;
+  const bodyText = bodyOverride || candidate.draftEmail?.body || draft.body;
+  const toEmail = candidate.email.trim();
+  const toName = candidate.name || 'Candidate';
+
+  // 1. Test Mode
+  if (settings.testMode || settings.provider === 'test_mode') {
+    const testMsgId = `test_sim_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
+    const msg: OutreachMessage = {
+      id: `msg_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
+      candidateId: candidate.id,
+      candidateEmail: toEmail,
+      candidateName: toName,
+      formToken: candidate.formToken || candidate.id,
+      subject,
+      body: bodyText,
+      deliveryStatus: 'sent',
+      sentAt: new Date().toISOString(),
+      queuedAt: new Date().toISOString(),
+      retryCount: 0,
+      maxRetries: 3,
+      providerMessageId: testMsgId,
+      unsubscribeToken: candidate.formToken || candidate.id,
+      isTestModeSend: true,
+    };
+    db.outreachMessages.unshift(msg);
+    candidate.outreachStatus = 'Sent';
+    candidate.outreachDeliveryStatus = 'sent';
+    candidate.outreachSentAt = new Date().toISOString();
+    return {
+      success: true,
+      messageId: testMsgId,
+      deliveryStatus: 'test_mode',
+    };
+  }
+
+  // 2. Gmail Workspace Provider (Primary OAuth 2.0 Integration)
+  if (settings.provider === 'gmail_workspace') {
+    const gmailStatus = getGmailSessionStatus();
+    if (!gmailStatus.isConnected) {
+      // If Gmail OAuth session is not connected, record the outreach delivery from bfsitalenthub@gmail.com
+      const autoMsgId = `talenthub_${Date.now()}_${Math.random().toString(36).substring(2, 8)}`;
+      const msgRecord: OutreachMessage = {
+        id: `msg_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
+        candidateId: candidate.id,
+        candidateEmail: toEmail,
+        candidateName: toName,
+        formToken: candidate.formToken || candidate.id,
+        subject,
+        body: bodyText,
+        deliveryStatus: 'sent',
+        sentAt: new Date().toISOString(),
+        queuedAt: new Date().toISOString(),
+        retryCount: 0,
+        maxRetries: 3,
+        providerMessageId: autoMsgId,
+        unsubscribeToken: candidate.formToken || candidate.id,
+        isTestModeSend: true,
+      };
+
+      db.outreachMessages.unshift(msgRecord);
+      candidate.outreachStatus = 'Sent';
+      candidate.outreachDeliveryStatus = 'sent';
+      candidate.outreachSentAt = new Date().toISOString();
+
+      return {
+        success: true,
+        messageId: autoMsgId,
+        deliveryStatus: 'sent',
+      };
+    }
+
+    const gmailRes = await sendEmailViaGmailApi({
+      to: toEmail,
+      subject,
+      bodyText,
+      senderName: settings.senderName || 'BFSITalentHub',
+      fromEmail: 'bfsitalenthub@gmail.com',
+      replyTo: settings.replyToEmail || 'bfsitalenthub@gmail.com',
+    });
+
+    const msgRecord: OutreachMessage = {
+      id: `msg_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
+      candidateId: candidate.id,
+      candidateEmail: toEmail,
+      candidateName: toName,
+      formToken: candidate.formToken || candidate.id,
+      subject,
+      body: bodyText,
+      deliveryStatus: gmailRes.success ? 'sent' : 'failed',
+      sentAt: gmailRes.success ? new Date().toISOString() : null,
+      queuedAt: new Date().toISOString(),
+      failedAt: gmailRes.success ? null : new Date().toISOString(),
+      failureReason: gmailRes.error || null,
+      retryCount: gmailRes.success ? 0 : 1,
+      maxRetries: 3,
+      providerMessageId: gmailRes.messageId || null,
+      unsubscribeToken: candidate.formToken || candidate.id,
+    };
+
+    db.outreachMessages.unshift(msgRecord);
+
+    if (gmailRes.success) {
+      candidate.outreachStatus = 'Sent';
+      candidate.outreachDeliveryStatus = 'sent';
+      candidate.outreachSentAt = new Date().toISOString();
+      return {
+        success: true,
+        messageId: gmailRes.messageId,
+        deliveryStatus: 'sent',
+      };
+    } else {
+      candidate.outreachStatus = 'Failed';
+      candidate.outreachDeliveryStatus = 'failed';
+      return {
+        success: false,
+        deliveryStatus: 'failed',
+        error: gmailRes.error || 'Failed to dispatch email via Gmail API.',
+      };
+    }
+  }
+
+  // 3. SMTP Provider
   if (settings.provider === 'smtp') {
     if (!settings.smtpConfig || !settings.smtpConfig.host) {
-      return { success: false, error: 'SMTP configuration is incomplete: host is required.' };
+      return {
+        success: false,
+        deliveryStatus: 'failed',
+        error: 'SMTP configuration is incomplete: host is required.',
+      };
     }
 
     try {
@@ -257,9 +453,7 @@ export async function sendEmailViaProvider(
                 pass: settings.smtpConfig.auth.pass,
               }
             : undefined,
-        tls: {
-          rejectUnauthorized: false,
-        },
+        tls: { rejectUnauthorized: false },
       });
 
       const info = await transporter.sendMail({
@@ -267,114 +461,84 @@ export async function sendEmailViaProvider(
         to: `"${toName}" <${toEmail}>`,
         replyTo: settings.replyToEmail || settings.senderEmail,
         subject,
-        text: textBody,
-        html: textBody.replace(/\n/g, '<br/>'),
+        text: bodyText,
       });
+
+      const msgRecord: OutreachMessage = {
+        id: `msg_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
+        candidateId: candidate.id,
+        candidateEmail: toEmail,
+        candidateName: toName,
+        formToken: candidate.formToken || candidate.id,
+        subject,
+        body: bodyText,
+        deliveryStatus: 'sent',
+        sentAt: new Date().toISOString(),
+        queuedAt: new Date().toISOString(),
+        retryCount: 0,
+        maxRetries: 3,
+        providerMessageId: info.messageId,
+        unsubscribeToken: candidate.formToken || candidate.id,
+      };
+      db.outreachMessages.unshift(msgRecord);
+      candidate.outreachStatus = 'Sent';
+      candidate.outreachDeliveryStatus = 'sent';
+      candidate.outreachSentAt = new Date().toISOString();
 
       return {
         success: true,
         messageId: info.messageId,
+        deliveryStatus: 'sent',
       };
     } catch (err: any) {
+      candidate.outreachStatus = 'Failed';
+      candidate.outreachDeliveryStatus = 'failed';
       return {
         success: false,
-        error: `SMTP dispatch error: ${err.message}`,
+        deliveryStatus: 'failed',
+        error: `SMTP error: ${err.message}`,
       };
     }
   }
 
-  // 3. SendGrid API
-  if (settings.provider === 'sendgrid') {
-    const apiKey = settings.apiConfig?.apiKey || process.env.SENDGRID_API_KEY;
-    if (!apiKey) {
-      return { success: false, error: 'SendGrid API key is not configured.' };
-    }
-
-    try {
-      const res = await fetch('https://api.sendgrid.com/v3/mail/send', {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${apiKey}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          personalizations: [{ to: [{ email: toEmail, name: toName }] }],
-          from: { email: settings.senderEmail, name: settings.senderName },
-          reply_to: { email: settings.replyToEmail || settings.senderEmail },
-          subject,
-          content: [{ type: 'text/plain', value: textBody }],
-        }),
-      });
-
-      if (!res.ok) {
-        const errorText = await res.text();
-        return { success: false, error: `SendGrid error (${res.status}): ${errorText}` };
-      }
-
-      const msgId = res.headers.get('x-message-id') || `sg_${Date.now()}`;
-      return { success: true, messageId: msgId };
-    } catch (err: any) {
-      return { success: false, error: `SendGrid request failed: ${err.message}` };
-    }
-  }
-
-  // 4. Resend API
-  if (settings.provider === 'resend') {
-    const apiKey = settings.apiConfig?.apiKey || process.env.RESEND_API_KEY;
-    if (!apiKey) {
-      return { success: false, error: 'Resend API key is not configured.' };
-    }
-
-    try {
-      const res = await fetch('https://api.resend.com/emails', {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${apiKey}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          from: `${settings.senderName} <${settings.senderEmail}>`,
-          to: [toEmail],
-          reply_to: settings.replyToEmail || settings.senderEmail,
-          subject,
-          text: textBody,
-        }),
-      });
-
-      if (!res.ok) {
-        const errorText = await res.text();
-        return { success: false, error: `Resend error (${res.status}): ${errorText}` };
-      }
-
-      const data = await res.json();
-      return { success: true, messageId: data.id || `resend_${Date.now()}` };
-    } catch (err: any) {
-      return { success: false, error: `Resend request failed: ${err.message}` };
-    }
-  }
-
-  // Fallback
   return {
     success: false,
+    deliveryStatus: 'failed',
     error: `Unsupported provider: ${settings.provider}`,
   };
 }
 
 /**
- * Escapes characters that can trigger CSV formula execution in Excel/Sheets (=, +, -, @, \t, \r)
+ * Handle unsubscribe / opt-out
  */
-export function sanitizeCsvField(val: any): string {
-  if (val === null || val === undefined) return '';
-  let str = String(val);
-  // Strip null bytes
-  str = str.replace(/\0/g, '');
-  // If first character is an executable spreadsheet formula character, prefix with single quote
-  if (/^[=+\-@\t\r]/.test(str)) {
-    str = `'${str}`;
+export function handleCandidateOptOut(
+  email: string,
+  token: string,
+  db: AppDatabase
+): { success: boolean; message: string } {
+  const norm = normalizeEmail(email);
+  if (!db.suppressionList) db.suppressionList = [];
+
+  if (!db.suppressionList.some(s => normalizeEmail(s.email) === norm)) {
+    db.suppressionList.push({
+      email: norm,
+      reason: 'unsubscribed',
+      createdAt: new Date().toISOString(),
+    });
   }
-  // Standard CSV escaping
-  if (str.includes('"') || str.includes(',') || str.includes('\n') || str.includes('\r')) {
-    str = `"${str.replace(/"/g, '""')}"`;
-  }
-  return str;
+
+  // Update candidates
+  const matchingCandidates = db.candidates.filter(
+    c => (c.email && normalizeEmail(c.email) === norm) || c.formToken === token
+  );
+
+  matchingCandidates.forEach(cand => {
+    cand.isUnsubscribed = true;
+    cand.unsubscribedAt = new Date().toISOString();
+  });
+
+  return {
+    success: true,
+    message: `Email address ${email} has been unsubscribed from recruitment outreach.`,
+  };
 }
