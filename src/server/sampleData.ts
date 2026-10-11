@@ -735,13 +735,115 @@ export const initialScanRuns: ScanRun[] = [
   },
 ];
 
+import { DEFAULT_OUTREACH_SETTINGS } from '../constants/outreach.ts';
+
 export function getInitialDemoDatabase(): AppDatabase {
+  const candidates: Candidate[] = JSON.parse(JSON.stringify(initialSampleCandidates));
+
+  // Initialize tokens and eligibility status on candidates
+  const candidateResponses: any[] = [];
+  const outreachMessages: any[] = [];
+
+  // Seed Priya Sharma with an initial outreach message and submitted form response for rich demonstration
+  const priya = candidates.find(c => c.id === 'cand_verify_07_hiring_managers');
+  if (priya) {
+    const formToken = 'tok_priya_sharma_seed_fmcg_2026';
+    const unsubToken = 'unsub_priya_sharma_seed_2026';
+    const msgId = 'msg_priya_seed_001';
+    const respId = 'resp_priya_seed_001';
+
+    priya.formToken = formToken;
+    priya.eligibilityStatus = 'eligible';
+    priya.eligibilityReason = 'Verified sales candidate in Mumbai, India with explicit email.';
+    priya.outreachDeliveryStatus = 'sent';
+    priya.outreachSentAt = '2026-10-04T10:00:00.000Z';
+    priya.formSubmittedAt = '2026-10-04T14:30:00.000Z';
+    priya.engagementStatus = 'New Response';
+    priya.assignedRecruiter = 'Sanya Kapoor';
+    priya.candidateResponseId = respId;
+
+    outreachMessages.push({
+      id: msgId,
+      candidateId: priya.id,
+      candidateEmail: priya.email || 'priya.sharma91@example.com',
+      candidateName: priya.name || 'Priya Sharma',
+      formToken,
+      subject: 'Explore opportunities in FMCG Sales',
+      body: `Hi Priya,\n\nI came across your LinkedIn post mentioning that you are exploring new opportunities in FMCG Sales.\n\nWe are collecting expressions of interest for Commercial Sales roles. If you would like to be considered for relevant opportunities, please share your details through the link below:\n\n/apply/${formToken}\n\nOur recruitment team will review your details and may contact you where there is a suitable match.\n\nRegards,\nBFSITalentHub`,
+      deliveryStatus: 'sent',
+      sentAt: '2026-10-04T10:00:00.000Z',
+      queuedAt: '2026-10-04T09:55:00.000Z',
+      retryCount: 0,
+      maxRetries: 3,
+      unsubscribeToken: unsubToken,
+      formSubmittedAt: '2026-10-04T14:30:00.000Z',
+      isTestModeSend: true,
+    });
+
+    candidateResponses.push({
+      id: respId,
+      candidateId: priya.id,
+      token: formToken,
+      submittedAt: '2026-10-04T14:30:00.000Z',
+      submissionIp: '127.0.0.1',
+      sourcePlatform: 'LinkedIn',
+      sourcePostUrl: priya.postUrl,
+      sourcingRunId: 'run_verify_canonical',
+      outreachMessageId: msgId,
+      fields: {
+        fullName: 'Priya Sharma',
+        email: 'priya.sharma91@example.com',
+        mobile: '+91 97110 88234',
+        currentCityState: 'Mumbai, Maharashtra',
+        preferredLocations: 'Mumbai, Pune, Bangalore',
+        roleFunctionOfInterest: 'B2B Corporate Sales / Key Account Management',
+        totalWorkExperience: '4 years',
+        currentEmployerDesignation: 'NatureFresh Foods - Senior Sales Executive',
+        bankingFinancialServicesExperience: 'Collaborated with NBFC trade financiers for distributor working capital',
+        noticePeriodAvailability: '30 days',
+        expectedAnnualCtc: '₹14,00,000 INR',
+        linkedInProfileUrl: priya.profileUrl || '',
+        consentGiven: true,
+        consentWordingVersion: 'v1.0-2026',
+        consentTimestamp: '2026-10-04T14:30:00.000Z',
+      },
+      recruiterNotes: 'Candidate expressed strong interest in territory expansion and corporate institutional sales.',
+    });
+  }
+
+  // Pre-seed form tokens and eligibility statuses on remaining initial candidates
+  candidates.forEach(c => {
+    if (!c.formToken) {
+      c.formToken = `tok_${c.id}_${Math.random().toString(36).slice(2, 10)}`;
+    }
+    if (c.id === 'cand_verify_02_pharma') {
+      c.eligibilityStatus = 'eligible';
+      c.eligibilityReason = 'Area Sales Manager in pharma with verified email and Indian work location.';
+    } else if (c.id === 'cand_verify_08_nbfc') {
+      c.eligibilityStatus = 'eligible';
+      c.eligibilityReason = 'Loan Sales Manager at Shriram Finance with verified email.';
+    } else if (c.id === 'cand_verify_04_unknown_exp') {
+      c.eligibilityStatus = 'needs_review';
+      c.eligibilityReason = 'Experience years missing from source post. Requires manual review.';
+    } else if (c.id === 'cand_verify_06_outside_india') {
+      c.eligibilityStatus = 'outside_target';
+      c.eligibilityReason = 'Candidate based outside India (Singapore).';
+    } else if (c.id === 'cand_verify_01_recruiter_ad') {
+      c.eligibilityStatus = 'recruiter_excluded';
+      c.eligibilityReason = 'Post is a recruitment consultant advertising vacancies.';
+    }
+  });
+
   return {
-    candidates: JSON.parse(JSON.stringify(initialSampleCandidates)),
+    candidates,
     posts: JSON.parse(JSON.stringify(initialSamplePosts)),
     scanRuns: JSON.parse(JSON.stringify(initialScanRuns)),
     criteria: JSON.parse(JSON.stringify(initialCriteriaFilters)),
     schedule: JSON.parse(JSON.stringify(initialScheduleSettings)),
     connections: JSON.parse(JSON.stringify(initialConnectionsConfig)),
+    outreachSettings: JSON.parse(JSON.stringify(DEFAULT_OUTREACH_SETTINGS)),
+    outreachMessages,
+    candidateResponses,
+    suppressionList: [],
   };
 }

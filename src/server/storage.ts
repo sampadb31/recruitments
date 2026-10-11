@@ -9,10 +9,13 @@ import {
   SourcePost,
   ExtractionResult,
   ActiveCollectionRun,
+  QueryCatalogueItem,
+  QueryCatalogueConfig,
 } from '../types/index.ts';
 import { getInitialDemoDatabase, initialSamplePosts } from './sampleData.ts';
 import { extractCandidateFromPost } from './gemini.ts';
 import { fetchLinkedInPostsViaApify, isApifyConfigured, mapTimeToPostedLimit } from './apify.ts';
+import { DEFAULT_QUERY_CATALOGUE, INITIAL_QUERY_CONFIG } from './queryCatalogue.ts';
 
 const DATA_DIR = path.resolve(process.cwd(), 'data');
 
@@ -58,6 +61,10 @@ function getInitialLiveDatabase(): AppDatabase {
         errorMessage: isApifyConfigured() ? undefined : 'APIFY_API_TOKEN secret is not set in environment.',
       },
     },
+    outreachSettings: JSON.parse(JSON.stringify(demo.outreachSettings)),
+    outreachMessages: [],
+    candidateResponses: [],
+    suppressionList: [],
   };
 }
 
@@ -81,6 +88,34 @@ export function getDatabase(mode: 'demo' | 'live' = 'demo'): AppDatabase {
       parsed.connections.apify.isConfigured = isApifyConfigured();
       parsed.connections.apify.status = isApifyConfigured() ? 'connected' : 'setup_required';
     }
+
+    // Ensure outreach collections exist
+    if (!parsed.outreachSettings) {
+      const demo = getInitialDemoDatabase();
+      parsed.outreachSettings = JSON.parse(JSON.stringify(demo.outreachSettings));
+    }
+    if (!Array.isArray(parsed.outreachMessages)) {
+      parsed.outreachMessages = [];
+    }
+    if (!Array.isArray(parsed.candidateResponses)) {
+      parsed.candidateResponses = [];
+    }
+    if (!Array.isArray(parsed.suppressionList)) {
+      parsed.suppressionList = [];
+    }
+
+    // Ensure candidates have formToken
+    let modified = false;
+    for (const c of parsed.candidates) {
+      if (!c.formToken) {
+        c.formToken = `tok_${c.id}_${crypto.randomBytes(8).toString('hex')}`;
+        modified = true;
+      }
+    }
+    if (modified) {
+      saveDatabase(parsed, mode);
+    }
+
     return parsed;
   } catch (err) {
     console.error(`Error reading ${filepath}, resetting to initial`, err);
@@ -99,6 +134,34 @@ export function resetDemoDatabase(): AppDatabase {
   const fresh = getInitialDemoDatabase();
   fs.writeFileSync(DEMO_FILE, JSON.stringify(fresh, null, 2), 'utf-8');
   return fresh;
+}
+
+export function clearDatabase(mode: 'demo' | 'live' | 'all' = 'all'): { demo?: AppDatabase; live?: AppDatabase } {
+  const result: { demo?: AppDatabase; live?: AppDatabase } = {};
+
+  if (mode === 'demo' || mode === 'all') {
+    const db = getDatabase('demo');
+    db.posts = [];
+    db.candidates = [];
+    db.scanRuns = [];
+    db.outreachMessages = [];
+    db.candidateResponses = [];
+    saveDatabase(db, 'demo');
+    result.demo = db;
+  }
+
+  if (mode === 'live' || mode === 'all') {
+    const db = getDatabase('live');
+    db.posts = [];
+    db.candidates = [];
+    db.scanRuns = [];
+    db.outreachMessages = [];
+    db.candidateResponses = [];
+    saveDatabase(db, 'live');
+    result.live = db;
+  }
+
+  return result;
 }
 
 export function getActiveRun(runId: string): ActiveCollectionRun | undefined {
@@ -168,6 +231,7 @@ export async function startCandidateCollectionRun(
     limit: number;
     mode: 'demo' | 'live';
     useSmallTestQuery?: boolean;
+    searchQueries?: string[];
   }
 ): Promise<{ runId: string }> {
   // Check if a run is already active
@@ -249,6 +313,7 @@ export async function startCandidateCollectionRun(
             timeWindow: options.timeWindow,
             limit: maxPosts,
             useSmallTestQuery: options.useSmallTestQuery,
+            searchQueries: options.searchQueries,
           },
           msg => {
             activeRun.logs.push(`[${new Date().toLocaleTimeString()}] ${msg}`);
@@ -569,8 +634,12 @@ export async function runExtractionProcess(
         postedAt: post.postedAt || undefined,
       });
 
-      if (extraction.isRecruiterAd || extraction.isSeekingForOthers) {
-        post.extractionState = 'recruiter_ad';
+      post.authorIntent = extraction.authorIntent;
+      post.intentEvidence = extraction.intentEvidence;
+      post.rejectionReason = extraction.rejectionReason;
+
+      if (extraction.authorIntent !== 'SELF_JOB_SEEKING' || extraction.isRecruiterAd || extraction.isSeekingForOthers) {
+        post.extractionState = extraction.isRecruiterAd ? 'recruiter_ad' : 'rejected_post';
         continue;
       }
 
@@ -1220,4 +1289,38 @@ export function generateCandidatesCsv(candidates: Candidate[], posts: SourcePost
   });
 
   return [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+}
+
+export function getQueryCatalogue(mode: 'demo' | 'live' = 'demo'): { catalogue: QueryCatalogueItem[]; config: QueryCatalogueConfig } {
+  const db = getDatabase(mode);
+  if (!db.queryCatalogue || !Array.isArray(db.queryCatalogue) || db.queryCatalogue.length === 0) {
+    db.queryCatalogue = JSON.parse(JSON.stringify(DEFAULT_QUERY_CATALOGUE));
+  }
+  if (!db.queryConfig) {
+    db.queryConfig = JSON.parse(JSON.stringify(INITIAL_QUERY_CONFIG));
+  }
+  return { catalogue: db.queryCatalogue!, config: db.queryConfig! };
+}
+
+export function updateQueryCatalogue(
+  mode: 'demo' | 'live' = 'demo',
+  updates: { catalogue?: QueryCatalogueItem[]; config?: QueryCatalogueConfig }
+): { catalogue: QueryCatalogueItem[]; config: QueryCatalogueConfig } {
+  const db = getDatabase(mode);
+  if (updates.catalogue && Array.isArray(updates.catalogue)) {
+    db.queryCatalogue = updates.catalogue;
+  }
+  if (updates.config) {
+    db.queryConfig = { ...(db.queryConfig || INITIAL_QUERY_CONFIG), ...updates.config };
+  }
+  saveDatabase(db, mode);
+  return { catalogue: db.queryCatalogue || DEFAULT_QUERY_CATALOGUE, config: db.queryConfig || INITIAL_QUERY_CONFIG };
+}
+
+export function resetQueryCatalogue(mode: 'demo' | 'live' = 'demo'): { catalogue: QueryCatalogueItem[]; config: QueryCatalogueConfig } {
+  const db = getDatabase(mode);
+  db.queryCatalogue = JSON.parse(JSON.stringify(DEFAULT_QUERY_CATALOGUE));
+  db.queryConfig = JSON.parse(JSON.stringify(INITIAL_QUERY_CONFIG));
+  saveDatabase(db, mode);
+  return { catalogue: db.queryCatalogue!, config: db.queryConfig! };
 }

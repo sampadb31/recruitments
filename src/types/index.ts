@@ -1,5 +1,49 @@
 export type CriteriaTag = 'Matches Criteria' | 'Needs Review' | 'Outside Target';
 
+export type TimeWindow = '24h' | '7d' | '30d';
+
+export type RoleFamilyCategory =
+  | 'all_roles_india'
+  | 'tech_engineering'
+  | 'general_sales'
+  | 'operations_hr_marketing'
+  | 'fmcg_manufacturing_paints'
+  | 'pharma_healthcare'
+  | 'technology_sales'
+  | 'banking_nbfc_fintech'
+  | 'insurance'
+  | 'hospitality';
+
+export interface QueryCatalogueStats {
+  runsCount: number;
+  retrievedCount: number;
+  duplicatesCount: number;
+  matchedCount: number;
+  rejectedCount: number;
+}
+
+export interface QueryCatalogueItem {
+  id: string;
+  category: RoleFamilyCategory;
+  categoryLabel: string;
+  sectorTag: string;
+  roleTerms: string[];
+  phraseTerms: string[];
+  compiledQuery: string;
+  enabled: boolean;
+  stats?: QueryCatalogueStats;
+  lastUsedAt?: string | null;
+}
+
+export interface QueryCatalogueConfig {
+  maxQueriesPerRun: number;
+  maxPostsPerQuery?: number;
+  timeWindow?: TimeWindow;
+  rotationIndex: number;
+  rotationMode?: 'sequential' | 'balanced_round_robin' | 'all_enabled';
+  lastRotatedAt?: string | null;
+}
+
 export type AuthorIntent =
   | 'SELF_JOB_SEEKING'
   | 'RECRUITER_OR_EMPLOYER_HIRING'
@@ -77,6 +121,14 @@ export interface CandidateSixPointCheck {
   totalExperience1To10Years: CandidateCheckResult & { experienceType?: 'stated' | 'calculated' | 'unknown' };
   currentEmployerInTargetSector: CandidateCheckResult & { detectedSector?: string | null };
   postDateWithinSelectedPeriod: CandidateCheckResult;
+  author_seeking_job?: boolean | null;
+  author_based_in_india?: boolean | 'unknown' | null;
+  intent_evidence?: string | null;
+  location_evidence?: string | null;
+  currentCity?: string | null;
+  currentStateOrUT?: string | null;
+  preferredLocation?: string | null;
+  rejection_or_review_reason?: string | null;
 }
 
 // Backwards-compatible alias for existing references
@@ -135,6 +187,18 @@ export interface Candidate {
   uncertainDuplicateCandidateIds?: string[];
   evidence?: CandidateEvidence;
   recruiterNotes?: string;
+  // Outreach & Candidate Response workflow fields
+  formToken?: string;
+  outreachDeliveryStatus?: OutreachDeliveryStatus;
+  eligibilityStatus?: CandidateEligibilityStatus;
+  eligibilityReason?: string;
+  engagementStatus?: EngagementStatus;
+  assignedRecruiter?: string | null;
+  outreachSentAt?: string | null;
+  formSubmittedAt?: string | null;
+  isUnsubscribed?: boolean;
+  unsubscribedAt?: string | null;
+  candidateResponseId?: string | null;
 }
 
 export interface AppErrorDetails {
@@ -208,6 +272,8 @@ export interface CriteriaFilters {
   allowBankingIndustry: boolean;
   matchAnySector: boolean;
   matchAnyRole: boolean;
+  roleScope?: 'all_roles' | 'sales_only' | 'custom' | string;
+  sectorScope?: 'all_sectors' | 'selected_sectors' | string;
 }
 
 export interface ScheduleSettings {
@@ -246,6 +312,135 @@ export interface ConnectionsConfig {
   };
 }
 
+export interface OutreachSettings {
+  senderName: string;
+  senderEmail: string;
+  replyToEmail: string;
+  provider: 'smtp' | 'sendgrid' | 'resend' | 'gmail_workspace' | 'test_mode';
+  smtpConfig?: {
+    host: string;
+    port: number;
+    secure: boolean;
+    auth: {
+      user: string;
+      pass: string;
+    };
+  };
+  apiConfig?: {
+    apiKey: string;
+  };
+  gmailAccessToken?: string;
+  organizationDescription: string;
+  rolesBeingSourced: string;
+  emailSubjectTemplate: string;
+  emailBodyTemplate: string;
+  dailySendingLimit: number;
+  delayBetweenEmailsSeconds: number;
+  automaticOutreachEnabled: boolean;
+  testMode: boolean; // Safe preview mode: records test sends without dispatching real emails
+  lastTestedAt?: string | null;
+  lastTestStatus?: 'success' | 'failed' | null;
+  lastTestMessage?: string | null;
+}
+
+export type OutreachDeliveryStatus =
+  | 'queued'
+  | 'sent'
+  | 'failed'
+  | 'delivered'
+  | 'bounced'
+  | 'suppressed_unsubscribed'
+  | 'suppressed_already_submitted';
+
+export type CandidateEligibilityStatus =
+  | 'eligible'
+  | 'email_unavailable'
+  | 'already_contacted'
+  | 'unsubscribed'
+  | 'needs_review'
+  | 'outside_target'
+  | 'recruiter_excluded';
+
+export type EngagementStatus =
+  | 'New Response'
+  | 'Under Review'
+  | 'Contacted'
+  | 'Shortlisted'
+  | 'Not Suitable'
+  | 'On Hold';
+
+export interface FormSubmissionData {
+  fullName: string;
+  email: string;
+  mobile?: string;
+  currentCityState: string;
+  preferredLocations: string;
+  roleFunctionOfInterest: string;
+  totalWorkExperience: string; // Including "Fresher"
+  currentEmployerDesignation?: string;
+  bankingFinancialServicesExperience?: string;
+  noticePeriodAvailability: string;
+  expectedAnnualCtc?: string;
+  linkedInProfileUrl?: string;
+  resumeFileName?: string;
+  resumeFileId?: string; // Stored server-side securely
+  resumeFileSize?: number;
+  consentGiven: boolean;
+  consentWordingVersion: string;
+  consentTimestamp: string;
+}
+
+export interface CandidateFormResponse {
+  id: string;
+  candidateId: string;
+  token: string;
+  submittedAt: string;
+  submissionIp?: string;
+  fields: FormSubmissionData;
+  sourcePlatform: PlatformType;
+  sourcePostUrl?: string | null;
+  sourcingRunId?: string | null;
+  outreachMessageId?: string | null;
+  recruiterNotes?: string;
+}
+
+export interface OutreachMessage {
+  id: string;
+  candidateId: string;
+  candidateEmail: string;
+  candidateName: string;
+  formToken: string;
+  subject: string;
+  body: string;
+  deliveryStatus: OutreachDeliveryStatus;
+  sentAt?: string | null;
+  queuedAt: string;
+  failedAt?: string | null;
+  failureReason?: string | null;
+  retryCount: number;
+  maxRetries: number;
+  nextRetryAt?: string | null;
+  providerMessageId?: string | null;
+  formSubmittedAt?: string | null;
+  unsubscribeToken: string;
+  unsubscribedAt?: string | null;
+  isTestModeSend?: boolean;
+}
+
+export interface CandidateOutreachMeta {
+  formToken: string;
+  eligibilityStatus: CandidateEligibilityStatus;
+  eligibilityReason?: string;
+  engagementStatus?: EngagementStatus;
+  assignedRecruiter?: string | null;
+  outreachMessageId?: string | null;
+  initialOutreachSentAt?: string | null;
+  formSubmittedAt?: string | null;
+  isUnsubscribed?: boolean;
+  unsubscribedAt?: string | null;
+  recruiterNotes?: string;
+}
+
 export interface AppDatabase {
   candidates: Candidate[];
   posts: SourcePost[];
@@ -253,6 +448,16 @@ export interface AppDatabase {
   criteria: CriteriaFilters;
   schedule: ScheduleSettings;
   connections: ConnectionsConfig;
+  outreachSettings: OutreachSettings;
+  outreachMessages: OutreachMessage[];
+  candidateResponses: CandidateFormResponse[];
+  suppressionList: {
+    email: string;
+    reason: 'unsubscribed' | 'bounced_permanent' | 'recruiter_blacklisted';
+    createdAt: string;
+  }[];
+  queryCatalogue?: QueryCatalogueItem[];
+  queryConfig?: QueryCatalogueConfig;
 }
 
 export interface ExtractionResult {

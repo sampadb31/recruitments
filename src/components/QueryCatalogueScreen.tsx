@@ -247,8 +247,8 @@ export const QueryCatalogueScreen: React.FC<QueryCatalogueScreenProps> = ({ mode
       const q = searchFilter.toLowerCase();
       const matchComp = item.compiledQuery.toLowerCase().includes(q);
       const matchLabel = item.categoryLabel.toLowerCase().includes(q);
-      const matchRoles = item.roleTerms.some(r => r.toLowerCase().includes(q));
-      const matchPhrases = item.phraseTerms.some(p => p.toLowerCase().includes(q));
+      const matchRoles = (item.roleTerms || []).some((r: string) => r.toLowerCase().includes(q));
+      const matchPhrases = (item.phraseTerms || []).some((p: string) => p.toLowerCase().includes(q));
       return matchComp || matchLabel || matchRoles || matchPhrases;
     }
     return true;

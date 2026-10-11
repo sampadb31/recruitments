@@ -18,6 +18,7 @@ export interface ApifySearchParams {
   limit?: number;
   useSmallTestQuery?: boolean;
   customQuery?: string;
+  searchQueries?: string[];
 }
 
 export interface ApifyPostItem {
@@ -112,6 +113,8 @@ export async function fetchLinkedInPostsViaApify(
   if (params.useSmallTestQuery) {
     // Verified small test request query as documented
     searchQueries = ['sales AND "open to work"'];
+  } else if (params.searchQueries && params.searchQueries.length > 0) {
+    searchQueries = params.searchQueries;
   } else if (params.customQuery && params.customQuery.trim()) {
     searchQueries = [params.customQuery.trim()];
   } else {

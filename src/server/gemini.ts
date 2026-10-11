@@ -34,6 +34,36 @@ export function isGeminiConfigured(): boolean {
   return Boolean(apiKey && apiKey !== 'MY_GEMINI_API_KEY' && apiKey.trim() !== '');
 }
 
+export interface QuotaStatus {
+  isExhausted: boolean;
+  reason?: string;
+  retryAfterSeconds?: number;
+  exhaustedAt?: string;
+}
+
+let geminiQuotaStatus: QuotaStatus = {
+  isExhausted: false,
+};
+
+export function isGeminiQuotaExhausted(): QuotaStatus {
+  return geminiQuotaStatus;
+}
+
+export function setGeminiQuotaExhausted(reason: string, retryAfterSeconds?: number) {
+  geminiQuotaStatus = {
+    isExhausted: true,
+    reason,
+    retryAfterSeconds,
+    exhaustedAt: new Date().toISOString(),
+  };
+}
+
+export function resetGeminiQuotaStatus() {
+  geminiQuotaStatus = {
+    isExhausted: false,
+  };
+}
+
 export interface PostExtractionMetadata {
   platform?: string;
   sourceUrl?: string;
@@ -130,8 +160,12 @@ export async function extractCandidateFromPost(
 ): Promise<ExtractionResult> {
   const ai = getAiClient();
 
-  if (!ai) {
-    return runSimulatedFallbackExtraction(postContent, criteria, metadata);
+  if (!ai || geminiQuotaStatus.isExhausted) {
+    const fallback = runSimulatedFallbackExtraction(postContent, criteria, metadata);
+    if (geminiQuotaStatus.isExhausted) {
+      fallback.matchingExplanation = `[Gemini Quota Exceeded - Fallback Active] ${fallback.matchingExplanation}`;
+    }
+    return fallback;
   }
 
   const selectedPeriod = metadata?.timeWindow || '7d';
@@ -153,18 +187,22 @@ Classify the post into EXACTLY one of these five categories:
   * NOTE: An #OpenToWork hashtag or profile badge alone does NOT establish a personal job-seeking statement in the post. There must be personal seeking intent expressed in the text.
   * NOTE: A repost of someone else's job-seeking post is NOT self job-seeking for the author.
   * NOTE: "I am looking for freshers" or "I am looking for a Unit Sales Manager" is an EMPLOYER/RECRUITER HIRING post, NOT self job-seeking!
-- RECRUITER_OR_EMPLOYER_HIRING: The post is advertising a vacancy, hiring for a company or agency, collecting CVs/resumes, announcing job openings, or seeking candidates (e.g. "We are hiring", "Urgent hiring", "I am looking for freshers", "I am looking for a Unit Sales Manager to handle provinces", "Looking for candidates", "Walk-in drive", "Apply now").
-- SEEKING_ON_BEHALF_OF_SOMEONE: The author is helping or searching on behalf of a friend, former colleague, family member, or third party (e.g. "My friend is looking for a sales job", "Helping a teammate find a role").
+- RECRUITER_OR_EMPLOYER_HIRING: The post is advertising a vacancy, hiring for a company or agency, collecting CVs/resumes, announcing job openings, or seeking candidates (e.g. "We are hiring", "Urgent hiring", "I am looking for freshers", "I am looking for a Unit Sales Manager to handle provinces", "Looking for candidates", "Walk-in drive", "Apply now", "Hiring alert", "Job openings", "Positions open").
+  * CRITICAL HR & VACANCY EXCLUSION RULE:
+    - Any post from HR personnel, HR departments, Talent Acquisition, recruiters, headhunters, hiring agencies, or staffing firms MUST be classified as RECRUITER_OR_EMPLOYER_HIRING (or Outside Target) if they are mentioning or sharing potential vacancies, job opportunities, walk-in drives, referral openings, or asking candidates to share resumes / connect for roles.
+    - If the author or headline indicates HR / Recruiter / Talent Acquisition / Staffing / Manpower / Placement, and the post announces openings, vacancies, or career opportunities for others, they are NOT looking for a job themselves — NEVER include them in Matches Criteria! Set intent to RECRUITER_OR_EMPLOYER_HIRING, isRecruiterAd = true, and criteriaTag = "Outside Target".
+    - Posts where someone is posting job opportunities for others (rather than looking out for a job themselves) MUST NEVER be classified as SELF_JOB_SEEKING.
+- SEEKING_ON_BEHALF_OF_SOMEONE: The author is helping or searching on behalf of a friend, former colleague, family member, or third party (e.g. "My friend is looking for a sales job", "Helping a teammate find a role", "Sharing to help my friend").
 - UNRELATED: The post is about general tips, customer service complaints (e.g. complaining about refrigerator after-sales service), seeking contractors or software developers (e.g. "looking for an Unreal Engine expert to build VR", "looking for help with my new client"), celebrating starting a new job ("My first day at..."), market opinions, thought leadership, podcasts, jokes, or memes.
 - UNCLEAR: The post text is too short, ambiguous, or lacks sufficient context to determine intent.
 
 CRITICAL RULE:
-ONLY posts classified as "SELF_JOB_SEEKING" may proceed toward a confirmed match.
+ONLY posts classified as "SELF_JOB_SEEKING" where the individual is genuinely looking out for a job for themselves may proceed toward a confirmed match.
 If intent is RECRUITER_OR_EMPLOYER_HIRING, SEEKING_ON_BEHALF_OF_SOMEONE, UNRELATED, or UNCLEAR:
 - criteriaTag must be "Outside Target".
-- Set isRecruiterAd = true if RECRUITER_OR_EMPLOYER_HIRING.
+- Set isRecruiterAd = true if RECRUITER_OR_EMPLOYER_HIRING or vacancy mentioned.
 - Set isSeekingForOthers = true if SEEKING_ON_BEHALF_OF_SOMEONE.
-- Provide a clear rejectionReason (e.g. "Rejected: Recruiter vacancy advertisement" or "Rejected: Unrelated post / customer complaint / contractor search").
+- Provide a clear rejectionReason (e.g. "Rejected: Recruiter vacancy advertisement / HR posting vacancies" or "Rejected: Unrelated post / customer complaint / contractor search").
 
 ==================================================
 STAGE 2: CRITERIA VALIDATION (FOR SELF_JOB_SEEKING)
@@ -522,10 +560,24 @@ ${postContent}
       isExtractionReliable: true,
       sourceTypeUsed: 'gemini',
     };
-  } catch (error) {
+  } catch (error: any) {
+    const errorStr = String(error?.message || error || '');
+    const isQuota =
+      error?.status === 429 ||
+      error?.code === 429 ||
+      error?.status === 'RESOURCE_EXHAUSTED' ||
+      errorStr.includes('429') ||
+      errorStr.includes('RESOURCE_EXHAUSTED') ||
+      errorStr.includes('Quota exceeded');
+
+    if (isQuota) {
+      setGeminiQuotaExhausted(
+        errorStr || 'Gemini API quota exceeded for the day. Fallback deterministic extractor active.'
+      );
+    }
     console.error('Gemini extraction failed, using fallback:', error);
     const fallback = runSimulatedFallbackExtraction(postContent, criteria, metadata);
-    fallback.matchingExplanation = `[API Error Fallback] ${fallback.matchingExplanation}`;
+    fallback.matchingExplanation = `[API ${isQuota ? 'Quota Limit' : 'Error'} Fallback] ${fallback.matchingExplanation}`;
     return fallback;
   }
 }
@@ -565,20 +617,55 @@ export function runSimulatedFallbackExtraction(
   let isUnrelated = false;
   let rejectionReason: string | null = null;
 
-  // Recruiter hiring patterns
+  // Author profile / headline check for HR, Talent Acquisition, Recruiter, Staffing, Placement
+  const isHrOrRecruiterAuthor =
+    /\b(hr|human\s+resources|recruiter|recruitment|talent\s+acquisition|headhunter|staffing|hiring\s+manager|placement|sourcing\s+specialist|manpower)\b/i.test(headlineLower) ||
+    /\b(hr|human\s+resources|recruiter|recruitment|talent\s+acquisition|staffing|manpower)\b/i.test(String(metadata?.authorName || '').toLowerCase());
+
+  // Recruiter / Hiring / Vacancy patterns
   const recruiterPatterns = [
     'we are hiring',
-    'we\'re hiring',
+    "we're hiring",
+    'were hiring',
+    'is hiring',
+    'are hiring',
     'urgent hiring',
+    'urgently hiring',
+    'immediate hiring',
+    'hiring alert',
     'hiring for our client',
+    'hiring for client',
+    'my client is hiring',
     'looking for candidates',
-    'open position:',
-    'send updated cv to',
-    'send resume to',
+    'looking for qualified',
+    'looking for experienced',
+    'open position',
+    'open positions',
+    'open vacancy',
+    'open vacancies',
+    'openings for',
+    'opening for',
+    'multiple openings',
+    'multiple vacancies',
+    'multiple positions',
+    'send updated cv',
+    'send cv',
+    'send resume',
+    'share cv',
+    'share resume',
+    'forward cv',
+    'forward resume',
+    'email your cv',
+    'email your resume',
+    'drop your cv',
+    'drop cv',
     'job vacancy',
+    'job vacancies',
     'we are looking for sales',
+    'we are looking for',
     'new sales vacancy',
     'apply now',
+    'apply here',
     'i am looking for freshers',
     'looking for freshers',
     'i am looking for a unit sales manager',
@@ -593,10 +680,61 @@ export function runSimulatedFallbackExtraction(
     'opportunity: regional sales manager',
     'looking forward to connecting with professionals for the following opportunities',
     'walk-in drive',
+    'walk-in interview',
+    'walk in interview',
     'hiring drive',
+    'mega job drive',
     'looking for a partnerships & alliances executive',
     'open to work ? lost your job ? together we create',
+    'refer suitable resumes',
+    'refer resumes',
+    'call now or refer',
+    'remote career opportunities',
+    'we are closing this position immediately',
+    'closing this position immediately',
+    'dispatch executive',
+    'requirements: graduation',
+    'keyrequirements:',
+    'key requirements:',
+    'experience required:',
+    'shift: us shifts',
+    'hiring for multiple',
+    'hiring for multiple position',
+    'call at / whatsapp',
+    'candidate profile:',
+    'job description',
   ];
+
+  // Specific vacancy mentions in posts (e.g. "potential vacancy", "vacancy available", "hiring for following")
+  const vacancyMentionPatterns = [
+    'potential vacancy',
+    'potential vacancies',
+    'vacancies available',
+    'vacancy available',
+    'job openings available',
+    'opportunities for professionals',
+    'career opportunities available',
+    'share multiple roles',
+    'sharing multiple roles',
+    'i am hiring for',
+    "i'm hiring for",
+    'we have openings',
+    'we have an opening',
+    'opening in my team',
+    'openings in my company',
+    'openings in our team',
+    'actively looking to acquire',
+    'looking for direct advertiser',
+    'vendor empanelment',
+    'looking to expand your it staffing',
+  ];
+
+  // Check if post mentions potential vacancies or opportunities for others
+  const mentionsVacanciesForOthers =
+    vacancyMentionPatterns.some(p => lower.includes(p)) ||
+    (/hiring\s+for/i.test(lower) && !lower.includes('connect me with hiring')) ||
+    (/\b(openings?|vacanc(?:y|ies))\b/i.test(lower) && /(?:we|our|client|company|team|organisation)\s+(?:have|has|announces?|with)/i.test(lower)) ||
+    (/(?:share|sharing|refer)\s+(?:multiple\s+)?(?:roles|resumes?|cvs?|profiles?)/i.test(lower));
 
   // Third party seeking patterns
   const thirdPartyPatterns = [
@@ -604,8 +742,12 @@ export function runSimulatedFallbackExtraction(
     'on behalf of',
     'helping a colleague',
     'helping a former',
+    'helping a friend',
+    'help a friend',
     'for my brother',
     'for my sister',
+    'for my colleague',
+    'younger brother has successfully completed',
   ];
 
   // Unrelated thought leadership / advice / complaint / contractor search patterns
@@ -693,31 +835,50 @@ export function runSimulatedFallbackExtraction(
     'i am looking for',
   ];
 
+  // Evaluation priority:
+  // 1. Third-party seeking / referral offers
   if (thirdPartyPatterns.some(p => lower.includes(p))) {
     authorIntent = 'SEEKING_ON_BEHALF_OF_SOMEONE';
     isSeekingForOthers = true;
     intentEvidence = 'Author is seeking opportunities on behalf of a friend or colleague.';
     rejectionReason = 'Rejected: Seeking opportunities on behalf of someone else.';
-  } else if (recruiterPatterns.some(p => lower.includes(p)) && !lower.includes('connect me with hiring')) {
+  }
+  // 2. HR / Talent Acquisition author posting vacancy announcements or opportunities for others
+  else if (isHrOrRecruiterAuthor && (mentionsVacanciesForOthers || recruiterPatterns.some(p => lower.includes(p)) || !selfSeekingPatterns.some(p => lower.includes(p)))) {
     authorIntent = 'RECRUITER_OR_EMPLOYER_HIRING';
     isRecruiterAd = true;
-    intentEvidence = 'Post is an agency/employer vacancy announcement seeking candidates.';
+    intentEvidence = `Post by HR / Talent Acquisition / Recruiter professional (${metadata?.authorHeadline || 'HR'}): Advertising job openings or potential vacancies.`;
+    rejectionReason = 'Rejected: Recruiter or HR professional announcing job opportunities/vacancies.';
+  }
+  // 3. Recruiter patterns or mentions of vacancies for others
+  else if ((recruiterPatterns.some(p => lower.includes(p)) || mentionsVacanciesForOthers) && !lower.includes('connect me with hiring')) {
+    authorIntent = 'RECRUITER_OR_EMPLOYER_HIRING';
+    isRecruiterAd = true;
+    intentEvidence = 'Post is an agency/employer vacancy announcement seeking candidates or mentioning job openings.';
     rejectionReason = 'Rejected: Recruiter or employer hiring advertisement.';
-  } else if (unrelatedPatterns.some(p => lower.includes(p)) && !selfSeekingPatterns.some(p => lower.includes(p))) {
+  }
+  // 4. Unrelated content, thought leadership, customer complaint, contractor search
+  else if (unrelatedPatterns.some(p => lower.includes(p)) && !selfSeekingPatterns.some(p => lower.includes(p))) {
     authorIntent = 'UNRELATED';
     isUnrelated = true;
     intentEvidence = 'Post contains general sales tips, customer complaints, contractor search, or thought leadership.';
     rejectionReason = 'Rejected: Unrelated content, customer complaint, contractor search, or thought leadership post.';
-  } else if (selfSeekingPatterns.some(p => lower.includes(p))) {
+  }
+  // 5. Genuine self job seeking (author personally seeking a job for themselves)
+  else if (selfSeekingPatterns.some(p => lower.includes(p)) && !isHrOrRecruiterAuthor) {
     authorIntent = 'SELF_JOB_SEEKING';
     intentEvidence = 'Author personally expressed job-seeking intent in the post.';
-  } else if (lower.includes('i am looking for') && (lower.includes('vacancy') || lower.includes('job') || lower.includes('role') || lower.includes('position'))) {
+  } else if (lower.includes('i am looking for') && (lower.includes('vacancy') || lower.includes('job') || lower.includes('role') || lower.includes('position')) && !isHrOrRecruiterAuthor) {
     authorIntent = 'SELF_JOB_SEEKING';
     intentEvidence = 'Author personally expressed job-seeking intent in the post.';
   } else {
     authorIntent = 'UNCLEAR';
-    intentEvidence = 'No explicit personal job-seeking or vacancy statement found.';
-    rejectionReason = 'Rejected: Author intent is unclear or lacks explicit seeking statement.';
+    intentEvidence = isHrOrRecruiterAuthor
+      ? 'Author is an HR or Talent Acquisition professional and not personally seeking employment.'
+      : 'No explicit personal job-seeking or vacancy statement found.';
+    rejectionReason = isHrOrRecruiterAuthor
+      ? 'Rejected: Post is from HR / recruitment professional and not personal job-seeking.'
+      : 'Rejected: Author intent is unclear or lacks explicit seeking statement.';
   }
 
   // -------------------------------------------------------------------------

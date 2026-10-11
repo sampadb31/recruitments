@@ -23,41 +23,41 @@
       "authorIntent": "SELF_JOB_SEEKING",
       "intentEvidence": "Author personally states: \"I am actively seeking a new role in Mumbai or Pune.\"",
       "criteriaTag": "Matches Criteria",
-      "matchingExplanation": "Confirmed Match: Self job-seeking sales professional currently working in pharma in India with 5 years stated experience (within 1–10 years).",
+      "matchingExplanation": "[Gemini Quota Exceeded - Fallback Active] [Simulated Fallback] Confirmed Match: Self-job-seeking professional currently working in pharma in India with 5 years experience.",
       "isRecruiterAd": false,
       "validationChecks": {
         "authorIsPersonallySeekingJob": {
           "passed": true,
-          "evidence": "\"I am actively seeking a new role in Mumbai or Pune.\""
+          "evidence": "Author personally expressed job-seeking intent in the post."
         },
         "currentlyEmployedInSalesRole": {
           "passed": true,
-          "evidence": "Area Sales Manager at Sun Pharma, Medical Representative pharmaceutical commercial sales."
+          "evidence": "Role verified: Area Sales Manager at Sun Pharma | Medical Representative | Mumbai, India (Any Role policy: Sales & Non-Sales functions eligible)."
         },
         "currentlyWorkingInIndia": {
           "passed": true,
-          "evidence": "Profile location: Mumbai, Maharashtra, India."
+          "evidence": "Working in India (confirmed via profile location or Indian organization context)."
         },
         "totalExperience1To10Years": {
           "passed": true,
-          "evidence": "5 years in pharmaceutical sales stated in post (within 1–10 years).",
+          "evidence": "5 years of professional experience stated in post (within 1–10 years).",
           "experienceType": "stated"
         },
         "currentEmployerInTargetSector": {
           "passed": true,
-          "evidence": "Sun Pharma operates in the eligible Pharmaceutical (pharma) sector.",
+          "evidence": "Employer operates in pharma (Eligible under Any Sector policy).",
           "detectedSector": "pharma"
         },
         "postDateWithinSelectedPeriod": {
           "passed": true,
-          "evidence": "Posted Oct 3, 2026 (within selected date window)."
+          "evidence": "Post date falls within selected window."
         }
       },
       "sourcePostIds": [
         "post_verify_02_pharma"
       ],
       "firstSeenAt": "2026-10-03T14:35:00.000Z",
-      "lastUpdatedAt": "2026-10-03T14:35:00.000Z",
+      "lastUpdatedAt": "2026-10-10T10:26:42.368Z",
       "isManuallyCorrected": false,
       "manuallyCorrectedFields": [],
       "evidence": {
@@ -69,7 +69,8 @@
         "currentLocation": "Mumbai, Maharashtra, India",
         "jobSeekingStatement": "I am actively seeking a new role in Mumbai or Pune.",
         "postDate": "2026-10-03T14:30:00.000Z"
-      }
+      },
+      "formToken": "tok_cand_verify_02_pharma_fd7bcaa719668bb8"
     },
     {
       "id": "cand_verify_07_hiring_managers",
@@ -94,41 +95,41 @@
       "authorIntent": "SELF_JOB_SEEKING",
       "intentEvidence": "Author is personally seeking a job (\"Please connect me with hiring managers\" does not indicate recruiter hiring).",
       "criteriaTag": "Matches Criteria",
-      "matchingExplanation": "Confirmed Match: Self job-seeking sales professional currently working in FMCG in India with 4 years experience. Mention of hiring managers refers to connecting with employers, not a recruiter ad.",
+      "matchingExplanation": "[Gemini Quota Exceeded - Fallback Active] [Simulated Fallback] Confirmed Match: Self-job-seeking professional currently working in FMCG in India with 4 years experience.",
       "isRecruiterAd": false,
       "validationChecks": {
         "authorIsPersonallySeekingJob": {
           "passed": true,
-          "evidence": "\"I am exploring new opportunities in Mumbai. Please connect me with hiring managers in the FMCG sector!\""
+          "evidence": "Author personally expressed job-seeking intent in the post."
         },
         "currentlyEmployedInSalesRole": {
           "passed": true,
-          "evidence": "Senior Sales Executive driving B2B sales in retail distribution at NatureFresh Foods."
+          "evidence": "Role verified: Senior Sales Executive at NatureFresh Foods | FMCG Sales | Mumbai, India (Any Role policy: Sales & Non-Sales functions eligible)."
         },
         "currentlyWorkingInIndia": {
           "passed": true,
-          "evidence": "Location: Mumbai, Maharashtra, India."
+          "evidence": "Working in India (confirmed via profile location or Indian organization context)."
         },
         "totalExperience1To10Years": {
           "passed": true,
-          "evidence": "4 years stated in post (within 1–10 years inclusive).",
+          "evidence": "4 years of professional experience stated in post (within 1–10 years).",
           "experienceType": "stated"
         },
         "currentEmployerInTargetSector": {
           "passed": true,
-          "evidence": "NatureFresh Foods operates in the eligible FMCG sector.",
+          "evidence": "Employer operates in FMCG (Eligible under Any Sector policy).",
           "detectedSector": "FMCG"
         },
         "postDateWithinSelectedPeriod": {
           "passed": true,
-          "evidence": "Posted Oct 3, 2026 (within selected date window)."
+          "evidence": "Post date falls within selected window."
         }
       },
       "sourcePostIds": [
         "post_verify_07_hiring_managers"
       ],
       "firstSeenAt": "2026-10-03T09:20:00.000Z",
-      "lastUpdatedAt": "2026-10-03T09:20:00.000Z",
+      "lastUpdatedAt": "2026-10-10T10:26:42.369Z",
       "isManuallyCorrected": false,
       "manuallyCorrectedFields": [],
       "evidence": {
@@ -140,7 +141,8 @@
         "currentLocation": "Mumbai, Maharashtra, India",
         "jobSeekingStatement": "I am exploring new opportunities in Mumbai. Please connect me with hiring managers in the FMCG sector!",
         "postDate": "2026-10-03T09:15:00.000Z"
-      }
+      },
+      "formToken": "tok_cand_verify_07_hiring_managers_b6f1db6a76a64e4c"
     },
     {
       "id": "cand_verify_08_nbfc",
@@ -165,43 +167,44 @@
       "authorIntent": "SELF_JOB_SEEKING",
       "intentEvidence": "Author personally seeks a role: \"Seeking a new role in commercial vehicle finance and lending!\"",
       "criteriaTag": "Matches Criteria",
-      "matchingExplanation": "Confirmed Match: Self job-seeking loan sales manager at Shriram Finance (NBFC is an eligible sector, not excluded as commercial banking). 3 years experience in India.",
+      "matchingExplanation": "[Gemini Quota Exceeded - Fallback Active] [Simulated Fallback] Confirmed Match: Self-job-seeking professional currently working in NBFC in India with 3 years experience.",
       "isRecruiterAd": false,
       "validationChecks": {
         "authorIsPersonallySeekingJob": {
           "passed": true,
-          "evidence": "\"Seeking a new role in commercial vehicle finance and lending!\""
+          "evidence": "Author personally expressed job-seeking intent in the post."
         },
         "currentlyEmployedInSalesRole": {
           "passed": true,
-          "evidence": "Loan Sales Manager at Shriram Finance, commercial vehicle lending."
+          "evidence": "Role verified: Loan Sales Manager at Shriram Finance | NBFC Commercial Vehicle Loans | Chennai, India (Any Role policy: Sales & Non-Sales functions eligible)."
         },
         "currentlyWorkingInIndia": {
           "passed": true,
-          "evidence": "Location: Chennai, Tamil Nadu, India."
+          "evidence": "Working in India (confirmed via profile location or Indian organization context)."
         },
         "totalExperience1To10Years": {
           "passed": true,
-          "evidence": "3 years experience stated in post (within 1–10 years).",
+          "evidence": "3 years of professional experience stated in post (within 1–10 years).",
           "experienceType": "stated"
         },
         "currentEmployerInTargetSector": {
           "passed": true,
-          "evidence": "Shriram Finance operates as an NBFC (eligible sector).",
+          "evidence": "Employer operates in NBFC (Eligible under Any Sector policy).",
           "detectedSector": "NBFC"
         },
         "postDateWithinSelectedPeriod": {
           "passed": true,
-          "evidence": "Posted Oct 3, 2026 (within selected date window)."
+          "evidence": "Post date falls within selected window."
         }
       },
       "sourcePostIds": [
         "post_verify_08_nbfc"
       ],
       "firstSeenAt": "2026-10-03T11:25:00.000Z",
-      "lastUpdatedAt": "2026-10-03T11:25:00.000Z",
+      "lastUpdatedAt": "2026-10-10T10:26:42.369Z",
       "isManuallyCorrected": false,
-      "manuallyCorrectedFields": []
+      "manuallyCorrectedFields": [],
+      "formToken": "tok_cand_verify_08_nbfc_ab0109aad7d6422d"
     },
     {
       "id": "cand_verify_04_unknown_exp",
@@ -226,43 +229,44 @@
       "authorIntent": "SELF_JOB_SEEKING",
       "intentEvidence": "Author personally seeks a role: \"I am exploring new sales opportunities in the paints and decorative coatings sector.\"",
       "criteriaTag": "Needs Review",
-      "matchingExplanation": "Needs Review: Personal job-seeking intent, sales role, paints sector, and India location are confirmed, but total years of experience is not specified in the post or headline.",
+      "matchingExplanation": "[Gemini Quota Exceeded - Fallback Active] [Simulated Fallback] Needs Review: Author is personally seeking a job, but one or more facts (e.g. experience or employer sector) are unconfirmed and require review.",
       "isRecruiterAd": false,
       "validationChecks": {
         "authorIsPersonallySeekingJob": {
           "passed": true,
-          "evidence": "\"I am exploring new sales opportunities in the paints and decorative coatings sector across Delhi NCR.\""
+          "evidence": "Author personally expressed job-seeking intent in the post."
         },
         "currentlyEmployedInSalesRole": {
           "passed": true,
-          "evidence": "Territory Sales Executive at Berger Paints."
+          "evidence": "Role verified: Territory Sales Executive at Berger Paints | Delhi NCR, India (Any Role policy: Sales & Non-Sales functions eligible)."
         },
         "currentlyWorkingInIndia": {
           "passed": true,
-          "evidence": "Location: New Delhi, Delhi, India."
+          "evidence": "Working in India (confirmed via profile location or Indian organization context)."
         },
         "totalExperience1To10Years": {
           "passed": null,
-          "evidence": "Total experience duration not stated. Cannot assume whether between 1–10 years.",
+          "evidence": "Experience years not specified in post or profile.",
           "experienceType": "unknown"
         },
         "currentEmployerInTargetSector": {
           "passed": true,
-          "evidence": "Berger Paints operates in the eligible Paints & Coatings sector.",
+          "evidence": "Employer operates in paints (Eligible under Any Sector policy).",
           "detectedSector": "paints"
         },
         "postDateWithinSelectedPeriod": {
           "passed": true,
-          "evidence": "Posted Oct 3, 2026 (within selected date window)."
+          "evidence": "Post date falls within selected window."
         }
       },
       "sourcePostIds": [
         "post_verify_04_unknown_exp"
       ],
       "firstSeenAt": "2026-10-03T16:25:00.000Z",
-      "lastUpdatedAt": "2026-10-03T16:25:00.000Z",
+      "lastUpdatedAt": "2026-10-10T10:26:42.368Z",
       "isManuallyCorrected": false,
-      "manuallyCorrectedFields": []
+      "manuallyCorrectedFields": [],
+      "formToken": "tok_cand_verify_04_unknown_exp_00d9b7466f92da59"
     },
     {
       "id": "cand_verify_05_tech_engineer",
@@ -287,43 +291,44 @@
       "authorIntent": "SELF_JOB_SEEKING",
       "intentEvidence": "Author seeks a software engineering job (\"seeking new software engineering opportunities in Bengaluru\").",
       "criteriaTag": "Matches Criteria",
-      "matchingExplanation": "Confirmed Match: Self job-seeking software engineering professional in Bengaluru, India with 4 years experience (expanded search: all roles & sectors eligible).",
+      "matchingExplanation": "[Gemini Quota Exceeded - Fallback Active] [Simulated Fallback] Confirmed Match: Self-job-seeking professional currently working in commercial sector in India with 4 years experience.",
       "isRecruiterAd": false,
       "validationChecks": {
         "authorIsPersonallySeekingJob": {
           "passed": true,
-          "evidence": "\"seeking new software engineering opportunities in Bengaluru.\""
+          "evidence": "Author personally expressed job-seeking intent in the post."
         },
         "currentlyEmployedInSalesRole": {
           "passed": true,
-          "evidence": "Senior Backend Software Engineer at TechStack (Eligible under Any Role policy: Sales & Non-Sales functions eligible)."
+          "evidence": "Role verified: Senior Backend Software Engineer at TechStack | Python & Go | Bengaluru, India (Any Role policy: Sales & Non-Sales functions eligible)."
         },
         "currentlyWorkingInIndia": {
           "passed": true,
-          "evidence": "Bengaluru, Karnataka, India."
+          "evidence": "Working in India (confirmed via profile location or Indian organization context)."
         },
         "totalExperience1To10Years": {
           "passed": true,
-          "evidence": "4 years backend engineering stated in post.",
+          "evidence": "4 years of professional experience stated in post (within 1–10 years).",
           "experienceType": "stated"
         },
         "currentEmployerInTargetSector": {
           "passed": true,
-          "evidence": "TechStack operates in the Technology sector (Eligible under Any Sector policy).",
-          "detectedSector": "technology"
+          "evidence": "Employer operates in commercial sector (Eligible under Any Sector policy).",
+          "detectedSector": "commercial sector"
         },
         "postDateWithinSelectedPeriod": {
           "passed": true,
-          "evidence": "Posted Oct 2, 2026."
+          "evidence": "Post date falls within selected window."
         }
       },
       "sourcePostIds": [
         "post_verify_05_tech_engineer"
       ],
       "firstSeenAt": "2026-10-02T13:50:00.000Z",
-      "lastUpdatedAt": "2026-10-02T13:50:00.000Z",
+      "lastUpdatedAt": "2026-10-10T10:26:42.369Z",
       "isManuallyCorrected": false,
-      "manuallyCorrectedFields": []
+      "manuallyCorrectedFields": [],
+      "formToken": "tok_cand_verify_05_tech_engineer_e04ca20cc7f6e605"
     },
     {
       "id": "cand_verify_06_outside_india",
@@ -348,43 +353,44 @@
       "authorIntent": "SELF_JOB_SEEKING",
       "intentEvidence": "Author states: \"I'm officially on the market! ... Seeking new sales opportunities based in Singapore.\"",
       "criteriaTag": "Outside Target",
-      "matchingExplanation": "Outside Target: Fails India location condition. Candidate currently works and seeks roles in Singapore, not India.",
+      "matchingExplanation": "[Gemini Quota Exceeded - Fallback Active] [Simulated Fallback] Outside Target: Candidate currently works outside India.",
       "isRecruiterAd": false,
       "validationChecks": {
         "authorIsPersonallySeekingJob": {
           "passed": true,
-          "evidence": "\"I'm officially on the market! Seeking new sales opportunities based in Singapore.\""
+          "evidence": "Author personally expressed job-seeking intent in the post."
         },
         "currentlyEmployedInSalesRole": {
           "passed": true,
-          "evidence": "Account Executive selling Enterprise B2B SaaS software."
+          "evidence": "Role verified: Account Executive at CloudScale | SaaS Technology Sales | Singapore (Any Role policy: Sales & Non-Sales functions eligible)."
         },
         "currentlyWorkingInIndia": {
           "passed": false,
-          "evidence": "Profile location: Singapore (Fails: Currently working outside India)."
+          "evidence": "Working outside India: Singapore"
         },
         "totalExperience1To10Years": {
           "passed": true,
-          "evidence": "6 years experience stated in post.",
+          "evidence": "6 years of professional experience stated in post (within 1–10 years).",
           "experienceType": "stated"
         },
         "currentEmployerInTargetSector": {
           "passed": true,
-          "evidence": "CloudScale operates in eligible Technology Sales sector.",
+          "evidence": "Employer operates in technology sales (Eligible under Any Sector policy).",
           "detectedSector": "technology sales"
         },
         "postDateWithinSelectedPeriod": {
           "passed": true,
-          "evidence": "Posted Oct 3, 2026."
+          "evidence": "Post date falls within selected window."
         }
       },
       "sourcePostIds": [
         "post_verify_06_outside_india"
       ],
       "firstSeenAt": "2026-10-03T10:50:00.000Z",
-      "lastUpdatedAt": "2026-10-03T10:50:00.000Z",
+      "lastUpdatedAt": "2026-10-10T10:26:42.369Z",
       "isManuallyCorrected": false,
-      "manuallyCorrectedFields": []
+      "manuallyCorrectedFields": [],
+      "formToken": "tok_cand_verify_06_outside_india_5c0bceaad19cb933"
     }
   ],
   "posts": [
@@ -404,8 +410,8 @@
       "receivedAt": "2026-10-03T19:05:00.000Z",
       "extractionState": "recruiter_ad",
       "authorIntent": "RECRUITER_OR_EMPLOYER_HIRING",
-      "intentEvidence": "Post is a recruiter advertisement soliciting candidate CVs for a corporate vacancy (\"We are hiring... Send updated CV to\").",
-      "rejectionReason": "Rejected Post: Recruiter vacancy advertisement."
+      "intentEvidence": "Post is an agency/employer vacancy announcement seeking candidates.",
+      "rejectionReason": "Rejected: Recruiter or employer hiring advertisement."
     },
     {
       "id": "post_verify_02_pharma",
@@ -424,7 +430,8 @@
       "extractionState": "extracted",
       "extractedCandidateId": "cand_verify_02_pharma",
       "authorIntent": "SELF_JOB_SEEKING",
-      "intentEvidence": "Author explicitly states personal job search: \"I am actively seeking a new role in Mumbai or Pune.\""
+      "intentEvidence": "Author personally expressed job-seeking intent in the post.",
+      "rejectionReason": null
     },
     {
       "id": "post_verify_03_unrelated",
@@ -442,8 +449,8 @@
       "receivedAt": "2026-10-02T11:05:00.000Z",
       "extractionState": "rejected_post",
       "authorIntent": "UNRELATED",
-      "intentEvidence": "Post consists of thought leadership and market analysis (\"Five ways to improve FMCG sales distribution\").",
-      "rejectionReason": "Rejected Post: Unrelated sales advice or industry thought leadership."
+      "intentEvidence": "Post contains general sales tips, customer complaints, contractor search, or thought leadership.",
+      "rejectionReason": "Rejected: Unrelated content, customer complaint, contractor search, or thought leadership post."
     },
     {
       "id": "post_verify_04_unknown_exp",
@@ -462,7 +469,8 @@
       "extractionState": "extracted",
       "extractedCandidateId": "cand_verify_04_unknown_exp",
       "authorIntent": "SELF_JOB_SEEKING",
-      "intentEvidence": "Author explicitly states: \"I am exploring new sales opportunities in the paints and decorative coatings sector... Open to work as Territory Sales Executive.\""
+      "intentEvidence": "Author personally expressed job-seeking intent in the post.",
+      "rejectionReason": null
     },
     {
       "id": "post_verify_05_tech_engineer",
@@ -481,7 +489,8 @@
       "extractionState": "extracted",
       "extractedCandidateId": "cand_verify_05_tech_engineer",
       "authorIntent": "SELF_JOB_SEEKING",
-      "intentEvidence": "Author is personally seeking software engineering roles: \"seeking new software engineering opportunities in Bengaluru.\""
+      "intentEvidence": "Author personally expressed job-seeking intent in the post.",
+      "rejectionReason": null
     },
     {
       "id": "post_verify_06_outside_india",
@@ -500,7 +509,8 @@
       "extractionState": "extracted",
       "extractedCandidateId": "cand_verify_06_outside_india",
       "authorIntent": "SELF_JOB_SEEKING",
-      "intentEvidence": "Author states: \"I'm officially on the market! ... Seeking new sales opportunities based in Singapore.\""
+      "intentEvidence": "Author personally expressed job-seeking intent in the post.",
+      "rejectionReason": null
     },
     {
       "id": "post_verify_07_hiring_managers",
@@ -519,7 +529,8 @@
       "extractionState": "extracted",
       "extractedCandidateId": "cand_verify_07_hiring_managers",
       "authorIntent": "SELF_JOB_SEEKING",
-      "intentEvidence": "Author personally seeks a job and asks network: \"I am exploring new opportunities in Mumbai. Please connect me with hiring managers in the FMCG sector!\""
+      "intentEvidence": "Author personally expressed job-seeking intent in the post.",
+      "rejectionReason": null
     },
     {
       "id": "post_verify_08_nbfc",
@@ -538,7 +549,8 @@
       "extractionState": "extracted",
       "extractedCandidateId": "cand_verify_08_nbfc",
       "authorIntent": "SELF_JOB_SEEKING",
-      "intentEvidence": "Author personally seeks a new job: \"Seeking a new role in commercial vehicle finance and lending!\""
+      "intentEvidence": "Author personally expressed job-seeking intent in the post.",
+      "rejectionReason": null
     }
   ],
   "scanRuns": [
@@ -635,5 +647,37 @@
       "status": "connected",
       "lastSyncAt": null
     }
-  }
+  },
+  "outreachSettings": {
+    "senderName": "BFSITalentHub",
+    "senderEmail": "recruitment@bfsitalenthub.in",
+    "replyToEmail": "careers@bfsitalenthub.in",
+    "provider": "test_mode",
+    "smtpConfig": {
+      "host": "smtp.mailtrap.io",
+      "port": 587,
+      "secure": false,
+      "auth": {
+        "user": "",
+        "pass": ""
+      }
+    },
+    "apiConfig": {
+      "apiKey": ""
+    },
+    "organizationDescription": "BFSITalentHub is a premier talent discovery and placement network connecting banking, financial services, fintech, and commercial sales professionals with leading institutions across India.",
+    "rolesBeingSourced": "Commercial Sales, Branch Banking, Loan Officers, B2B Account Executives, Wealth Advisors, and Territory Sales Managers",
+    "emailSubjectTemplate": "Explore opportunities in [relevant role area]",
+    "emailBodyTemplate": "Hi [First Name / there],\n\nI came across your [source platform] post mentioning that you are exploring new opportunities in [verified role area].\n\nWe are collecting expressions of interest for [configured recruitment scope]. If you would like to be considered for relevant opportunities, please share your details through the link below:\n\n[Candidate-specific form link]\n\nOur recruitment team will review your details and may contact you where there is a suitable match.\n\nThis is an automated invitation. Please submit your details through the form.\n\nRegards,\n[Configured sender name]\n\nIf you do not wish to receive further recruitment emails from us, you can opt out here: [unsubscribe link]",
+    "dailySendingLimit": 50,
+    "delayBetweenEmailsSeconds": 5,
+    "automaticOutreachEnabled": false,
+    "testMode": true,
+    "lastTestedAt": null,
+    "lastTestStatus": null,
+    "lastTestMessage": null
+  },
+  "outreachMessages": [],
+  "candidateResponses": [],
+  "suppressionList": []
 }

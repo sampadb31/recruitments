@@ -671,42 +671,87 @@ export function classifyIntentAndExtractQuote(
 ): IntentClassificationResult {
   const content = String(postContent || '').trim();
   const lower = content.toLowerCase();
+  const headlineLower = String(headline || '').toLowerCase();
+
+  // Author profile / headline check for HR, Talent Acquisition, Recruiter, Staffing, Placement
+  const isHrOrRecruiterAuthor =
+    /\b(hr|human\s+resources|recruiter|recruitment|talent\s+acquisition|headhunter|staffing|hiring\s+manager|placement|sourcing\s+specialist|manpower)\b/i.test(headlineLower);
 
   // Special case: Genuine seeker mentioning hiring managers
   // E.g. "Please connect me with hiring managers; I am seeking a sales role" or "hiring managers please connect"
   const connectsHiringManagersForSelf =
+    !isHrOrRecruiterAuthor &&
     /(?:connect\s+(?:me\s+)?with\s+hiring\s+managers|hiring\s+managers\s+please\s+(?:connect|reach|consider))/i.test(lower) &&
     /(?:i\s+(?:am|'m)\s+(?:seeking|looking|exploring|open)|for\s+myself)/i.test(lower);
 
   // 1. Recruiter or Employer Hiring Vacancy Triggers
   const recruiterTriggers = [
-    'we are hiring', "we're hiring", 'i am hiring', "i'm hiring",
-    'urgent hiring', 'urgent requirement for', 'urgent opening for',
-    'hiring for our client', 'my client is hiring', 'clients are hiring',
-    'our team is hiring', 'team is expanding', 'looking for candidates',
+    'we are hiring', "we're hiring", 'were hiring', 'is hiring', 'are hiring',
+    'i am hiring', "i'm hiring",
+    'urgent hiring', 'urgently hiring', 'immediate hiring', 'urgent requirement for', 'urgent opening for',
+    'hiring for our client', 'hiring for client', 'my client is hiring', 'clients are hiring',
+    'our team is hiring', 'team is expanding', 'looking for candidates', 'looking for qualified',
     'looking for sales professionals', 'looking for relationship managers',
-    'we are looking for sales', 'we are looking for candidates',
+    'we are looking for sales', 'we are looking for candidates', 'we are looking for',
     'seeking candidates', 'opening in my team', 'openings in my team',
-    'there is an opening', 'job vacancy', 'new sales vacancy',
+    'there is an opening', 'job vacancy', 'job vacancies', 'new sales vacancy',
     'send your cv', 'send updated cv', 'send resume', 'share your cv',
-    'share your resume', 'drop your cv', 'forward your cv', 'email your cv',
-    'send cv to', 'to apply:', 'apply now:', 'apply here:',
-    'referral drive for hiring', 'referral opening',
+    'share your resume', 'drop your cv', 'drop cv', 'forward your cv', 'email your cv',
+    'send cv to', 'to apply:', 'apply now:', 'apply here:', 'apply now', 'apply here',
+    'referral drive for hiring', 'referral opening', 'walk-in drive', 'walk-in interview',
+    'walk in interview', 'mega job drive', 'refer suitable resumes', 'refer resumes',
+    'call now or refer', 'remote career opportunities', 'we are closing this position immediately',
+    'closing this position immediately', 'hiring for multiple', 'hiring for multiple position',
+    'potential vacancy', 'potential vacancies', 'vacancies available', 'vacancy available',
+    'job openings available', 'share multiple roles', 'sharing multiple roles',
   ];
 
+  // Specific vacancy mentions in posts (e.g. "potential vacancy", "vacancy available", "hiring for following")
+  const vacancyMentionPatterns = [
+    'potential vacancy',
+    'potential vacancies',
+    'vacancies available',
+    'vacancy available',
+    'job openings available',
+    'opportunities for professionals',
+    'career opportunities available',
+    'share multiple roles',
+    'sharing multiple roles',
+    'i am hiring for',
+    "i'm hiring for",
+    'we have openings',
+    'we have an opening',
+    'opening in my team',
+    'openings in my company',
+    'openings in our team',
+    'actively looking to acquire',
+    'looking for direct advertiser',
+    'vendor empanelment',
+    'looking to expand your it staffing',
+  ];
+
+  const mentionsVacanciesForOthers =
+    vacancyMentionPatterns.some(p => lower.includes(p)) ||
+    (/hiring\s+for/i.test(lower) && !lower.includes('connect me with hiring')) ||
+    (/\b(openings?|vacanc(?:y|ies))\b/i.test(lower) && /(?:we|our|client|company|team|organisation)\s+(?:have|has|announces?|with)/i.test(lower)) ||
+    (/(?:share|sharing|refer)\s+(?:multiple\s+)?(?:roles|resumes?|cvs?|profiles?)/i.test(lower));
+
   const matchedRecruiter = recruiterTriggers.find(t => lower.includes(t));
-  if (matchedRecruiter && !connectsHiringManagersForSelf) {
+  if ((matchedRecruiter || mentionsVacanciesForOthers || (isHrOrRecruiterAuthor && (lower.includes('hiring') || lower.includes('position') || lower.includes('opportunity') || lower.includes('opening') || lower.includes('vacancy')))) && !connectsHiringManagersForSelf) {
     // Find matched snippet
-    const idx = lower.indexOf(matchedRecruiter);
-    const snippet = content.slice(Math.max(0, idx - 10), Math.min(content.length, idx + matchedRecruiter.length + 20)).trim();
+    const trigger = matchedRecruiter || 'Recruiter/vacancy mention';
+    const idx = matchedRecruiter ? lower.indexOf(matchedRecruiter) : 0;
+    const snippet = content.slice(Math.max(0, idx - 10), Math.min(content.length, idx + trigger.length + 20)).trim();
     return {
       authorIntent: 'RECRUITER_OR_EMPLOYER_HIRING',
       author_seeking_job: false,
       exactIntentQuote: null,
-      intentEvidence: `Recruiter/employer vacancy posting detected: "${snippet}"`,
+      intentEvidence: isHrOrRecruiterAuthor
+        ? `Post by HR/Recruitment professional announcing vacancies/roles: "${snippet || headline}"`
+        : `Recruiter/employer vacancy posting detected: "${snippet}"`,
       isRecruiterAd: true,
       isSeekingForOthers: false,
-      rejectionReason: 'Rejected Post: Recruiter vacancy ad or employer hiring posting.',
+      rejectionReason: 'Rejected Post: Recruiter vacancy ad, HR post announcing opportunities, or employer hiring posting.',
     };
   }
 
@@ -1014,7 +1059,7 @@ export function evaluateEligibilityAgainstCriteria(
 
   // 6. Post Recency Gate
   let dateCheck: CandidateCheckResult;
-  const hoursWindow = timeWindow === '24h' ? 24 : timeWindow === '30d' ? 720 : 168;
+  const hoursWindow = timeWindow === '24h' ? 24 : (timeWindow as string) === '30d' ? 720 : 168;
   const maxAgeMs = hoursWindow * 3600 * 1000;
 
   if (evidence.originalPostDate) {
