@@ -714,8 +714,8 @@
   },
   "outreachSettings": {
     "senderName": "BFSITalentHub",
-    "senderEmail": "talenthubbfsi@gmail.com",
-    "replyToEmail": "talenthubbfsi@gmail.com",
+    "senderEmail": "bfsitalenthub@gmail.com",
+    "replyToEmail": "bfsitalenthub@gmail.com",
     "provider": "test_mode",
     "smtpConfig": {
       "host": "smtp.mailtrap.io",
@@ -740,7 +740,7 @@
     "lastTestedAt": null,
     "lastTestStatus": null,
     "lastTestMessage": null,
-    "gmailConnectedEmail": "talenthubbfsi@gmail.com",
+    "gmailConnectedEmail": "bfsitalenthub@gmail.com",
     "googleFormUrl": "https://forms.gle/bfsitalenthub",
     "sendingMode": "auto_send"
   },

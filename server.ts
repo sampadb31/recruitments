@@ -445,9 +445,9 @@ app.post('/api/gmail/connect', async (req: Request, res: Response) => {
     db.outreachSettings.gmailConnected = true;
     db.outreachSettings.gmailConnectedEmail = result.email;
     db.outreachSettings.gmailConnectedAt = new Date().toISOString();
-    // Outreach happens from talenthubbfsi@gmail.com whoever the user is
-    db.outreachSettings.senderEmail = 'talenthubbfsi@gmail.com';
-    db.outreachSettings.replyToEmail = 'talenthubbfsi@gmail.com';
+    // Outreach happens from bfsitalenthub@gmail.com whoever the user is
+    db.outreachSettings.senderEmail = 'bfsitalenthub@gmail.com';
+    db.outreachSettings.replyToEmail = 'bfsitalenthub@gmail.com';
     saveDatabase(db, m);
   }
 
@@ -487,7 +487,7 @@ app.post('/api/gmail/test', async (req: Request, res: Response) => {
     return;
   }
 
-  const targetEmail = (req.body.toEmail || session.email || 'talenthubbfsi@gmail.com').trim();
+  const targetEmail = (req.body.toEmail || session.email || 'bfsitalenthub@gmail.com').trim();
   const testSubject = `[Verification Test] BFSITalentHub Recruitment Gmail API Integration`;
   const formUrl = db.outreachSettings.googleFormUrl || 'https://forms.gle/bfsitalenthub';
   const testBody = `Hello,\n\nThis is a verified test email sent directly from your connected Gmail account (${session.email}) via the Google Gmail API (users.messages.send with permission: https://www.googleapis.com/auth/gmail.send).\n\nIntegration Status: ACTIVE & VERIFIED\nSender Name: ${db.outreachSettings.senderName || 'BFSITalentHub'}\nRegistration Link: ${formUrl}\nTimestamp: ${new Date().toISOString()}\n\nCandidate outreach emails are ready to be sent using your Gmail address.`;

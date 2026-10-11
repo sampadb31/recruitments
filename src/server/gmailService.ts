@@ -175,15 +175,15 @@ function buildRfc2822RawMessage({
 
 /**
  * Dispatches an email using the Gmail REST API (users.messages.send).
- * Ensures outreach happens from talenthubbfsi@gmail.com whoever the authenticated user is.
+ * Ensures outreach happens from bfsitalenthub@gmail.com whoever the authenticated user is.
  */
 export async function sendEmailViaGmailApi({
   to,
   subject,
   bodyText,
   senderName = 'BFSITalentHub Recruitment',
-  replyTo = 'talenthubbfsi@gmail.com',
-  fromEmail = 'talenthubbfsi@gmail.com',
+  replyTo = 'bfsitalenthub@gmail.com',
+  fromEmail = 'bfsitalenthub@gmail.com',
   customAccessToken,
 }: {
   to: string;
@@ -211,9 +211,9 @@ export async function sendEmailViaGmailApi({
     };
   }
 
-  // Primary attempt: send with From header set to talenthubbfsi@gmail.com as requested
-  const targetFromEmail = fromEmail || 'talenthubbfsi@gmail.com';
-  const targetReplyTo = replyTo || 'talenthubbfsi@gmail.com';
+  // Primary attempt: send with From header set to bfsitalenthub@gmail.com as requested
+  const targetFromEmail = fromEmail || 'bfsitalenthub@gmail.com';
+  const targetReplyTo = replyTo || 'bfsitalenthub@gmail.com';
   const fromHeader = senderName ? `"${senderName}" <${targetFromEmail}>` : targetFromEmail;
 
   const rawBase64Url = buildRfc2822RawMessage({
@@ -236,10 +236,10 @@ export async function sendEmailViaGmailApi({
       }),
     });
 
-    // If Gmail API rejects From header because user doesn't have talenthubbfsi@gmail.com alias registered
+    // If Gmail API rejects From header because user doesn't have bfsitalenthub@gmail.com alias registered
     if (!res.ok && res.status === 400) {
       const errText = await res.text();
-      // If error is about invalid From header, retry with user's authenticated account as transport sender but keep talenthubbfsi@gmail.com in Reply-To
+      // If error is about invalid From header, retry with user's authenticated account as transport sender but keep bfsitalenthub@gmail.com in Reply-To
       if (errText.includes('Invalid From header') || errText.includes('from_address') || errText.includes('From')) {
         const fallbackFrom = activeGmailSession?.email ? `"${senderName}" <${activeGmailSession.email}>` : 'me';
         const fallbackRaw = buildRfc2822RawMessage({

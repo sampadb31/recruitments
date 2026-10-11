@@ -185,15 +185,16 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
     try {
       const result = await connectGmailWithOAuth();
       showToast(`Gmail account ${result.email} connected with gmail.send permission!`, 'success');
-      setSenderEmail(result.email);
-      setReplyToEmail(result.email);
-      setTestRecipient(result.email);
+      setSenderEmail('bfsitalenthub@gmail.com');
+      setReplyToEmail('bfsitalenthub@gmail.com');
+      setTestRecipient('bfsitalenthub@gmail.com');
 
       await onUpdateSettings({
         outreachSettings: {
           gmailConnected: true,
           gmailConnectedEmail: result.email,
-          senderEmail: result.email,
+          senderEmail: 'bfsitalenthub@gmail.com',
+          replyToEmail: 'bfsitalenthub@gmail.com',
         },
       });
     } catch (err: any) {
