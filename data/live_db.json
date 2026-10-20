@@ -147,7 +147,8 @@
         "subject": "Oppourtunity in banking",
         "body": "Hi HR,\n\nI came across your LinkedIn post about seeking a job opportunity.\n\nBFSITalentHub is inviting expressions of interest for various career opportunities with a reputed bank.\n\nIf you’d like to be considered for relevant opportunities, please submit your details through this form:\n/apply\n\nOur recruitment team will review your submission and may contact you if a suitable opportunity becomes available.\n\nThis is an automated invitation. Please submit your details through the form.\n\nRegards,\nBFSITalentHub\n\nIf you do not wish to receive further recruitment emails from us, you can opt out here: http://localhost:3000/api/outreach/unsubscribe?token=tok_cand_1791715935357_qr92x_7721dc98b58df902&email=sangeeta.recruitment01%40gmail.com",
         "generatedAt": "2026-10-11T10:52:17.342Z"
-      }
+      },
+      "outreachDeliveryStatus": "failed"
     },
     {
       "id": "cand_1791715935356_rjrqj",
@@ -159484,20 +159485,20 @@
   },
   "outreachSettings": {
     "senderName": "BFSITalentHub",
-    "senderEmail": "bfsitalenthub@gmail.com",
-    "replyToEmail": "bfsitalenthub@gmail.com",
-    "provider": "gmail_workspace",
+    "senderEmail": "ditribe31@gmail.com",
+    "replyToEmail": "ditribe31@gmail.com",
+    "provider": "smtp",
     "googleFormUrl": "/apply",
     "sendingMode": "auto_send",
     "gmailConnected": true,
-    "gmailConnectedEmail": "bfsitalenthub@gmail.com",
-    "gmailConnectedAt": "2026-10-11T11:06:38.885Z",
+    "gmailConnectedEmail": "ditribe31@gmail.com",
+    "gmailConnectedAt": "2026-10-11T12:26:17.172Z",
     "smtpConfig": {
-      "host": "smtp.mailtrap.io",
-      "port": 587,
-      "secure": false,
+      "host": "smtp.gmail.com",
+      "port": 465,
+      "secure": true,
       "auth": {
-        "user": "",
+        "user": "ditribe31@gmail.com",
         "pass": ""
       }
     },
@@ -159509,10 +159510,10 @@
     "delayBetweenEmailsSeconds": 5,
     "automaticOutreachEnabled": true,
     "testMode": false,
-    "lastTestedAt": null,
-    "lastTestStatus": null,
-    "lastTestMessage": null,
-    "lastTestRecipient": "bfsitalenthub@gmail.com"
+    "lastTestedAt": "2026-10-11T14:08:57.156Z",
+    "lastTestStatus": "success",
+    "lastTestMessage": "Verified: Test email accepted by Gmail SMTP (Message ID: <803e0bf9-8fa1-060a-e3e6-066f573212ba@gmail.com>).",
+    "lastTestRecipient": "ditribe31@gmail.com"
   },
   "outreachMessages": [],
   "candidateResponses": [],

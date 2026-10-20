@@ -48,6 +48,7 @@ import {
   handleCandidateOptOut,
   DEFAULT_OUTREACH_SETTINGS,
   setServerOrigin,
+  isValidEmailSyntax,
 } from './src/server/outreachService.ts';
 
 dotenv.config();
@@ -72,12 +73,12 @@ app.use((req: Request, _res: Response, next) => {
 });
 
 // 1. Health and Status (Scoped to selected mode to ensure Demo Sandbox never shows Live Apify logs)
-app.get('/api/status', (req: Request, res: Response) => {
+app.get('/api/status', async (req: Request, res: Response) => {
   const mode = (req.query.mode as string) === 'live' ? 'live' : 'demo';
   const currentRun = getCurrentActiveRun(mode);
   const latestRun = getLatestRunForMode(mode);
   const quota = isGeminiQuotaExhausted();
-  const gmailSession = getGmailSessionStatus();
+  const gmailSession = await getGmailSessionStatus();
   const apifyDiagnostics = getApifyDiagnostics();
 
   res.json({
@@ -99,17 +100,29 @@ app.get('/api/status', (req: Request, res: Response) => {
 });
 
 // 2. Full Data Retrieval
-app.get('/api/data', (req: Request, res: Response) => {
+app.get('/api/data', async (req: Request, res: Response) => {
   const mode = (req.query.mode as string) === 'live' ? 'live' : 'demo';
   const data = getDatabase(mode);
-  const session = getGmailSessionStatus();
-  if (data.outreachSettings) {
-    data.outreachSettings.gmailConnected = session.isConnected;
+  const session = await getGmailSessionStatus();
+  // Deep clone to sanitize sensitive credentials before sending to client
+  const sanitized = JSON.parse(JSON.stringify(data));
+  if (sanitized.outreachSettings) {
+    sanitized.outreachSettings.gmailConnected = session.isConnected;
     if (!session.isConnected) {
-      data.outreachSettings.gmailConnectedAt = null;
+      sanitized.outreachSettings.gmailConnectedAt = null;
+    }
+    // Never expose plain text SMTP password in client API responses
+    if (sanitized.outreachSettings.smtpConfig?.auth) {
+      const hasPass = Boolean(
+        data.outreachSettings?.smtpConfig?.auth?.pass ||
+        process.env.GMAIL_APP_PASSWORD ||
+        process.env.SMTP_PASS
+      );
+      sanitized.outreachSettings.smtpConfig.auth.hasPass = hasPass;
+      sanitized.outreachSettings.smtpConfig.auth.pass = hasPass ? '••••••••••••••••' : '';
     }
   }
-  res.json(data);
+  res.json(sanitized);
 });
 
 // 3. Reset Demo Database
@@ -401,7 +414,7 @@ app.get('/api/candidates/export.csv', (req: Request, res: Response) => {
 });
 
 // 13. Update Settings
-app.post('/api/settings', (req: Request, res: Response) => {
+app.post('/api/settings', async (req: Request, res: Response) => {
   const mode = (req.body.mode as string) === 'live' ? 'live' : 'demo';
   const db = getDatabase(mode);
 
@@ -415,16 +428,36 @@ app.post('/api/settings', (req: Request, res: Response) => {
     db.connections = { ...db.connections, ...req.body.connections };
   }
   if (req.body.outreachSettings) {
-    db.outreachSettings = { ...db.outreachSettings, ...req.body.outreachSettings };
+    const existingPass = db.outreachSettings?.smtpConfig?.auth?.pass || '';
+    const incomingSettings = { ...req.body.outreachSettings };
+    if (incomingSettings.smtpConfig?.auth) {
+      const incomingPass = incomingSettings.smtpConfig.auth.pass;
+      // If client sent masked password or empty string, preserve existing saved password
+      if (!incomingPass || incomingPass.includes('••••') || incomingPass.trim() === '') {
+        incomingSettings.smtpConfig.auth.pass = existingPass;
+      } else {
+        incomingSettings.smtpConfig.auth.pass = incomingPass.replace(/\s+/g, '');
+      }
+    }
+    db.outreachSettings = { ...db.outreachSettings, ...incomingSettings };
   }
 
   saveDatabase(db, mode);
+
+  // Return sanitized settings
+  const sanitizedOutreach = JSON.parse(JSON.stringify(db.outreachSettings || {}));
+  if (sanitizedOutreach.smtpConfig?.auth) {
+    const hasPass = Boolean(db.outreachSettings?.smtpConfig?.auth?.pass || process.env.GMAIL_APP_PASSWORD || process.env.SMTP_PASS);
+    sanitizedOutreach.smtpConfig.auth.hasPass = hasPass;
+    sanitizedOutreach.smtpConfig.auth.pass = hasPass ? '••••••••••••••••' : '';
+  }
+
   res.json({
     message: 'Settings updated successfully.',
     criteria: db.criteria,
     schedule: db.schedule,
     connections: db.connections,
-    outreachSettings: db.outreachSettings,
+    outreachSettings: sanitizedOutreach,
   });
 });
 
@@ -433,9 +466,225 @@ app.post('/api/settings', (req: Request, res: Response) => {
 // ==========================================
 
 // Check Gmail OAuth Session Status
-app.get('/api/gmail/status', (_req: Request, res: Response) => {
-  const session = getGmailSessionStatus();
+app.get('/api/gmail/status', async (_req: Request, res: Response) => {
+  const session = await getGmailSessionStatus();
   res.json(session);
+});
+
+// Overall Outreach Connection Health Check (OAuth & SMTP)
+app.get('/api/outreach/connection-status', async (req: Request, res: Response) => {
+  const mode = (req.query.mode as string) === 'live' ? 'live' : 'demo';
+  const db = getDatabase(mode);
+  const session = await getGmailSessionStatus();
+
+  const hasEnvSmtp = Boolean(
+    (process.env.GMAIL_APP_PASSWORD && process.env.GMAIL_APP_PASSWORD.trim()) ||
+    (process.env.SMTP_PASS && process.env.SMTP_PASS.trim())
+  );
+  const hasSmtpConfigured = Boolean(
+    hasEnvSmtp ||
+    (db.outreachSettings?.smtpConfig?.auth?.pass && db.outreachSettings.smtpConfig.auth.pass.trim())
+  );
+
+  const envGmailUser = (process.env.GMAIL_USER && process.env.GMAIL_USER.trim()) || '';
+  const smtpUser = envGmailUser || db.outreachSettings?.smtpConfig?.auth?.user || db.outreachSettings?.senderEmail || 'ditribe31@gmail.com';
+  const activeProvider = db.outreachSettings?.provider || (hasEnvSmtp ? 'smtp' : 'gmail_workspace');
+  let isReadyToSend = false;
+  let activeTransportDesc = '';
+
+  if (activeProvider === 'gmail_workspace') {
+    if (session.isConnected) {
+      isReadyToSend = true;
+      activeTransportDesc = `Google Gmail API OAuth 2.0 (${session.email || smtpUser})`;
+    } else if (hasSmtpConfigured) {
+      isReadyToSend = true;
+      activeTransportDesc = hasEnvSmtp
+        ? `Gmail SMTP Server (${smtpUser} - Connected via Server Secrets)`
+        : `Gmail SMTP Fallback (${smtpUser})`;
+    } else {
+      activeTransportDesc = 'Gmail Disconnected - Reconnect via OAuth or configure 16-char App Password';
+    }
+  } else if (activeProvider === 'smtp') {
+    if (hasSmtpConfigured) {
+      isReadyToSend = true;
+      activeTransportDesc = hasEnvSmtp
+        ? `Gmail SMTP Transport (${smtpUser} - Connected via Server Secrets)`
+        : `Gmail SMTP Transport (${smtpUser})`;
+    } else {
+      activeTransportDesc = 'SMTP App Password Missing - Enter 16-char App Password in Settings';
+    }
+  } else {
+    isReadyToSend = mode === 'demo';
+    activeTransportDesc = mode === 'demo' ? 'Test Mode Simulation (Demo only)' : 'Simulation Not Allowed in Live';
+  }
+
+  res.json({
+    isReadyToSend,
+    activeProvider,
+    activeTransportDesc,
+    oauth: {
+      isConnected: session.isConnected,
+      email: session.email,
+      displayName: session.displayName,
+      connectedAt: session.connectedAt,
+      isExpired: session.isExpired,
+    },
+    smtp: {
+      isConfigured: hasSmtpConfigured,
+      isConnectedViaSecrets: hasEnvSmtp,
+      user: smtpUser,
+      host: db.outreachSettings?.smtpConfig?.host || 'smtp.gmail.com',
+      port: Number(db.outreachSettings?.smtpConfig?.port || 465),
+      hasEnvironmentPassword: hasEnvSmtp,
+    },
+    senderEmail: db.outreachSettings?.senderEmail || smtpUser,
+    lastTestedAt: db.outreachSettings?.lastTestedAt || null,
+    lastTestStatus: db.outreachSettings?.lastTestStatus || null,
+    lastTestMessage: db.outreachSettings?.lastTestMessage || null,
+    lastTestRecipient: db.outreachSettings?.lastTestRecipient || null,
+  });
+});
+
+// Unified Send Test Email Endpoint with confirmation support
+app.post('/api/outreach/send-test-email', async (req: Request, res: Response) => {
+  const mode = (req.body.mode as string) === 'live' ? 'live' : 'demo';
+  const db = getDatabase(mode);
+  const fallbackEmail = db.outreachSettings?.senderEmail || 'ditribe31@gmail.com';
+  const targetEmail = (req.body.toEmail || req.body.targetEmail || fallbackEmail).trim();
+
+  if (!targetEmail || !isValidEmailSyntax(targetEmail)) {
+    res.status(400).json({
+      success: false,
+      error: `Please enter a valid recipient email address (received: "${targetEmail}").`,
+    });
+    return;
+  }
+
+  const session = await getGmailSessionStatus();
+  const rawSmtpPass = db.outreachSettings?.smtpConfig?.auth?.pass || process.env.GMAIL_APP_PASSWORD || process.env.SMTP_PASS;
+  const hasSmtp = Boolean(rawSmtpPass && rawSmtpPass.trim());
+
+  // Determine provider to use: OAuth if connected, or SMTP if configured
+  const preferOAuth = db.outreachSettings.provider === 'gmail_workspace' && session.isConnected;
+  const preferSmtp = hasSmtp && (db.outreachSettings.provider === 'smtp' || !session.isConnected);
+
+  if (!preferOAuth && !preferSmtp) {
+    res.status(400).json({
+      success: false,
+      error:
+        'Neither Gmail OAuth nor Gmail SMTP is connected. Please connect Gmail via OAuth or enter your 16-character Google App Password under Settings > Outreach.',
+    });
+    return;
+  }
+
+  const testSubject = `[Verification Test] BFSITalentHub Recruitment Email Delivery Test`;
+  const formUrl = `${req.protocol}://${req.get('host')}/apply`;
+  const timestamp = new Date().toISOString();
+
+  if (preferOAuth) {
+    // Dispatch via Gmail API
+    const activeFrom = db.outreachSettings?.senderEmail || 'ditribe31@gmail.com';
+    const testBody = `Hello,\n\nThis is a verified test email sent directly from your connected Gmail account (${session.email}) via Google Gmail API (users.messages.send).\n\nSender: ${activeFrom}\nRecipient: ${targetEmail}\nCandidate Application Portal: ${formUrl}\nTimestamp: ${timestamp}\nStatus: ACCEPTED BY GOOGLE GMAIL API\n\nCandidate recruitment emails are ready to send.`;
+
+    const result = await sendEmailViaGmailApi({
+      to: targetEmail,
+      subject: testSubject,
+      bodyText: testBody,
+      senderName: db.outreachSettings.senderName || 'BFSITalentHub Recruitment',
+      fromEmail: activeFrom,
+      replyTo: db.outreachSettings.replyToEmail || activeFrom,
+    });
+
+    db.outreachSettings.lastTestedAt = timestamp;
+    db.outreachSettings.lastTestStatus = result.success ? 'success' : 'failed';
+    db.outreachSettings.lastTestRecipient = targetEmail;
+    db.outreachSettings.lastTestMessage = result.success
+      ? `Real test email accepted by Google Gmail API (Message ID: ${result.messageId}).`
+      : result.error || 'Test email failed.';
+    saveDatabase(db, mode);
+
+    if (result.success) {
+      res.json({
+        success: true,
+        provider: 'Google Gmail API (OAuth 2.0)',
+        messageId: result.messageId,
+        recipient: targetEmail,
+        timestamp,
+        message: `Verified: Test email accepted by Google Gmail API and dispatched to ${targetEmail} from ${activeFrom}. (Message ID: ${result.messageId})`,
+      });
+    } else {
+      res.status(result.statusCode || 400).json({
+        success: false,
+        provider: 'Google Gmail API (OAuth 2.0)',
+        error: result.error,
+        recipient: targetEmail,
+      });
+    }
+    return;
+  }
+
+  // Dispatch via Gmail SMTP
+  const host = db.outreachSettings.smtpConfig?.host || 'smtp.gmail.com';
+  const port = Number(db.outreachSettings.smtpConfig?.port || 465);
+  const user =
+    (process.env.GMAIL_USER && process.env.GMAIL_USER.trim()) ||
+    db.outreachSettings.smtpConfig?.auth?.user ||
+    db.outreachSettings.senderEmail ||
+    'ditribe31@gmail.com';
+  const pass = rawSmtpPass!.replace(/\s+/g, '');
+
+  try {
+    const nm: any = await import('nodemailer');
+    const createTransport = nm.default?.createTransport || nm.createTransport;
+    const transporter = createTransport({
+      host,
+      port,
+      secure: port === 465,
+      auth: { user, pass },
+      tls: { rejectUnauthorized: false },
+    });
+
+    const testBody = `Hello,\n\nThis is a verified test email sent directly from ${user} using Gmail SMTP and Google App Password authentication.\n\nSender: ${user}\nRecipient: ${targetEmail}\nCandidate Application Portal: ${formUrl}\nTimestamp: ${timestamp}\nStatus: ACCEPTED BY GMAIL SMTP TRANSPORT\n\nCandidate recruitment emails are ready to send.`;
+
+    const info = await transporter.sendMail({
+      from: `"${db.outreachSettings.senderName || 'BFSITalentHub'}" <${user}>`,
+      to: targetEmail,
+      replyTo: db.outreachSettings.replyToEmail || user,
+      subject: testSubject,
+      text: testBody,
+    });
+
+    db.outreachSettings.lastTestedAt = timestamp;
+    db.outreachSettings.lastTestStatus = 'success';
+    db.outreachSettings.lastTestRecipient = targetEmail;
+    db.outreachSettings.lastTestMessage = `Real test email accepted by Gmail SMTP (Message ID: ${info.messageId}).`;
+    saveDatabase(db, mode);
+
+    res.json({
+      success: true,
+      accepted: true,
+      provider: 'Gmail SMTP (App Password)',
+      messageId: info.messageId,
+      recipient: targetEmail,
+      timestamp,
+      smtpResponse: info.response,
+      message: `Verified: Real test email successfully accepted by Gmail SMTP server (Message ID: ${info.messageId}) and delivered to ${targetEmail} from ${user}!`,
+    });
+  } catch (err: any) {
+    db.outreachSettings.lastTestedAt = timestamp;
+    db.outreachSettings.lastTestStatus = 'failed';
+    db.outreachSettings.lastTestRecipient = targetEmail;
+    db.outreachSettings.lastTestMessage = `Gmail SMTP failed: ${err.message}`;
+    saveDatabase(db, mode);
+
+    res.status(400).json({
+      success: false,
+      accepted: false,
+      provider: 'Gmail SMTP (App Password)',
+      error: `Gmail SMTP rejected email: ${err.message}. Ensure your 16-character App Password is generated from myaccount.google.com/apppasswords.`,
+      recipient: targetEmail,
+    });
+  }
 });
 
 // Connect Recruiter Gmail Account via OAuth
@@ -462,9 +711,9 @@ app.post('/api/gmail/connect', async (req: Request, res: Response) => {
     db.outreachSettings.gmailConnected = true;
     db.outreachSettings.gmailConnectedEmail = result.email;
     db.outreachSettings.gmailConnectedAt = new Date().toISOString();
-    // Outreach happens from bfsitalenthub@gmail.com whoever the user is
-    db.outreachSettings.senderEmail = 'bfsitalenthub@gmail.com';
-    db.outreachSettings.replyToEmail = 'bfsitalenthub@gmail.com';
+    // Outreach defaults to ditribe31@gmail.com or connected session
+    db.outreachSettings.senderEmail = result.email || 'ditribe31@gmail.com';
+    db.outreachSettings.replyToEmail = result.email || 'ditribe31@gmail.com';
     saveDatabase(db, m);
   }
 
@@ -494,7 +743,7 @@ app.post('/api/gmail/disconnect', (_req: Request, res: Response) => {
 app.post('/api/gmail/test', async (req: Request, res: Response) => {
   const mode = (req.body.mode as string) === 'live' ? 'live' : 'demo';
   const db = getDatabase(mode);
-  const session = getGmailSessionStatus();
+  const session = await getGmailSessionStatus();
 
   if (!session.isConnected) {
     res.status(400).json({
@@ -504,7 +753,7 @@ app.post('/api/gmail/test', async (req: Request, res: Response) => {
     return;
   }
 
-  const targetEmail = (req.body.toEmail || session.email || 'bfsitalenthub@gmail.com').trim();
+  const targetEmail = (req.body.toEmail || session.email || db.outreachSettings.senderEmail || 'ditribe31@gmail.com').trim();
   const testSubject = `[Verification Test] BFSITalentHub Recruitment Gmail API Integration`;
   const formUrl = db.outreachSettings.googleFormUrl || 'https://forms.gle/bfsitalenthub';
   const testBody = `Hello,\n\nThis is a verified test email sent directly from your connected Gmail account (${session.email}) via the Google Gmail API (users.messages.send with permission: https://www.googleapis.com/auth/gmail.send).\n\nIntegration Status: ACTIVE & VERIFIED\nSender Name: ${db.outreachSettings.senderName || 'BFSITalentHub'}\nRegistration Link: ${formUrl}\nTimestamp: ${new Date().toISOString()}\n\nCandidate outreach emails are ready to be sent using your Gmail address.`;
@@ -546,16 +795,18 @@ app.post('/api/gmail/test', async (req: Request, res: Response) => {
 app.post('/api/smtp/test', async (req: Request, res: Response) => {
   const mode = (req.body.mode as string) === 'live' ? 'live' : 'demo';
   const db = getDatabase(mode);
-  const targetEmail = (req.body.toEmail || db.outreachSettings.senderEmail || 'bfsitalenthub@gmail.com').trim();
+  const targetEmail = (req.body.toEmail || db.outreachSettings.senderEmail || 'ditribe31@gmail.com').trim();
   const host = (req.body.host || db.outreachSettings.smtpConfig?.host || 'smtp.gmail.com').trim();
   const port = Number(req.body.port || db.outreachSettings.smtpConfig?.port || 465);
-  const user = (req.body.user || db.outreachSettings.smtpConfig?.auth?.user || db.outreachSettings.senderEmail || 'bfsitalenthub@gmail.com').trim();
-  const pass = (req.body.pass || db.outreachSettings.smtpConfig?.auth?.pass || '').replace(/\s+/g, '');
+  const user = (req.body.user || process.env.GMAIL_USER || db.outreachSettings.smtpConfig?.auth?.user || db.outreachSettings.senderEmail || 'ditribe31@gmail.com').trim();
+  const rawPass = (req.body.pass && !req.body.pass.includes('••••') ? req.body.pass : db.outreachSettings.smtpConfig?.auth?.pass) || process.env.GMAIL_APP_PASSWORD || process.env.SMTP_PASS || '';
+  const pass = rawPass.replace(/\s+/g, '');
 
   if (!pass) {
     res.status(400).json({
       success: false,
-      error: 'Google App Password is required. Please enter your 16-character App Password to test Gmail SMTP.',
+      accepted: false,
+      error: 'Google App Password is required. Please ensure GMAIL_APP_PASSWORD is set in Secrets or entered in Settings.',
     });
     return;
   }
@@ -573,7 +824,7 @@ app.post('/api/smtp/test', async (req: Request, res: Response) => {
 
     const testSubject = `[Verification Test] BFSITalentHub Gmail SMTP Verification`;
     const formUrl = `${req.protocol}://${req.get('host')}/apply`;
-    const testBody = `Hello,\n\nThis is a real verified test email sent directly from bfsitalenthub@gmail.com using Gmail SMTP & Google App Password authentication.\n\nIntegration Status: ACTIVE & VERIFIED ON GOOGLE SERVERS\nSender Name: ${db.outreachSettings.senderName || 'BFSITalentHub'}\nCandidate Application Portal: ${formUrl}\nTimestamp: ${new Date().toISOString()}\n\nCandidate recruitment emails are ready to dispatch directly to inboxes.`;
+    const testBody = `Hello,\n\nThis is a real verified test email sent directly from ${user} using Gmail SMTP & Google App Password authentication.\n\nIntegration Status: ACTIVE & VERIFIED ON GOOGLE SERVERS\nSender Name: ${db.outreachSettings.senderName || 'BFSITalentHub'}\nCandidate Application Portal: ${formUrl}\nTimestamp: ${new Date().toISOString()}\n\nCandidate recruitment emails are ready to dispatch directly to inboxes.`;
 
     const info = await transporter.sendMail({
       from: `"${db.outreachSettings.senderName || 'BFSITalentHub'}" <${user}>`,
@@ -583,27 +834,29 @@ app.post('/api/smtp/test', async (req: Request, res: Response) => {
       text: testBody,
     });
 
-    // Save successful SMTP config to database
+    // Save successful SMTP config to database (omit raw pass if provided by environment)
     if (!db.outreachSettings.smtpConfig) {
-      db.outreachSettings.smtpConfig = { host, port, secure: port === 465, auth: { user, pass } };
+      db.outreachSettings.smtpConfig = { host, port, secure: port === 465, auth: { user, pass: process.env.GMAIL_APP_PASSWORD ? '' : pass } };
     } else {
       db.outreachSettings.smtpConfig.host = host;
       db.outreachSettings.smtpConfig.port = port;
       db.outreachSettings.smtpConfig.secure = port === 465;
-      db.outreachSettings.smtpConfig.auth = { user, pass };
+      db.outreachSettings.smtpConfig.auth = { user, pass: process.env.GMAIL_APP_PASSWORD ? '' : pass };
     }
     db.outreachSettings.provider = 'smtp';
     db.outreachSettings.lastTestedAt = new Date().toISOString();
     db.outreachSettings.lastTestStatus = 'success';
     db.outreachSettings.lastTestRecipient = targetEmail;
-    db.outreachSettings.lastTestMessage = `Verified: Test email delivered via Gmail SMTP (Message ID: ${info.messageId}).`;
+    db.outreachSettings.lastTestMessage = `Verified: Test email accepted by Gmail SMTP (Message ID: ${info.messageId}).`;
     saveDatabase(db, mode);
 
     res.json({
       success: true,
+      accepted: true,
       messageId: info.messageId,
       recipient: targetEmail,
-      message: `Verified: Real test email delivered to ${targetEmail} via Gmail SMTP! Check your Sent folder and inbox.`,
+      smtpResponse: info.response,
+      message: `Verified: Real test email successfully accepted by Gmail SMTP server (Message ID: ${info.messageId}) and delivered to ${targetEmail}!`,
     });
   } catch (err: any) {
     db.outreachSettings.lastTestedAt = new Date().toISOString();
@@ -614,41 +867,57 @@ app.post('/api/smtp/test', async (req: Request, res: Response) => {
 
     res.status(400).json({
       success: false,
-      error: `Gmail SMTP authentication failed: ${err.message}. If using Gmail, make sure you generated a 16-character Google App Password from myaccount.google.com/apppasswords.`,
+      accepted: false,
+      error: `Gmail SMTP rejected email: ${err.message}. If using Gmail, make sure you generated a 16-character Google App Password from myaccount.google.com/apppasswords.`,
     });
   }
 });
 
-// Reset Simulated Sends back to "Approved" so real emails can be dispatched
+// Reset Simulated Sends back to "Approved" or "Draft" after review so real emails can be dispatched
 app.post('/api/outreach/reset-simulated-sends', (req: Request, res: Response) => {
   const mode = (req.body.mode as string) === 'live' ? 'live' : 'demo';
   const db = getDatabase(mode);
+  const targetIds: string[] | undefined = Array.isArray(req.body.candidateIds) ? req.body.candidateIds : undefined;
+  const targetStatus: 'Approved' | 'Draft' = req.body.targetStatus === 'Draft' ? 'Draft' : 'Approved';
 
   let resetCount = 0;
+  const resetCandidates: { id: string; name: string; email: string }[] = [];
+
   for (const c of db.candidates) {
+    if (targetIds && !targetIds.includes(c.id)) continue;
+
     // Check if candidate is marked Sent but was sent via test/simulated mode
     if (c.outreachStatus === 'Sent') {
       const msg = db.outreachMessages.find(m => m.candidateId === c.id);
-      if (!msg || msg.isTestModeSend || msg.providerMessageId?.startsWith('talenthub_') || msg.providerMessageId?.startsWith('test_sim_') || msg.providerMessageId?.startsWith('gmail_sim_')) {
-        c.outreachStatus = 'Approved';
+      const isSimulated = !msg || msg.isTestModeSend || msg.providerMessageId?.startsWith('talenthub_') || msg.providerMessageId?.startsWith('test_sim_') || msg.providerMessageId?.startsWith('gmail_sim_');
+      if (isSimulated) {
+        c.outreachStatus = targetStatus;
         c.outreachDeliveryStatus = undefined;
         c.outreachSentAt = null;
         resetCount++;
+        resetCandidates.push({ id: c.id, name: c.name || 'Candidate', email: c.email || '' });
       }
     }
   }
 
   // Filter out the simulated messages so the message log is clean
-  db.outreachMessages = db.outreachMessages.filter(
-    m => !m.isTestModeSend && !m.providerMessageId?.startsWith('talenthub_') && !m.providerMessageId?.startsWith('test_sim_') && !m.providerMessageId?.startsWith('gmail_sim_')
-  );
+  if (targetIds) {
+    db.outreachMessages = db.outreachMessages.filter(
+      m => !targetIds.includes(m.candidateId) || (!m.isTestModeSend && !m.providerMessageId?.startsWith('talenthub_') && !m.providerMessageId?.startsWith('test_sim_') && !m.providerMessageId?.startsWith('gmail_sim_'))
+    );
+  } else {
+    db.outreachMessages = db.outreachMessages.filter(
+      m => !m.isTestModeSend && !m.providerMessageId?.startsWith('talenthub_') && !m.providerMessageId?.startsWith('test_sim_') && !m.providerMessageId?.startsWith('gmail_sim_')
+    );
+  }
 
   saveDatabase(db, mode);
 
   res.json({
     success: true,
     resetCount,
-    message: `Successfully reset ${resetCount} simulated candidate records back to "Approved" status. You can now send real emails using Batch Send.`,
+    resetCandidates,
+    message: `Successfully moved ${resetCount} simulated candidate record(s) back to "${targetStatus}" status for real outreach.`,
   });
 });
 

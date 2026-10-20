@@ -166,7 +166,7 @@ export const CandidateApplyScreen: React.FC<CandidateApplyScreenProps> = ({ onBa
           <div className="bg-slate-950/70 border border-slate-800 rounded-xl p-3 text-left text-[11px] text-slate-400 space-y-1">
             <div>• Registered Email: <span className="text-slate-200 font-mono">{email}</span></div>
             <div>• Preferred Role: <span className="text-slate-200">{roleFunctionOfInterest}</span></div>
-            <div>• Outreach Origin: <span className="text-emerald-300 font-mono">bfsitalenthub@gmail.com</span></div>
+            <div>• Outreach Origin: <span className="text-emerald-300 font-mono">ditribe31@gmail.com</span></div>
           </div>
           <p className="text-[11px] text-slate-400">
             Our talent advisors review submissions continuously and will contact you directly when matching banking and commercial vacancies open.
@@ -207,7 +207,7 @@ export const CandidateApplyScreen: React.FC<CandidateApplyScreenProps> = ({ onBa
           </p>
           <div className="mt-3 text-[11px] text-slate-400 flex items-center space-x-1.5">
             <ShieldCheck className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
-            <span>Outreach & correspondence handled via: <strong className="text-slate-200">bfsitalenthub@gmail.com</strong></span>
+            <span>Outreach & correspondence handled via: <strong className="text-slate-200">ditribe31@gmail.com</strong></span>
           </div>
         </div>
 
@@ -458,7 +458,7 @@ export const CandidateApplyScreen: React.FC<CandidateApplyScreenProps> = ({ onBa
       </div>
 
       <footer className="text-center text-[11px] text-slate-500 mt-8">
-        © 2026 BFSITalentHub Discovery Network • Contact: bfsitalenthub@gmail.com
+        © 2026 BFSITalentHub Discovery Network • Contact: ditribe31@gmail.com
       </footer>
     </div>
   );

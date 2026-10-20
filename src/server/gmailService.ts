@@ -2,10 +2,14 @@
  * Gmail API Service
  * Handles server-side Gmail API interactions using Google OAuth 2.0.
  * In-memory token storage ensures tokens are NEVER stored in browser code or persistent database files.
+ * Real email dispatching only - simulations are strictly prohibited here.
  */
 
 interface GmailAuthSession {
   accessToken: string;
+  refreshToken?: string;
+  clientId?: string;
+  clientSecret?: string;
   email: string;
   displayName?: string | null;
   connectedAt: string;
@@ -16,30 +20,86 @@ interface GmailAuthSession {
 let activeGmailSession: GmailAuthSession | null = null;
 
 /**
+ * Refreshes an expired OAuth access token if refresh credentials are available.
+ */
+async function refreshAccessTokenIfNeeded(): Promise<boolean> {
+  if (!activeGmailSession) return false;
+
+  const now = Date.now();
+  // If not expired yet (with 60-second buffer), no need to refresh
+  if (activeGmailSession.expiresAt && now < activeGmailSession.expiresAt - 60000) {
+    return true;
+  }
+
+  // If no refresh token available, check process.env or fail
+  const refreshToken = activeGmailSession.refreshToken || process.env.GMAIL_REFRESH_TOKEN;
+  const clientId = activeGmailSession.clientId || process.env.GMAIL_CLIENT_ID;
+  const clientSecret = activeGmailSession.clientSecret || process.env.GMAIL_CLIENT_SECRET;
+
+  if (!refreshToken || !clientId || !clientSecret) {
+    // If expired without refresh capability, clear session
+    if (activeGmailSession.expiresAt && now >= activeGmailSession.expiresAt) {
+      activeGmailSession = null;
+    }
+    return false;
+  }
+
+  try {
+    const res = await fetch('https://oauth2.googleapis.com/token', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({
+        client_id: clientId,
+        client_secret: clientSecret,
+        refresh_token: refreshToken,
+        grant_type: 'refresh_token',
+      }),
+    });
+
+    if (!res.ok) {
+      const err = await res.text();
+      console.error('Failed to refresh Google OAuth token:', err);
+      activeGmailSession = null;
+      return false;
+    }
+
+    const data = await res.json();
+    if (data.access_token) {
+      activeGmailSession.accessToken = data.access_token;
+      activeGmailSession.expiresAt = now + (data.expires_in || 3600) * 1000;
+      return true;
+    }
+    return false;
+  } catch (err) {
+    console.error('Network error during OAuth token refresh:', err);
+    return false;
+  }
+}
+
+/**
  * Validates and registers an active Gmail session on the backend.
- * Checks token against Google's tokeninfo or profile endpoint.
+ * Checks token against Google's tokeninfo endpoint.
+ * Strictly disallows simulated tokens.
  */
 export async function setGmailSession(
   accessToken: string,
   claimedEmail?: string,
-  displayName?: string | null
+  displayName?: string | null,
+  refreshToken?: string,
+  clientId?: string,
+  clientSecret?: string
 ): Promise<{ success: boolean; email: string; error?: string }> {
   if (!accessToken || typeof accessToken !== 'string') {
     return { success: false, email: '', error: 'Invalid or missing OAuth access token.' };
   }
 
-  // Handle simulated preview session (used when preview domain is not in Firebase authorized domains)
-  if (accessToken === 'simulated_preview_token' || accessToken.startsWith('simulated_')) {
-    const verifiedEmail = claimedEmail || 'bfsitalenthub@gmail.com';
-    activeGmailSession = {
-      accessToken,
-      email: verifiedEmail,
-      displayName: displayName || 'BFSITalentHub Recruitment',
-      connectedAt: new Date().toISOString(),
-    };
+  // Explicitly reject simulated tokens: real Google OAuth tokens are required
+  if (accessToken === 'simulated_preview_token' || accessToken.startsWith('simulated_') || accessToken.startsWith('test_')) {
     return {
-      success: true,
-      email: verifiedEmail,
+      success: false,
+      email: '',
+      error:
+        'Simulated tokens are not permitted for real Gmail sending. Please authenticate with a real Google account that has gmail.send permission, or configure a Gmail App Password.',
     };
   }
 
@@ -73,7 +133,7 @@ export async function setGmailSession(
         success: false,
         email: tokenInfo.email || claimedEmail || '',
         error:
-          'Insufficient permissions: The Gmail account did not grant "https://www.googleapis.com/auth/gmail.send" permission. Please re-authenticate and consent to sending emails.',
+          'Insufficient permissions: The Google account did not grant "https://www.googleapis.com/auth/gmail.send" permission. Please re-authenticate and ensure the send permission checkbox is checked.',
       };
     }
 
@@ -81,6 +141,9 @@ export async function setGmailSession(
 
     activeGmailSession = {
       accessToken,
+      refreshToken: refreshToken || activeGmailSession?.refreshToken,
+      clientId: clientId || activeGmailSession?.clientId,
+      clientSecret: clientSecret || activeGmailSession?.clientSecret,
       email: verifiedEmail,
       displayName: displayName || null,
       connectedAt: new Date().toISOString(),
@@ -103,12 +166,14 @@ export async function setGmailSession(
 /**
  * Returns current Gmail connection status (never exposes access token!)
  */
-export function getGmailSessionStatus(): {
+export async function getGmailSessionStatus(): Promise<{
   isConnected: boolean;
   email: string | null;
   displayName: string | null;
   connectedAt: string | null;
-} {
+  expiresAt?: number | null;
+  isExpired?: boolean;
+}> {
   if (!activeGmailSession) {
     return {
       isConnected: false,
@@ -118,17 +183,43 @@ export function getGmailSessionStatus(): {
     };
   }
 
-  // Check if expired
-  if (activeGmailSession.expiresAt && Date.now() > activeGmailSession.expiresAt) {
-    activeGmailSession = null;
+  // Check and refresh if needed
+  const isValid = await refreshAccessTokenIfNeeded();
+  if (!isValid || !activeGmailSession) {
     return {
       isConnected: false,
       email: null,
       displayName: null,
       connectedAt: null,
+      isExpired: true,
     };
   }
 
+  return {
+    isConnected: true,
+    email: activeGmailSession.email,
+    displayName: activeGmailSession.displayName || null,
+    connectedAt: activeGmailSession.connectedAt,
+    expiresAt: activeGmailSession.expiresAt || null,
+    isExpired: false,
+  };
+}
+
+/**
+ * Synchronous status check helper for quick checks
+ */
+export function getGmailSessionStatusSync(): {
+  isConnected: boolean;
+  email: string | null;
+  displayName: string | null;
+  connectedAt: string | null;
+} {
+  if (!activeGmailSession) {
+    return { isConnected: false, email: null, displayName: null, connectedAt: null };
+  }
+  if (activeGmailSession.expiresAt && Date.now() > activeGmailSession.expiresAt) {
+    return { isConnected: false, email: null, displayName: null, connectedAt: null };
+  }
   return {
     isConnected: true,
     email: activeGmailSession.email,
@@ -190,15 +281,16 @@ function buildRfc2822RawMessage({
 
 /**
  * Dispatches an email using the Gmail REST API (users.messages.send).
- * Ensures outreach happens from bfsitalenthub@gmail.com whoever the authenticated user is.
+ * Ensures outreach happens from ditribe31@gmail.com or authenticated account.
+ * NEVER simulates sending. Only returns success when Google servers accept the message.
  */
 export async function sendEmailViaGmailApi({
   to,
   subject,
   bodyText,
   senderName = 'BFSITalentHub Recruitment',
-  replyTo = 'bfsitalenthub@gmail.com',
-  fromEmail = 'bfsitalenthub@gmail.com',
+  replyTo = 'ditribe31@gmail.com',
+  fromEmail = 'ditribe31@gmail.com',
   customAccessToken,
 }: {
   to: string;
@@ -215,33 +307,25 @@ export async function sendEmailViaGmailApi({
   error?: string;
   statusCode?: number;
 }> {
+  // Check token and refresh if needed
+  await refreshAccessTokenIfNeeded();
   const token = customAccessToken || activeGmailSession?.accessToken;
 
   if (!token) {
     return {
       success: false,
       error:
-        'Gmail account is not connected. Recruiter must connect their Gmail account via Google OAuth in Outreach Settings first.',
+        'Gmail account is not connected or token has expired. Please authenticate with Google OAuth under Settings > Outreach or configure a Gmail App Password.',
       statusCode: 401,
     };
   }
 
-  // If running in simulated preview session
-  if (token === 'simulated_preview_token' || token.startsWith('simulated_')) {
-    const simMsgId = `gmail_sim_${Date.now()}_${Math.random().toString(36).substring(2, 8)}`;
-    return {
-      success: true,
-      messageId: simMsgId,
-      threadId: `thread_${simMsgId}`,
-    };
-  }
-
-  // Primary attempt: send with From header set to bfsitalenthub@gmail.com as requested
-  const targetFromEmail = fromEmail || 'bfsitalenthub@gmail.com';
-  const targetReplyTo = replyTo || 'bfsitalenthub@gmail.com';
+  // Attempt 1: Send with specified fromEmail (ditribe31@gmail.com)
+  const targetFromEmail = fromEmail || 'ditribe31@gmail.com';
+  const targetReplyTo = replyTo || 'ditribe31@gmail.com';
   const fromHeader = senderName ? `"${senderName}" <${targetFromEmail}>` : targetFromEmail;
 
-  const rawBase64Url = buildRfc2822RawMessage({
+  let rawBase64Url = buildRfc2822RawMessage({
     from: fromHeader,
     to,
     replyTo: targetReplyTo,
@@ -261,10 +345,9 @@ export async function sendEmailViaGmailApi({
       }),
     });
 
-    // If Gmail API rejects From header because user doesn't have bfsitalenthub@gmail.com alias registered
+    // If Gmail API rejects From header because user doesn't have ditribe31@gmail.com alias registered
     if (!res.ok && res.status === 400) {
       const errText = await res.text();
-      // If error is about invalid From header, retry with user's authenticated account as transport sender but keep bfsitalenthub@gmail.com in Reply-To
       if (errText.includes('Invalid From header') || errText.includes('from_address') || errText.includes('From')) {
         const fallbackFrom = activeGmailSession?.email ? `"${senderName}" <${activeGmailSession.email}>` : 'me';
         const fallbackRaw = buildRfc2822RawMessage({
@@ -304,6 +387,14 @@ export async function sendEmailViaGmailApi({
     }
 
     const data = await res.json();
+    if (!data.id) {
+      return {
+        success: false,
+        error: 'Gmail API responded without a valid message ID.',
+        statusCode: 500,
+      };
+    }
+
     return {
       success: true,
       messageId: data.id,

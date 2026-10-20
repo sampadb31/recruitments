@@ -734,15 +734,15 @@
   },
   "outreachSettings": {
     "senderName": "BFSITalentHub",
-    "senderEmail": "bfsitalenthub@gmail.com",
-    "replyToEmail": "bfsitalenthub@gmail.com",
+    "senderEmail": "ditribe31@gmail.com",
+    "replyToEmail": "ditribe31@gmail.com",
     "provider": "test_mode",
     "smtpConfig": {
       "host": "smtp.mailtrap.io",
       "port": 587,
       "secure": false,
       "auth": {
-        "user": "",
+        "user": "ditribe31@gmail.com",
         "pass": ""
       }
     },
@@ -757,15 +757,15 @@
     "delayBetweenEmailsSeconds": 5,
     "automaticOutreachEnabled": true,
     "testMode": true,
-    "lastTestedAt": "2026-10-11T11:06:47.769Z",
-    "lastTestStatus": "success",
-    "lastTestMessage": "Verified: Email sent successfully via Gmail API (Message ID: gmail_sim_1791716807769_wgwmzd).",
-    "gmailConnectedEmail": "bfsitalenthub@gmail.com",
+    "lastTestedAt": null,
+    "lastTestStatus": null,
+    "lastTestMessage": null,
+    "gmailConnectedEmail": "ditribe31@gmail.com",
     "googleFormUrl": "/apply",
     "sendingMode": "auto_send",
     "gmailConnected": true,
-    "gmailConnectedAt": "2026-10-11T11:06:38.780Z",
-    "lastTestRecipient": "bfsitalenthub@gmail.com"
+    "gmailConnectedAt": "2026-10-11T12:26:17.016Z",
+    "lastTestRecipient": "ditribe31@gmail.com"
   },
   "outreachMessages": [],
   "candidateResponses": [

@@ -66,7 +66,7 @@ export async function connectGmailWithOAuth(): Promise<{
 
     if (gisToken && gisToken.accessToken) {
       cachedAccessToken = gisToken.accessToken;
-      const email = gisToken.email || 'bfsitalenthub@gmail.com';
+      const email = gisToken.email || 'ditribe31@gmail.com';
       const displayName = gisToken.name || 'BFSITalentHub';
 
       const res = await fetch('/api/gmail/connect', {
@@ -136,41 +136,16 @@ export async function connectGmailWithOAuth(): Promise<{
       displayName: result.user.displayName,
     };
   } catch (error: any) {
-    // Gracefully handle auth/unauthorized-domain without crashing or showing scary popup error
     const isDomainError =
       error?.code === 'auth/unauthorized-domain' ||
       String(error?.message || '').includes('unauthorized-domain');
 
     if (isDomainError) {
-      console.warn(
-        'Firebase Auth: Cloud Run domain is not added to Firebase Authorized Domains. Connecting verified recruitment session for bfsitalenthub@gmail.com.'
+      throw new Error(
+        `Firebase domain unauthorized (${window.location.hostname}). To enable OAuth, add this domain in Firebase Console > Authentication > Settings > Authorized Domains. Alternatively, use Gmail SMTP with a 16-character Google App Password under Settings > Outreach, which works immediately without domain setup.`
       );
-
-      const simToken = 'simulated_preview_token';
-      const res = await fetch('/api/gmail/connect', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${simToken}`,
-        },
-        body: JSON.stringify({
-          accessToken: simToken,
-          email: 'bfsitalenthub@gmail.com',
-          displayName: 'BFSITalentHub Recruitment',
-        }),
-      });
-
-      const body = await res.json();
-      cachedAccessToken = simToken;
-
-      return {
-        email: body.email || 'bfsitalenthub@gmail.com',
-        accessToken: simToken,
-        displayName: 'BFSITalentHub Recruitment',
-      };
     }
 
-    console.warn('Gmail OAuth connection fallback active:', error);
     throw error;
   }
 }

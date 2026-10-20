@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Send,
   Mail,
@@ -21,6 +21,11 @@ import {
   Loader2,
   Eye,
   AlertTriangle,
+  RefreshCw,
+  SendHorizontal,
+  CheckSquare,
+  Square,
+  Info,
 } from 'lucide-react';
 import { AppDatabase, Candidate, OutreachStatus, OutreachMessage } from '../types/index.ts';
 
@@ -41,10 +46,22 @@ export const OutreachScreen: React.FC<OutreachScreenProps> = ({
 }) => {
   const { candidates, outreachSettings, outreachMessages } = data;
   const isGmailConnected = Boolean(outreachSettings?.gmailConnected);
-  const connectedEmail = outreachSettings?.senderEmail || 'bfsitalenthub@gmail.com';
+  const hasSmtpConfigured = Boolean(
+    (outreachSettings?.smtpConfig?.auth as any)?.hasPass ||
+    (outreachSettings?.smtpConfig?.auth?.pass && outreachSettings.smtpConfig.auth.pass.trim())
+  );
+  const activeProvider = outreachSettings?.provider || 'gmail_workspace';
+
+  // Overall readiness: ready if either OAuth connected OR SMTP password provided
+  const isReadyToSend =
+    (activeProvider === 'gmail_workspace' && (isGmailConnected || hasSmtpConfigured)) ||
+    (activeProvider === 'smtp' && hasSmtpConfigured) ||
+    (mode === 'demo' && activeProvider === 'test_mode');
+
+  const senderEmail = outreachSettings?.senderEmail || 'ditribe31@gmail.com';
   const sendingMode = outreachSettings?.sendingMode || 'auto_send';
 
-  const [activeStatusFilter, setActiveStatusFilter] = useState<OutreachStatus | 'all'>('all');
+  const [activeStatusFilter, setActiveStatusFilter] = useState<OutreachStatus | 'all' | 'simulated'>('all');
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCandidate, setSelectedCandidate] = useState<Candidate | null>(null);
   const [editingDraft, setEditingDraft] = useState<{ subject: string; body: string } | null>(null);
@@ -54,46 +71,74 @@ export const OutreachScreen: React.FC<OutreachScreenProps> = ({
   const [batchResult, setBatchResult] = useState<{ sentCount: number; failedCount: number; errors: string[] } | null>(null);
   const [sendError, setSendError] = useState<string | null>(null);
 
-  // Simulated / Test mode sent count (emails that were simulated rather than delivered via real Gmail API)
-  const simulatedSentCount = candidates.filter(c => {
+  // Test Email Modal State
+  const [isTestModalOpen, setIsTestModalOpen] = useState(false);
+  const [testRecipient, setTestRecipient] = useState(senderEmail || 'ditribe31@gmail.com');
+  const [testConfirmed, setTestConfirmed] = useState(true);
+  const [isSendingTest, setIsSendingTest] = useState(false);
+  const [testResult, setTestResult] = useState<{
+    success: boolean;
+    accepted?: boolean;
+    provider?: string;
+    message?: string;
+    messageId?: string;
+    timestamp?: string;
+    smtpResponse?: string;
+  } | null>(null);
+
+  // Review Simulated Sends Modal State
+  const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
+  const [selectedSimulatedIds, setSelectedSimulatedIds] = useState<string[]>([]);
+  const [isCheckingConnection, setIsCheckingConnection] = useState(false);
+  const [connectionHealthMessage, setConnectionHealthMessage] = useState<string | null>(null);
+
+  useEffect(() => {
+    handleCheckConnection();
+  }, [mode]);
+
+  // Helper to detect simulated messages
+  const isMessageSimulated = (msg?: OutreachMessage | null) => {
+    if (!msg) return true;
+    if (msg.isTestModeSend) return true;
+    if (!msg.providerMessageId) return true;
+    const pId = msg.providerMessageId;
+    return pId.startsWith('talenthub_') || pId.startsWith('test_sim_') || pId.startsWith('gmail_sim_');
+  };
+
+  const isCandidateSimulated = (cand: Candidate) => {
+    if (cand.outreachStatus !== 'Sent') return false;
+    const msg = outreachMessages?.find(m => m.candidateId === cand.id);
+    return isMessageSimulated(msg);
+  };
+
+  // Simulated / Test mode candidates needing review
+  const simulatedCandidates = candidates.filter(isCandidateSimulated);
+  const simulatedSentCount = simulatedCandidates.length;
+
+  // Real verified sent candidates (accepted by Google Gmail API or SMTP)
+  const realSentCandidates = candidates.filter(c => {
     if (c.outreachStatus !== 'Sent') return false;
     const msg = outreachMessages?.find(m => m.candidateId === c.id);
-    return !msg || msg.isTestModeSend || msg.providerMessageId?.startsWith('talenthub_') || msg.providerMessageId?.startsWith('test_sim_') || msg.providerMessageId?.startsWith('gmail_sim_');
-  }).length;
-
-  const handleResetSimulatedSends = async () => {
-    try {
-      setIsResettingSimulated(true);
-      const res = await fetch('/api/outreach/reset-simulated-sends', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ mode }),
-      });
-      const body = await res.json();
-      if (!res.ok) throw new Error(body.error || 'Reset failed');
-      showToast(`Successfully moved ${body.resetCount || 0} candidates back to "Approved" status!`, 'success');
-      await onRefresh();
-    } catch (err: any) {
-      showToast(err.message, 'error');
-    } finally {
-      setIsResettingSimulated(false);
-    }
-  };
+    return msg && msg.deliveryStatus === 'sent' && !isMessageSimulated(msg);
+  });
+  const realSentCount = realSentCandidates.length;
 
   // Status counts
   const draftCount = candidates.filter(c => c.outreachStatus === 'Draft' || !c.outreachStatus).length;
   const approvedCount = candidates.filter(c => c.outreachStatus === 'Approved').length;
-  const sentCount = candidates.filter(c => c.outreachStatus === 'Sent').length;
   const failedCount = candidates.filter(c => c.outreachStatus === 'Failed').length;
   const respondedCount = candidates.filter(c => c.outreachStatus === 'Responded').length;
   const appliedCount = candidates.filter(c => c.outreachStatus === 'Applied').length;
 
   // Filtered candidate list
   const filteredCandidates = candidates.filter(cand => {
-    // Only candidates with email or job-seeking status
-    const status = cand.outreachStatus || 'Draft';
-    if (activeStatusFilter !== 'all' && status !== activeStatusFilter) {
-      return false;
+    if (activeStatusFilter === 'simulated') {
+      if (!isCandidateSimulated(cand)) return false;
+    } else if (activeStatusFilter !== 'all') {
+      const status = cand.outreachStatus || 'Draft';
+      if (status !== activeStatusFilter) return false;
+      // If viewing 'Sent', exclude simulated ones unless explicitly filtering simulated
+      if (activeStatusFilter === 'Sent' && isCandidateSimulated(cand)) return false;
     }
 
     if (searchTerm) {
@@ -107,6 +152,105 @@ export const OutreachScreen: React.FC<OutreachScreenProps> = ({
 
     return true;
   });
+
+  // Check Connection Health
+  const handleCheckConnection = async () => {
+    setIsCheckingConnection(true);
+    setConnectionHealthMessage(null);
+    try {
+      const res = await fetch(`/api/outreach/connection-status?mode=${mode}`);
+      const info = await res.json();
+      await onRefresh();
+
+      if (info.isReadyToSend) {
+        setConnectionHealthMessage(`Active & Verified: ${info.activeTransportDesc}`);
+        showToast(`Outreach Transport Ready: ${info.activeTransportDesc}`, 'success');
+      } else {
+        setConnectionHealthMessage(`Disconnected: ${info.activeTransportDesc}`);
+        showToast('No active email transport connected. Please check Settings.', 'error');
+      }
+    } catch (err: any) {
+      showToast(err.message, 'error');
+    } finally {
+      setIsCheckingConnection(false);
+    }
+  };
+
+  // Send Test Email Handler
+  const handleSendTestEmail = async () => {
+    if (!testRecipient || !testRecipient.includes('@')) {
+      showToast('Please enter a valid recipient email address.', 'error');
+      return;
+    }
+    if (!testConfirmed) {
+      showToast('Please confirm test email dispatch checkbox.', 'error');
+      return;
+    }
+
+    setIsSendingTest(true);
+    setTestResult(null);
+    try {
+      const res = await fetch('/api/outreach/send-test-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          toEmail: testRecipient.trim(),
+          mode,
+        }),
+      });
+
+      const body = await res.json();
+      if (!res.ok) {
+        throw new Error(body.error || 'Test email failed to send.');
+      }
+
+      setTestResult({
+        success: true,
+        accepted: body.accepted ?? true,
+        provider: body.provider,
+        message: body.message,
+        messageId: body.messageId,
+        timestamp: body.timestamp,
+        smtpResponse: body.smtpResponse,
+      });
+      showToast(`Test email successfully sent to ${testRecipient}!`, 'success');
+      await onRefresh();
+    } catch (err: any) {
+      setTestResult({
+        success: false,
+        message: err.message,
+      });
+      showToast(err.message, 'error');
+    } finally {
+      setIsSendingTest(false);
+    }
+  };
+
+  // Reset Simulated Sends (targeted or all)
+  const handleResetSimulatedSends = async (ids?: string[], targetStatus: 'Approved' | 'Draft' = 'Approved') => {
+    try {
+      setIsResettingSimulated(true);
+      const res = await fetch('/api/outreach/reset-simulated-sends', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          mode,
+          candidateIds: ids && ids.length > 0 ? ids : undefined,
+          targetStatus,
+        }),
+      });
+      const body = await res.json();
+      if (!res.ok) throw new Error(body.error || 'Reset failed');
+      showToast(`Moved ${body.resetCount || 0} candidate(s) to "${targetStatus}" status for real outreach!`, 'success');
+      setIsReviewModalOpen(false);
+      setSelectedSimulatedIds([]);
+      await onRefresh();
+    } catch (err: any) {
+      showToast(err.message, 'error');
+    } finally {
+      setIsResettingSimulated(false);
+    }
+  };
 
   // Approve draft
   const handleApprove = async (candId: string) => {
@@ -146,8 +290,8 @@ export const OutreachScreen: React.FC<OutreachScreenProps> = ({
 
   // Send single candidate email
   const handleSendSingle = async (cand: Candidate) => {
-    if (!isGmailConnected && outreachSettings?.provider === 'gmail_workspace') {
-      showToast('Gmail account not connected. Please connect your Gmail in Outreach Settings.', 'error');
+    if (!isReadyToSend) {
+      showToast('No active email transport connected. Please connect Gmail OAuth or enter your Gmail App Password in Settings.', 'error');
       onNavigateToSettings();
       return;
     }
@@ -168,10 +312,10 @@ export const OutreachScreen: React.FC<OutreachScreenProps> = ({
 
       const body = await res.json();
       if (!res.ok) {
-        throw new Error(body.error || 'Failed to dispatch email via Gmail API.');
+        throw new Error(body.error || 'Failed to dispatch email.');
       }
 
-      showToast(`Email successfully delivered to ${cand.email} via Gmail API (ID: ${body.messageId})!`, 'success');
+      showToast(`Email successfully delivered to ${cand.email} (Provider ID: ${body.messageId})!`, 'success');
       setSelectedCandidate(null);
       setEditingDraft(null);
       await onRefresh();
@@ -184,24 +328,30 @@ export const OutreachScreen: React.FC<OutreachScreenProps> = ({
     }
   };
 
-  // Batch send approved
+  // Batch send approved candidates
   const handleBatchSend = async () => {
-    if (!isGmailConnected && outreachSettings?.provider === 'gmail_workspace') {
-      showToast('Gmail account not connected. Please connect your Gmail in Outreach Settings first.', 'error');
+    if (!isReadyToSend) {
+      showToast('No active email transport connected. Please connect Gmail OAuth or enter your 16-character App Password in Settings first.', 'error');
       onNavigateToSettings();
       return;
     }
 
     const countToSend = sendingMode === 'auto_send' ? approvedCount + draftCount : approvedCount;
     if (countToSend === 0) {
-      showToast('No approved candidates available for sending. Please approve candidate drafts first.', 'info');
+      showToast('No candidates available for sending. Please approve candidate drafts first.', 'info');
       return;
     }
 
+    const providerDesc = isGmailConnected
+      ? `Gmail OAuth (${senderEmail})`
+      : hasSmtpConfigured
+      ? `Gmail SMTP (${senderEmail})`
+      : 'Demo Simulation';
+
     const confirmMsg =
       sendingMode === 'auto_send'
-        ? `Ready to send emails to ${countToSend} candidate(s) via your connected Gmail (${connectedEmail})?`
-        : `Ready to dispatch verified recruitment emails to ${approvedCount} recruiter-approved candidate(s) via your connected Gmail (${connectedEmail})?`;
+        ? `Confirm sending real outreach emails to ${countToSend} candidate(s) via ${providerDesc}?\n\nEmails will be dispatched directly to inboxes with Google message tracking.`
+        : `Confirm dispatching verified outreach emails to ${approvedCount} approved candidate(s) via ${providerDesc}?`;
 
     if (!window.confirm(confirmMsg)) return;
 
@@ -224,7 +374,7 @@ export const OutreachScreen: React.FC<OutreachScreenProps> = ({
       });
 
       if (body.sentCount > 0) {
-        showToast(`Successfully dispatched ${body.sentCount} recruitment emails via Gmail API!`, 'success');
+        showToast(`Successfully dispatched ${body.sentCount} recruitment emails via ${providerDesc}!`, 'success');
       } else {
         showToast(body.message || 'No emails were dispatched.', 'info');
       }
@@ -236,14 +386,33 @@ export const OutreachScreen: React.FC<OutreachScreenProps> = ({
     }
   };
 
-  const getStatusBadge = (status: OutreachStatus) => {
+  const getStatusBadge = (cand: Candidate) => {
+    const isSimulated = isCandidateSimulated(cand);
+    if (isSimulated) {
+      return (
+        <span
+          className="px-2 py-0.5 rounded text-[10px] font-semibold bg-amber-950 text-amber-300 border border-amber-800 flex items-center space-x-1"
+          title="Simulated test record. Real email was not delivered. Review required to send real email."
+        >
+          <AlertTriangle className="w-2.5 h-2.5 text-amber-400" />
+          <span>Simulated (Review Needed)</span>
+        </span>
+      );
+    }
+
+    const status: OutreachStatus = cand.outreachStatus || 'Draft';
     switch (status) {
       case 'Draft':
         return <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-slate-800 text-slate-300 border border-slate-700">Draft</span>;
       case 'Approved':
         return <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-blue-950 text-blue-300 border border-blue-800">Approved</span>;
       case 'Sent':
-        return <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-emerald-950 text-emerald-300 border border-emerald-800">Sent</span>;
+        return (
+          <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-emerald-950 text-emerald-300 border border-emerald-800 flex items-center space-x-1">
+            <CheckCircle2 className="w-2.5 h-2.5 text-emerald-400" />
+            <span>Sent (Verified)</span>
+          </span>
+        );
       case 'Failed':
         return <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-rose-950 text-rose-300 border border-rose-800">Failed</span>;
       case 'Responded':
@@ -251,48 +420,68 @@ export const OutreachScreen: React.FC<OutreachScreenProps> = ({
       case 'Applied':
         return <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-purple-950 text-purple-300 border border-purple-800">Applied</span>;
       default:
-        return <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-slate-800 text-slate-300">Draft</span>;
+        return <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-slate-800 text-slate-300">{status}</span>;
     }
   };
 
   return (
-    <div className="space-y-6 pb-16">
-      {/* Header Banner */}
-      <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-sm space-y-4">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-          <div>
-            <div className="flex items-center space-x-2">
-              <h1 className="text-xl font-bold text-white flex items-center space-x-2">
-                <Mail className="w-5 h-5 text-indigo-400" />
-                <span>Recruiter Outreach & Gmail Dispatch</span>
-              </h1>
-              <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-indigo-950 text-indigo-300 border border-indigo-800">
-                Gmail API OAuth 2.0
-              </span>
+    <div className="space-y-6">
+      {/* Top Banner & Primary Actions */}
+      <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-sm space-y-4">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+          <div className="space-y-1">
+            <div className="flex items-center space-x-2.5">
+              <div className="p-2 rounded-xl bg-blue-600/20 border border-blue-500/30">
+                <Send className="w-5 h-5 text-blue-400" />
+              </div>
+              <div>
+                <h1 className="text-xl font-bold text-white tracking-tight flex items-center space-x-2">
+                  <span>Candidate Recruitment Outreach</span>
+                  <span className="text-xs px-2 py-0.5 rounded-full bg-blue-950 border border-blue-800 text-blue-400 font-normal">
+                    {senderEmail}
+                  </span>
+                </h1>
+                <p className="text-xs text-slate-400">
+                  Deliver personalized invitations to vetted BFSI candidates with Google Form registration link & unsubscribe compliance.
+                </p>
+              </div>
             </div>
-            <p className="text-xs text-slate-400 mt-1 max-w-3xl leading-relaxed">
-              Generate personalized candidate recruitment emails, review drafts with approval control, and dispatch directly through the verified Google Gmail API using the recruiter account.
-            </p>
           </div>
 
-          <div className="flex items-center space-x-2">
+          <div className="flex flex-wrap items-center gap-2">
+            {/* Send Test Email Button */}
+            <button
+              onClick={() => {
+                setTestResult(null);
+                setTestRecipient(senderEmail);
+                setIsTestModalOpen(true);
+              }}
+              className="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-emerald-300 border border-emerald-800/60 font-semibold text-xs transition flex items-center space-x-1.5 shadow-sm cursor-pointer"
+              title="Test real email dispatching to a specified inbox before batch sending"
+            >
+              <SendHorizontal className="w-4 h-4 text-emerald-400" />
+              <span>Send Test Email</span>
+            </button>
+
+            {/* Outreach Settings Button */}
             <button
               onClick={onNavigateToSettings}
-              className="px-3 py-2 rounded-xl text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition flex items-center space-x-1.5 cursor-pointer"
+              className="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold text-xs border border-slate-700 transition flex items-center space-x-1.5 cursor-pointer shadow-sm"
             >
-              <FileText className="w-3.5 h-3.5" />
+              <Lock className="w-3.5 h-3.5 text-slate-400" />
               <span>Outreach Settings</span>
             </button>
 
+            {/* Batch Send Button */}
             <button
               onClick={handleBatchSend}
-              disabled={isBatchSending || (!isGmailConnected && outreachSettings?.provider === 'gmail_workspace')}
-              className="px-4 py-2 rounded-xl text-xs font-semibold bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white transition flex items-center space-x-1.5 shadow-md disabled:opacity-50 cursor-pointer"
+              disabled={isBatchSending || (sendingMode === 'require_approval' && approvedCount === 0)}
+              className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white font-semibold text-xs transition flex items-center space-x-2 shadow-md cursor-pointer"
             >
               {isBatchSending ? (
                 <Loader2 className="w-4 h-4 animate-spin text-white" />
               ) : (
-                <Send className="w-4 h-4 text-white" />
+                <Play className="w-4 h-4 text-white fill-white" />
               )}
               <span>
                 {isBatchSending
@@ -305,45 +494,61 @@ export const OutreachScreen: React.FC<OutreachScreenProps> = ({
           </div>
         </div>
 
-        {/* Gmail Connection Status Card */}
+        {/* Real Transport Connection Status Card */}
         <div
           className={`p-3.5 rounded-xl border flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs ${
-            isGmailConnected
+            isReadyToSend
               ? 'bg-emerald-950/40 border-emerald-800/80 text-emerald-200'
               : 'bg-amber-950/40 border-amber-800/80 text-amber-200'
           }`}
         >
           <div className="flex items-center space-x-2.5">
-            {isGmailConnected ? (
+            {isReadyToSend ? (
               <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0" />
             ) : (
               <AlertCircle className="w-5 h-5 text-amber-400 shrink-0" />
             )}
             <div>
-              <span className="font-semibold block">
+              <span className="font-semibold block text-sm">
                 {isGmailConnected
-                  ? `Connected Recruiter Gmail: ${connectedEmail}`
-                  : 'Recruiter Gmail Account Not Connected'}
+                  ? `Active Transport: Google Gmail API OAuth (${outreachSettings?.gmailConnectedEmail || senderEmail})`
+                  : hasSmtpConfigured
+                  ? `Active Transport: Gmail SMTP Server (${outreachSettings?.smtpConfig?.auth?.user || senderEmail})`
+                  : 'No Email Transport Connected — Cannot Send Real Emails'}
               </span>
-              <p className="text-[11px] opacity-80 mt-0.5">
-                {isGmailConnected
-                  ? `OAuth permission: https://www.googleapis.com/auth/gmail.send (Minimum required). Mode: ${
-                      sendingMode === 'auto_send' ? 'Controlled Automatic Sending' : 'Require Recruiter Approval (Default)'
-                    }`
-                  : 'Click "Outreach Settings" to connect your recruiter Gmail account with Google OAuth 2.0.'}
+              <p className="text-[11px] opacity-85 mt-0.5">
+                {isReadyToSend ? (
+                  <>
+                    Emails will be sent from <strong className="text-white font-mono">{senderEmail}</strong>. All messages are directly verified with Google servers (Message-ID recorded).
+                    {connectionHealthMessage && <span className="block text-emerald-300 font-mono mt-0.5">{connectionHealthMessage}</span>}
+                  </>
+                ) : (
+                  'Connect your Gmail account via OAuth in Settings or configure a 16-character Google App Password for smtp.gmail.com.'
+                )}
               </p>
             </div>
           </div>
 
           <div className="flex items-center space-x-2 shrink-0">
-            {!isGmailConnected && (
+            <button
+              onClick={handleCheckConnection}
+              disabled={isCheckingConnection}
+              className="px-2.5 py-1.5 rounded-lg bg-slate-800/80 hover:bg-slate-700 border border-slate-700 text-slate-200 font-medium text-xs flex items-center space-x-1 transition cursor-pointer"
+              title="Ping server to check Gmail OAuth and SMTP status"
+            >
+              <RefreshCw className={`w-3 h-3 ${isCheckingConnection ? 'animate-spin' : ''}`} />
+              <span>Check Connection</span>
+            </button>
+
+            {!isReadyToSend && (
               <button
                 onClick={onNavigateToSettings}
                 className="px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white font-semibold text-xs shadow-sm transition cursor-pointer"
               >
-                Connect Gmail Account
+                Configure Provider
               </button>
             )}
+
             <a
               href="/apply"
               target="_blank"
@@ -351,42 +556,54 @@ export const OutreachScreen: React.FC<OutreachScreenProps> = ({
               className="text-[11px] font-mono px-2.5 py-1 rounded-lg bg-indigo-950/70 hover:bg-indigo-900 border border-indigo-800 text-indigo-300 flex items-center space-x-1.5 transition cursor-pointer"
               title="Open and test the Candidate Registration / Expression of Interest Form"
             >
-              <span>Candidate Form Portal (/apply)</span>
+              <span>Application Portal (/apply)</span>
               <ExternalLink className="w-3 h-3 text-indigo-400" />
             </a>
           </div>
         </div>
 
-        {/* Simulated / Test Mode Recovery Banner */}
+        {/* Simulated / Test Mode Review Banner */}
         {simulatedSentCount > 0 && (
           <div className="p-3.5 rounded-xl border border-amber-800/80 bg-amber-950/40 text-amber-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
             <div className="flex items-center space-x-2.5">
               <AlertTriangle className="w-5 h-5 text-amber-400 shrink-0" />
               <div>
                 <span className="font-semibold block text-amber-100">
-                  {simulatedSentCount} Candidates marked "Sent" in Test / Simulation Mode
+                  {simulatedSentCount} Candidate(s) were logged under simulated/disconnected mode
                 </span>
                 <p className="text-[11px] text-amber-300/80 mt-0.5">
-                  These were logged locally with simulated test identifiers and were not sent to Google Gmail servers. Click below to move them back to <strong>Approved</strong> status for live dispatch.
+                  These records have simulated IDs (<code className="font-mono text-amber-200">gmail_sim_...</code>) and were <strong>not</strong> dispatched to inboxes. They are excluded from verified send counts. Review them to dispatch real emails.
                 </p>
               </div>
             </div>
-            <button
-              onClick={handleResetSimulatedSends}
-              disabled={isResettingSimulated}
-              className="px-3.5 py-1.5 rounded-lg bg-amber-600 hover:bg-amber-500 text-white font-semibold text-xs transition flex items-center space-x-1.5 shrink-0 shadow-sm disabled:opacity-50 cursor-pointer"
-            >
-              {isResettingSimulated ? (
-                <Loader2 className="w-3.5 h-3.5 animate-spin" />
-              ) : (
-                <RotateCcw className="w-3.5 h-3.5" />
-              )}
-              <span>Reset {simulatedSentCount} to Approved</span>
-            </button>
+            <div className="flex items-center space-x-2 shrink-0">
+              <button
+                onClick={() => {
+                  setSelectedSimulatedIds(simulatedCandidates.map(c => c.id));
+                  setIsReviewModalOpen(true);
+                }}
+                className="px-3.5 py-1.5 rounded-lg bg-amber-600 hover:bg-amber-500 text-white font-semibold text-xs transition flex items-center space-x-1.5 shadow-sm cursor-pointer"
+              >
+                <Eye className="w-3.5 h-3.5" />
+                <span>Review & Retry ({simulatedSentCount})</span>
+              </button>
+              <button
+                onClick={() => handleResetSimulatedSends()}
+                disabled={isResettingSimulated}
+                className="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-amber-200 border border-amber-700/60 font-semibold text-xs transition flex items-center space-x-1.5 cursor-pointer disabled:opacity-50"
+              >
+                {isResettingSimulated ? (
+                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                ) : (
+                  <RotateCcw className="w-3.5 h-3.5" />
+                )}
+                <span>Reset All to Approved</span>
+              </button>
+            </div>
           </div>
         )}
 
-        {/* 6 Outreach Status Filters Bar */}
+        {/* Status Filters Bar */}
         <div className="grid grid-cols-2 sm:grid-cols-6 gap-2 pt-2 border-t border-slate-800">
           {/* Draft */}
           <button
@@ -423,7 +640,7 @@ export const OutreachScreen: React.FC<OutreachScreenProps> = ({
             </div>
           </button>
 
-          {/* Sent */}
+          {/* Real Sent (Verified) */}
           <button
             onClick={() => setActiveStatusFilter(activeStatusFilter === 'Sent' ? 'all' : 'Sent')}
             className={`text-left rounded-xl p-2.5 border transition cursor-pointer ${
@@ -433,12 +650,12 @@ export const OutreachScreen: React.FC<OutreachScreenProps> = ({
             }`}
           >
             <div className="flex items-center justify-between">
-              <span className="text-[10px] font-semibold text-emerald-300 uppercase tracking-wider">Sent</span>
+              <span className="text-[10px] font-semibold text-emerald-300 uppercase tracking-wider">Verified Sent</span>
               <Send className="w-3 h-3 text-emerald-400" />
             </div>
             <div className="flex items-baseline space-x-1.5 mt-0.5">
-              <span className="text-lg font-bold text-emerald-400">{sentCount}</span>
-              <span className="text-[10px] text-emerald-300/70">dispatched</span>
+              <span className="text-lg font-bold text-emerald-400">{realSentCount}</span>
+              <span className="text-[10px] text-emerald-300/70">Google verified</span>
             </div>
           </button>
 
@@ -473,7 +690,7 @@ export const OutreachScreen: React.FC<OutreachScreenProps> = ({
             <span className="text-[10px] font-semibold text-amber-300 uppercase tracking-wider block">Responded</span>
             <div className="flex items-baseline space-x-1.5 mt-0.5">
               <span className="text-lg font-bold text-amber-400">{respondedCount}</span>
-              <span className="text-[10px] text-amber-300/70">interested</span>
+              <span className="text-[10px] text-amber-300/70">in discussions</span>
             </div>
           </button>
 
@@ -489,7 +706,7 @@ export const OutreachScreen: React.FC<OutreachScreenProps> = ({
             <span className="text-[10px] font-semibold text-purple-300 uppercase tracking-wider block">Applied</span>
             <div className="flex items-baseline space-x-1.5 mt-0.5">
               <span className="text-lg font-bold text-purple-400">{appliedCount}</span>
-              <span className="text-[10px] text-purple-300/70">form submitted</span>
+              <span className="text-[10px] text-purple-300/70">form completed</span>
             </div>
           </button>
         </div>
@@ -499,7 +716,11 @@ export const OutreachScreen: React.FC<OutreachScreenProps> = ({
           <div className="flex items-center space-x-2 text-xs">
             <span className="text-slate-400 font-medium">Viewing Status:</span>
             <span className="font-semibold text-white px-2 py-0.5 rounded bg-slate-800 border border-slate-700">
-              {activeStatusFilter === 'all' ? 'All Outreach Candidates' : activeStatusFilter}
+              {activeStatusFilter === 'all'
+                ? 'All Candidates'
+                : activeStatusFilter === 'simulated'
+                ? 'Simulated / Unsent Records'
+                : activeStatusFilter}
             </span>
             {activeStatusFilter !== 'all' && (
               <button
@@ -507,6 +728,14 @@ export const OutreachScreen: React.FC<OutreachScreenProps> = ({
                 className="text-blue-400 hover:text-blue-300 text-[11px] underline cursor-pointer"
               >
                 Clear Filter
+              </button>
+            )}
+            {simulatedSentCount > 0 && activeStatusFilter !== 'simulated' && (
+              <button
+                onClick={() => setActiveStatusFilter('simulated')}
+                className="px-2 py-0.5 rounded bg-amber-950/80 border border-amber-800 text-amber-300 text-[11px] font-semibold hover:bg-amber-900/80 cursor-pointer"
+              >
+                Show Simulated Only ({simulatedSentCount})
               </button>
             )}
           </div>
@@ -535,7 +764,7 @@ export const OutreachScreen: React.FC<OutreachScreenProps> = ({
             <button onClick={() => setBatchResult(null)} className="text-slate-400 hover:text-white">✕</button>
           </div>
           <p className="text-slate-300">
-            Dispatched <strong>{batchResult.sentCount}</strong> email(s) successfully via Gmail API. {batchResult.failedCount} failed.
+            Dispatched <strong>{batchResult.sentCount}</strong> email(s) successfully via Google/SMTP. {batchResult.failedCount} failed.
           </p>
           {batchResult.errors.length > 0 && (
             <div className="bg-rose-950/40 p-2.5 rounded-lg border border-rose-900/60 text-rose-300 font-mono text-[11px] space-y-1">
@@ -559,17 +788,21 @@ export const OutreachScreen: React.FC<OutreachScreenProps> = ({
           filteredCandidates.map(candidate => {
             const status: OutreachStatus = candidate.outreachStatus || 'Draft';
             const hasEmail = Boolean(candidate.email);
+            const isSimulated = isCandidateSimulated(candidate);
+            const candMsg = outreachMessages?.find(m => m.candidateId === candidate.id);
 
             return (
               <div
                 key={candidate.id}
-                className="bg-slate-900 border border-slate-800 hover:border-slate-700 rounded-2xl p-5 shadow-sm transition flex flex-col justify-between space-y-4"
+                className={`bg-slate-900 border rounded-2xl p-5 shadow-sm transition flex flex-col justify-between space-y-4 ${
+                  isSimulated ? 'border-amber-700/60 bg-amber-950/10' : 'border-slate-800 hover:border-slate-700'
+                }`}
               >
                 <div className="space-y-3">
                   {/* Status header & Tag */}
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-1.5">
-                      {getStatusBadge(status)}
+                      {getStatusBadge(candidate)}
                       <span className="text-[10px] text-slate-400 font-mono">
                         {candidate.criteriaTag}
                       </span>
@@ -595,7 +828,7 @@ export const OutreachScreen: React.FC<OutreachScreenProps> = ({
                       {candidate.name || 'Name Not Provided'}
                     </h3>
                     <p className="text-xs text-slate-300 truncate mt-0.5">
-                      {candidate.currentOrPreviousRole || 'Sales Role'}
+                      {candidate.currentOrPreviousRole || 'Sales Professional'}
                       {candidate.employer && <span className="text-slate-400"> at {candidate.employer}</span>}
                     </p>
                     {candidate.currentWorkLocation && (
@@ -619,8 +852,16 @@ export const OutreachScreen: React.FC<OutreachScreenProps> = ({
                     </div>
                     {candidate.outreachSentAt && (
                       <div className="flex items-center justify-between text-[10px] text-slate-500">
-                        <span>Sent At:</span>
-                        <span>{new Date(candidate.outreachSentAt).toLocaleDateString()}</span>
+                        <span>{isSimulated ? 'Simulated At:' : 'Sent At:'}</span>
+                        <span className="font-mono">{new Date(candidate.outreachSentAt).toLocaleDateString()}</span>
+                      </div>
+                    )}
+                    {candMsg?.providerMessageId && (
+                      <div className="flex items-center justify-between text-[10px] text-slate-500">
+                        <span>Message ID:</span>
+                        <span className="font-mono truncate max-w-[150px] text-slate-400" title={candMsg.providerMessageId}>
+                          {candMsg.providerMessageId}
+                        </span>
                       </div>
                     )}
                   </div>
@@ -651,11 +892,26 @@ export const OutreachScreen: React.FC<OutreachScreenProps> = ({
                     className="px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 text-[11px] font-medium flex items-center space-x-1 cursor-pointer"
                   >
                     <Eye className="w-3 h-3" />
-                    <span>View / Edit Email</span>
+                    <span>View Draft</span>
                   </button>
 
                   <div className="flex items-center space-x-1.5">
-                    {status === 'Draft' && (
+                    {isSimulated ? (
+                      <button
+                        onClick={() => {
+                          setSelectedCandidate(candidate);
+                          setEditingDraft({
+                            subject: candidate.draftEmail?.subject || '',
+                            body: candidate.draftEmail?.body || '',
+                          });
+                        }}
+                        className="px-2.5 py-1.5 rounded-lg bg-amber-600/30 hover:bg-amber-600/50 text-amber-300 border border-amber-500/50 text-[11px] font-semibold flex items-center space-x-1 cursor-pointer"
+                        title="Review and dispatch real email to this candidate"
+                      >
+                        <RotateCcw className="w-3 h-3" />
+                        <span>Review & Retry</span>
+                      </button>
+                    ) : status === 'Draft' ? (
                       <button
                         onClick={() => handleApprove(candidate.id)}
                         className="px-2.5 py-1.5 rounded-lg bg-blue-600/30 hover:bg-blue-600/40 text-blue-300 border border-blue-500/50 text-[11px] font-semibold flex items-center space-x-1 cursor-pointer"
@@ -663,17 +919,17 @@ export const OutreachScreen: React.FC<OutreachScreenProps> = ({
                         <Check className="w-3 h-3" />
                         <span>Approve</span>
                       </button>
-                    )}
+                    ) : null}
 
-                    {(status === 'Approved' || status === 'Draft' || status === 'Failed') && hasEmail && (
+                    {(status === 'Approved' || status === 'Failed') && hasEmail && (
                       <button
                         onClick={() => handleSendSingle(candidate)}
                         disabled={isSendingSingle}
                         className="px-2.5 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-[11px] font-semibold flex items-center space-x-1 transition cursor-pointer disabled:opacity-50"
-                        title="Send recruitment email directly via connected Gmail"
+                        title="Send recruitment email directly via Gmail"
                       >
                         <Send className="w-3 h-3" />
-                        <span>Send Now</span>
+                        <span>Send Real</span>
                       </button>
                     )}
                   </div>
@@ -695,23 +951,35 @@ export const OutreachScreen: React.FC<OutreachScreenProps> = ({
                   <span>Review Outreach Email</span>
                 </h3>
                 <p className="text-xs text-slate-400 mt-0.5">
-                  Personalized invitation for {selectedCandidate.name || 'Candidate'} ({selectedCandidate.email})
+                  Invitation for {selectedCandidate.name || 'Candidate'} ({selectedCandidate.email})
                 </p>
               </div>
               <button
                 onClick={() => setSelectedCandidate(null)}
-                className="text-slate-400 hover:text-white p-1"
+                className="text-slate-400 hover:text-white p-1 cursor-pointer"
               >
                 ✕
               </button>
             </div>
 
             <div className="p-6 overflow-y-auto space-y-4 text-xs">
+              {isCandidateSimulated(selectedCandidate) && (
+                <div className="p-3 rounded-xl bg-amber-950/50 border border-amber-800 text-amber-200 flex items-start space-x-2">
+                  <AlertTriangle className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
+                  <div>
+                    <span className="font-semibold block text-amber-100">Simulated Record Notice</span>
+                    <p className="text-[11px] mt-0.5 text-amber-300/90 leading-relaxed">
+                      This candidate was previously logged in test/simulation mode. No email was sent through Google servers. Click "Send Real Email Now" below to deliver an authentic email directly to <strong>{selectedCandidate.email}</strong> from <strong>{senderEmail}</strong>.
+                    </p>
+                  </div>
+                </div>
+              )}
+
               {sendError && (
                 <div className="p-3 rounded-xl bg-rose-950/50 border border-rose-800 text-rose-300 flex items-start space-x-2">
                   <AlertTriangle className="w-4 h-4 text-rose-400 shrink-0 mt-0.5" />
                   <div>
-                    <span className="font-semibold block">Gmail Dispatch Error</span>
+                    <span className="font-semibold block">Dispatch Error</span>
                     <p className="text-[11px] mt-0.5">{sendError}</p>
                   </div>
                 </div>
@@ -729,7 +997,7 @@ export const OutreachScreen: React.FC<OutreachScreenProps> = ({
                   <span className="text-emerald-400 font-medium">
                     {outreachSettings?.senderName || 'BFSITalentHub Recruitment'}
                   </span>
-                  <p className="text-slate-300 font-mono text-[11px]">{connectedEmail}</p>
+                  <p className="text-slate-300 font-mono text-[11px]">{senderEmail}</p>
                 </div>
               </div>
 
@@ -761,9 +1029,9 @@ export const OutreachScreen: React.FC<OutreachScreenProps> = ({
 
               <div className="bg-slate-800/40 p-3 rounded-xl border border-slate-800 text-[11px] text-slate-400 space-y-1">
                 <span className="font-semibold text-slate-300 block">Registration Link Included:</span>
-                <p className="text-indigo-300 font-mono">{outreachSettings?.googleFormUrl || 'https://forms.gle/bfsitalenthub'}</p>
+                <p className="text-indigo-300 font-mono">{outreachSettings?.googleFormUrl || '/apply'}</p>
                 <p className="text-[10px] text-slate-500">
-                  Recipient can also opt out via automated one-click unsubscribe URL attached at footer.
+                  Recipient can also opt out via automated one-click unsubscribe link at bottom.
                 </p>
               </div>
             </div>
@@ -797,7 +1065,250 @@ export const OutreachScreen: React.FC<OutreachScreenProps> = ({
                   ) : (
                     <Send className="w-3.5 h-3.5 text-white" />
                   )}
-                  <span>{isSendingSingle ? 'Sending via Gmail...' : 'Send via Gmail API'}</span>
+                  <span>{isSendingSingle ? 'Sending Real Email...' : 'Send Real Email Now'}</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Send Test Email Modal */}
+      {isTestModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/85 backdrop-blur-sm">
+          <div className="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-lg shadow-2xl overflow-hidden my-auto">
+            <div className="px-6 py-4 border-b border-slate-800 flex items-center justify-between bg-slate-900">
+              <div className="flex items-center space-x-2.5">
+                <div className="p-2 rounded-xl bg-emerald-600/20 border border-emerald-500/30">
+                  <SendHorizontal className="w-5 h-5 text-emerald-400" />
+                </div>
+                <div>
+                  <h3 className="text-base font-bold text-white">Send Real Verification Email</h3>
+                  <p className="text-xs text-slate-400">
+                    Test live delivery through Google's servers before batch outreach.
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => setIsTestModalOpen(false)}
+                className="text-slate-400 hover:text-white p-1 cursor-pointer"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="p-6 space-y-4 text-xs">
+              <div className="bg-slate-950/60 p-3.5 rounded-xl border border-slate-800 space-y-1.5">
+                <div className="flex justify-between text-slate-400">
+                  <span>Sender Account:</span>
+                  <span className="font-mono text-emerald-300 font-semibold">{senderEmail}</span>
+                </div>
+                <div className="flex justify-between text-slate-400">
+                  <span>Transport Mode:</span>
+                  <span className="font-medium text-slate-200">
+                    {isGmailConnected
+                      ? 'Google Gmail API (OAuth 2.0)'
+                      : hasSmtpConfigured
+                      ? 'Gmail SMTP Server (smtp.gmail.com:465)'
+                      : 'None configured'}
+                  </span>
+                </div>
+              </div>
+
+              <div>
+                <label className="text-slate-200 font-semibold block mb-1.5">
+                  Test Recipient Email Address
+                </label>
+                <input
+                  type="email"
+                  value={testRecipient}
+                  onChange={e => setTestRecipient(e.target.value)}
+                  placeholder="e.g. ditribe31@gmail.com or your personal email"
+                  className="w-full bg-slate-800 border border-slate-700 rounded-xl px-3.5 py-2.5 text-xs text-white font-mono focus:outline-none focus:border-emerald-500"
+                />
+                <p className="text-[11px] text-slate-400 mt-1">
+                  Enter your own email address to check your inbox and verify the email arrived.
+                </p>
+              </div>
+
+              <div className="bg-slate-800/40 p-3 rounded-xl border border-slate-800 text-[11px] text-slate-300 space-y-1.5">
+                <label className="flex items-start space-x-2.5 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={testConfirmed}
+                    onChange={e => setTestConfirmed(e.target.checked)}
+                    className="w-4 h-4 text-emerald-600 rounded mt-0.5 cursor-pointer"
+                  />
+                  <span>
+                    I confirm sending a real verification email to <strong className="text-white font-mono">{testRecipient || 'this recipient'}</strong> from <strong className="text-emerald-300 font-mono">{senderEmail}</strong>.
+                  </span>
+                </label>
+              </div>
+
+              {testResult && (
+                <div
+                  className={`p-3.5 rounded-xl border space-y-1.5 ${
+                    testResult.success
+                      ? 'bg-emerald-950/60 border-emerald-800 text-emerald-200 text-xs'
+                      : 'bg-rose-950/60 border-rose-800 text-rose-300 text-xs'
+                  }`}
+                >
+                  <div className="font-bold flex items-center space-x-1.5">
+                    {testResult.success ? (
+                      <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                    ) : (
+                      <AlertCircle className="w-4 h-4 text-rose-400" />
+                    )}
+                    <span>
+                      {testResult.success
+                        ? 'Email Successfully Accepted by Gmail SMTP!'
+                        : 'Dispatch Failed / Rejected by Gmail SMTP'}
+                    </span>
+                  </div>
+                  <p className="leading-relaxed">{testResult.message}</p>
+                  {testResult.messageId && (
+                    <p className="text-slate-400 font-mono text-[11px]">
+                      Google Provider Message ID: <span className="text-emerald-300">{testResult.messageId}</span>
+                    </p>
+                  )}
+                  {testResult.smtpResponse && (
+                    <p className="text-slate-400 font-mono text-[11px]">
+                      SMTP Server Response: <span className="text-emerald-300">{testResult.smtpResponse}</span>
+                    </p>
+                  )}
+                </div>
+              )}
+            </div>
+
+            <div className="px-6 py-4 border-t border-slate-800 bg-slate-900/90 flex items-center justify-between">
+              <button
+                onClick={() => setIsTestModalOpen(false)}
+                className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs transition cursor-pointer"
+              >
+                Cancel
+              </button>
+
+              <button
+                onClick={handleSendTestEmail}
+                disabled={isSendingTest || !testRecipient || !testConfirmed}
+                className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white font-semibold text-xs flex items-center space-x-1.5 shadow-md transition cursor-pointer"
+              >
+                {isSendingTest ? (
+                  <Loader2 className="w-3.5 h-3.5 animate-spin text-white" />
+                ) : (
+                  <Send className="w-3.5 h-3.5 text-white" />
+                )}
+                <span>{isSendingTest ? 'Sending via Google...' : 'Confirm & Send Test Email'}</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Review Simulated Sends Modal */}
+      {isReviewModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/85 backdrop-blur-sm">
+          <div className="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-2xl max-h-[90vh] flex flex-col shadow-2xl overflow-hidden my-auto">
+            <div className="px-6 py-4 border-b border-slate-800 flex items-center justify-between bg-slate-900">
+              <div className="flex items-center space-x-2.5">
+                <div className="p-2 rounded-xl bg-amber-600/20 border border-amber-500/30">
+                  <AlertTriangle className="w-5 h-5 text-amber-400" />
+                </div>
+                <div>
+                  <h3 className="text-base font-bold text-white">Review Simulated Outreach Sends</h3>
+                  <p className="text-xs text-slate-400">
+                    These candidate records were marked "Sent" under simulation and never reached Gmail inboxes.
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => setIsReviewModalOpen(false)}
+                className="text-slate-400 hover:text-white p-1 cursor-pointer"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="p-6 overflow-y-auto space-y-4 text-xs">
+              <p className="text-slate-300 leading-relaxed">
+                To prevent duplicate sending, each candidate below is held until reviewed. Choose an action to either move them to <strong>Approved</strong> (ready for real dispatch via Batch Send) or reset them to <strong>Draft</strong>:
+              </p>
+
+              <div className="space-y-2">
+                {simulatedCandidates.map(cand => {
+                  const isChecked = selectedSimulatedIds.includes(cand.id);
+                  const msg = outreachMessages?.find(m => m.candidateId === cand.id);
+
+                  return (
+                    <div
+                      key={cand.id}
+                      onClick={() => {
+                        setSelectedSimulatedIds(prev =>
+                          prev.includes(cand.id) ? prev.filter(i => i !== cand.id) : [...prev, cand.id]
+                        );
+                      }}
+                      className={`p-3.5 rounded-xl border transition cursor-pointer flex items-center justify-between ${
+                        isChecked
+                          ? 'bg-amber-950/40 border-amber-600/80 ring-1 ring-amber-500'
+                          : 'bg-slate-800/40 border-slate-800 hover:bg-slate-800/70'
+                      }`}
+                    >
+                      <div className="flex items-center space-x-3">
+                        <div className="text-amber-400">
+                          {isChecked ? <CheckSquare className="w-4 h-4" /> : <Square className="w-4 h-4" />}
+                        </div>
+                        <div>
+                          <span className="font-bold text-white block">{cand.name || 'Candidate'}</span>
+                          <span className="text-blue-400 font-mono text-[11px]">{cand.email}</span>
+                          <p className="text-[10px] text-slate-400 mt-0.5">
+                            {cand.currentOrPreviousRole || 'BFSI Professional'}
+                            {cand.employer && ` at ${cand.employer}`}
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="text-right">
+                        <span className="text-[10px] font-mono text-amber-300 block">
+                          {msg?.providerMessageId || 'gmail_sim_record'}
+                        </span>
+                        <span className="text-[10px] text-slate-500">
+                          {msg?.sentAt ? new Date(msg.sentAt).toLocaleTimeString() : 'Local simulation'}
+                        </span>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            <div className="px-6 py-4 border-t border-slate-800 bg-slate-900/90 flex items-center justify-between">
+              <button
+                onClick={() => setIsReviewModalOpen(false)}
+                className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs transition cursor-pointer"
+              >
+                Close
+              </button>
+
+              <div className="flex items-center space-x-2">
+                <button
+                  onClick={() => handleResetSimulatedSends(selectedSimulatedIds, 'Draft')}
+                  disabled={isResettingSimulated || selectedSimulatedIds.length === 0}
+                  className="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 text-xs font-semibold cursor-pointer disabled:opacity-50"
+                >
+                  Move Selected to Draft
+                </button>
+
+                <button
+                  onClick={() => handleResetSimulatedSends(selectedSimulatedIds, 'Approved')}
+                  disabled={isResettingSimulated || selectedSimulatedIds.length === 0}
+                  className="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold flex items-center space-x-1.5 shadow-md cursor-pointer disabled:opacity-50"
+                >
+                  {isResettingSimulated ? (
+                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                  ) : (
+                    <Check className="w-3.5 h-3.5" />
+                  )}
+                  <span>Approve Selected for Real Send ({selectedSimulatedIds.length})</span>
                 </button>
               </div>
             </div>
@@ -813,7 +1324,7 @@ export const OutreachScreen: React.FC<OutreachScreenProps> = ({
               <Clock className="w-4 h-4 text-blue-400" />
               <span>Outreach Activity & Delivery Logs ({outreachMessages.length})</span>
             </h3>
-            <span className="text-[10px] text-slate-500 font-mono">Real-time Gmail API responses</span>
+            <span className="text-[10px] text-slate-500 font-mono">Real provider responses</span>
           </div>
 
           <div className="overflow-x-auto">
@@ -825,34 +1336,39 @@ export const OutreachScreen: React.FC<OutreachScreenProps> = ({
                   <th className="px-3 py-2">Recipient Email</th>
                   <th className="px-3 py-2">Subject</th>
                   <th className="px-3 py-2">Status</th>
-                  <th className="px-3 py-2 rounded-r-lg">Gmail Message ID / Error</th>
+                  <th className="px-3 py-2 rounded-r-lg">Provider Message ID / Result</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-800/60">
-                {outreachMessages.slice(0, 10).map(msg => (
-                  <tr key={msg.id} className="hover:bg-slate-800/30">
-                    <td className="px-3 py-2 font-mono text-[11px] text-slate-400">
-                      {msg.sentAt ? new Date(msg.sentAt).toLocaleTimeString() : 'Queued'}
-                    </td>
-                    <td className="px-3 py-2 font-medium text-white">{msg.candidateName}</td>
-                    <td className="px-3 py-2 font-mono text-blue-400">{msg.candidateEmail}</td>
-                    <td className="px-3 py-2 truncate max-w-xs">{msg.subject}</td>
-                    <td className="px-3 py-2">
-                      <span
-                        className={`px-2 py-0.5 rounded text-[10px] font-semibold ${
-                          msg.deliveryStatus === 'sent'
-                            ? 'bg-emerald-950 text-emerald-300 border border-emerald-800'
-                            : 'bg-rose-950 text-rose-300 border border-rose-800'
-                        }`}
-                      >
-                        {msg.deliveryStatus}
-                      </span>
-                    </td>
-                    <td className="px-3 py-2 font-mono text-[11px] text-slate-400 truncate max-w-xs">
-                      {msg.providerMessageId || msg.failureReason || 'Pending'}
-                    </td>
-                  </tr>
-                ))}
+                {outreachMessages.slice(0, 10).map(msg => {
+                  const isSim = isMessageSimulated(msg);
+                  return (
+                    <tr key={msg.id} className="hover:bg-slate-800/30">
+                      <td className="px-3 py-2 font-mono text-[11px] text-slate-400">
+                        {msg.sentAt ? new Date(msg.sentAt).toLocaleTimeString() : 'Queued'}
+                      </td>
+                      <td className="px-3 py-2 font-medium text-white">{msg.candidateName}</td>
+                      <td className="px-3 py-2 font-mono text-blue-400">{msg.candidateEmail}</td>
+                      <td className="px-3 py-2 truncate max-w-xs">{msg.subject}</td>
+                      <td className="px-3 py-2">
+                        <span
+                          className={`px-2 py-0.5 rounded text-[10px] font-semibold ${
+                            isSim
+                              ? 'bg-amber-950 text-amber-300 border border-amber-800'
+                              : msg.deliveryStatus === 'sent'
+                              ? 'bg-emerald-950 text-emerald-300 border border-emerald-800'
+                              : 'bg-rose-950 text-rose-300 border border-rose-800'
+                          }`}
+                        >
+                          {isSim ? 'Simulated' : msg.deliveryStatus === 'sent' ? 'Sent' : 'Failed'}
+                        </span>
+                      </td>
+                      <td className="px-3 py-2 font-mono text-[11px] text-slate-400 truncate max-w-xs">
+                        {msg.providerMessageId || msg.failureReason || 'Pending'}
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>

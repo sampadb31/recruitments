@@ -485,6 +485,7 @@ export interface AppDatabase {
   }[];
   queryCatalogue?: QueryCatalogueItem[];
   queryConfig?: QueryCatalogueConfig;
+  mode?: 'demo' | 'live';
 }
 
 export interface ExtractionResult {

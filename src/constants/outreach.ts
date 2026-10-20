@@ -2,20 +2,20 @@ import { OutreachSettings } from '../types/index.ts';
 
 export const DEFAULT_OUTREACH_SETTINGS: OutreachSettings = {
   senderName: 'BFSITalentHub',
-  senderEmail: 'bfsitalenthub@gmail.com',
-  replyToEmail: 'bfsitalenthub@gmail.com',
-  provider: 'gmail_workspace',
+  senderEmail: 'ditribe31@gmail.com',
+  replyToEmail: 'ditribe31@gmail.com',
+  provider: 'smtp',
   googleFormUrl: '', // Defaults to the active built-in /apply Expression of Interest portal
   sendingMode: 'auto_send', // Automatically dispatch outreach for matched candidates with email
   gmailConnected: false,
-  gmailConnectedEmail: 'bfsitalenthub@gmail.com',
+  gmailConnectedEmail: 'ditribe31@gmail.com',
   gmailConnectedAt: null,
   smtpConfig: {
-    host: 'smtp.mailtrap.io',
-    port: 587,
-    secure: false,
+    host: 'smtp.gmail.com',
+    port: 465,
+    secure: true,
     auth: {
-      user: '',
+      user: 'ditribe31@gmail.com',
       pass: '',
     },
   },
@@ -48,5 +48,5 @@ If you do not wish to receive further recruitment emails from us, you can opt ou
   lastTestedAt: null,
   lastTestStatus: null,
   lastTestMessage: null,
-  lastTestRecipient: 'bfsitalenthub@gmail.com',
+  lastTestRecipient: 'ditribe31@gmail.com',
 };

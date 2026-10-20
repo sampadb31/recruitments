@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Settings as SettingsIcon,
   Sliders,
@@ -80,8 +80,8 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
 
   // Outreach Settings form state
   const [senderName, setSenderName] = useState(outreachSettings?.senderName || 'BFSITalentHub');
-  const [senderEmail, setSenderEmail] = useState(outreachSettings?.senderEmail || 'bfsitalenthub@gmail.com');
-  const [replyToEmail, setReplyToEmail] = useState(outreachSettings?.replyToEmail || 'bfsitalenthub@gmail.com');
+  const [senderEmail, setSenderEmail] = useState(outreachSettings?.senderEmail || 'ditribe31@gmail.com');
+  const [replyToEmail, setReplyToEmail] = useState(outreachSettings?.replyToEmail || 'ditribe31@gmail.com');
   const [googleFormUrl, setGoogleFormUrl] = useState(
     outreachSettings?.googleFormUrl === 'https://forms.gle/bfsitalenthub' ? '' : (outreachSettings?.googleFormUrl || '')
   );
@@ -102,12 +102,14 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
   const [outreachProvider, setOutreachProvider] = useState<'gmail_workspace' | 'smtp'>(
     outreachSettings?.provider === 'smtp' ? 'smtp' : 'gmail_workspace'
   );
-  const [smtpUser, setSmtpUser] = useState(outreachSettings?.smtpConfig?.auth?.user || 'bfsitalenthub@gmail.com');
+  const [smtpUser, setSmtpUser] = useState(outreachSettings?.smtpConfig?.auth?.user || 'ditribe31@gmail.com');
   const [smtpPass, setSmtpPass] = useState(outreachSettings?.smtpConfig?.auth?.pass || '');
   const [isSendingSmtpTest, setIsSendingSmtpTest] = useState(false);
   const [smtpTestResult, setSmtpTestResult] = useState<{
     success: boolean;
     message: string;
+    messageId?: string;
+    smtpResponse?: string;
   } | null>(null);
 
   // Gmail OAuth Connection state
@@ -117,7 +119,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
 
   // Test Email state
   const [testRecipient, setTestRecipient] = useState(
-    outreachSettings?.lastTestRecipient || outreachSettings?.gmailConnectedEmail || 'bfsitalenthub@gmail.com'
+    outreachSettings?.lastTestRecipient || outreachSettings?.gmailConnectedEmail || 'ditribe31@gmail.com'
   );
   const [isSendingTest, setIsSendingTest] = useState(false);
   const [testResult, setTestResult] = useState<{
@@ -127,6 +129,37 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
   } | null>(null);
 
   const [isSaving, setIsSaving] = useState(false);
+
+  // Outreach server connection status
+  const [connectionStatus, setConnectionStatus] = useState<{
+    isReadyToSend?: boolean;
+    activeProvider?: string;
+    activeTransportDesc?: string;
+    smtp?: {
+      isConfigured?: boolean;
+      isConnectedViaSecrets?: boolean;
+      user?: string;
+      host?: string;
+      port?: number;
+      hasEnvironmentPassword?: boolean;
+    };
+  } | null>(null);
+
+  const fetchConnectionStatus = async () => {
+    try {
+      const res = await fetch(`/api/outreach/connection-status?mode=${mode}`);
+      if (res.ok) {
+        const json = await res.json();
+        setConnectionStatus(json);
+      }
+    } catch {
+      // ignore
+    }
+  };
+
+  useEffect(() => {
+    fetchConnectionStatus();
+  }, [mode]);
 
   // Apify Verification state
   const [isVerifyingApify, setIsVerifyingApify] = useState(false);
@@ -199,16 +232,16 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
     try {
       const result = await connectGmailWithOAuth();
       showToast(`Gmail account ${result.email} connected with gmail.send permission!`, 'success');
-      setSenderEmail('bfsitalenthub@gmail.com');
-      setReplyToEmail('bfsitalenthub@gmail.com');
-      setTestRecipient('bfsitalenthub@gmail.com');
+      setSenderEmail(result.email || 'ditribe31@gmail.com');
+      setReplyToEmail(result.email || 'ditribe31@gmail.com');
+      setTestRecipient(result.email || 'ditribe31@gmail.com');
 
       await onUpdateSettings({
         outreachSettings: {
           gmailConnected: true,
           gmailConnectedEmail: result.email,
-          senderEmail: 'bfsitalenthub@gmail.com',
-          replyToEmail: 'bfsitalenthub@gmail.com',
+          senderEmail: result.email || 'ditribe31@gmail.com',
+          replyToEmail: result.email || 'ditribe31@gmail.com',
         },
       });
     } catch (err: any) {
@@ -250,6 +283,9 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
       return;
     }
 
+    const confirmMsg = `Are you sure you want to send a real verification email to ${testRecipient.trim()} from ${outreachSettings?.gmailConnectedEmail || senderEmail || 'ditribe31@gmail.com'} via Google Gmail API?`;
+    if (!window.confirm(confirmMsg)) return;
+
     setIsSendingTest(true);
     setTestResult(null);
     try {
@@ -273,6 +309,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
         messageId: body.messageId,
       });
       showToast(`Test email successfully delivered to ${testRecipient}!`, 'success');
+      if (onRefreshStatus) await onRefreshStatus();
     } catch (err: any) {
       setTestResult({
         success: false,
@@ -286,10 +323,24 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
 
   // Test Email via Gmail SMTP / Google App Password
   const handleTestSmtp = async () => {
-    if (!smtpPass || !smtpPass.trim()) {
+    const hasExistingPass = Boolean(
+      (outreachSettings?.smtpConfig?.auth as any)?.hasPass ||
+      (connectionStatus?.smtp as any)?.hasEnvironmentPassword ||
+      (connectionStatus?.smtp as any)?.isConfigured
+    );
+    if (!smtpPass?.trim() && !hasExistingPass) {
       showToast('Please enter your 16-character Google App Password first.', 'error');
       return;
     }
+
+    if (!testRecipient || !testRecipient.includes('@')) {
+      showToast('Please enter a valid recipient email address.', 'error');
+      return;
+    }
+
+    const confirmMsg = `Are you sure you want to send a real verification email to ${testRecipient.trim()} from ${smtpUser || senderEmail || 'ditribe31@gmail.com'} via Gmail SMTP?`;
+    if (!window.confirm(confirmMsg)) return;
+
     setIsSendingSmtpTest(true);
     setSmtpTestResult(null);
     try {
@@ -298,8 +349,8 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           mode,
-          targetEmail: testRecipient || 'bfsitalenthub@gmail.com',
-          user: smtpUser || senderEmail || 'bfsitalenthub@gmail.com',
+          toEmail: testRecipient.trim(),
+          user: smtpUser || senderEmail || 'ditribe31@gmail.com',
           pass: smtpPass.trim(),
         }),
       });
@@ -307,9 +358,11 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
       if (!res.ok) throw new Error(data.error || 'Gmail SMTP test failed.');
       setSmtpTestResult({
         success: true,
-        message: data.message || `Verified: Real test email sent to ${testRecipient}! Check your Sent folder and inbox.`,
+        message: data.message || `Verified: Real test email sent to ${testRecipient}!`,
+        messageId: data.messageId,
+        smtpResponse: data.smtpResponse,
       });
-      showToast(`Verified: Real test email sent to ${testRecipient}!`, 'success');
+      showToast(`Verified: Real test email accepted by Gmail SMTP!`, 'success');
       if (onRefreshStatus) await onRefreshStatus();
     } catch (err: any) {
       setSmtpTestResult({
@@ -362,7 +415,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
             port: 465,
             secure: true,
             auth: {
-              user: smtpUser || senderEmail || 'bfsitalenthub@gmail.com',
+              user: smtpUser || senderEmail || 'ditribe31@gmail.com',
               pass: smtpPass.trim(),
             },
           },
@@ -480,7 +533,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
                     <span>Recruiter Gmail Email Integration</span>
                   </h2>
                   <p className="text-xs text-slate-400">
-                    Send real recruitment emails directly from <code className="text-indigo-300 font-mono">bfsitalenthub@gmail.com</code> to candidate inboxes.
+                    Send real recruitment emails directly from <code className="text-indigo-300 font-mono">{senderEmail || 'ditribe31@gmail.com'}</code> to candidate inboxes.
                   </p>
                 </div>
               </div>
@@ -515,23 +568,35 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
             {/* Provider Option 1: Google App Password / SMTP */}
             {outreachProvider === 'smtp' && (
               <div className="space-y-4">
-                <div className="p-4 rounded-xl bg-blue-950/30 border border-blue-800/60 text-xs text-slate-300 space-y-2">
-                  <div className="flex items-center space-x-2 text-blue-300 font-semibold">
-                    <CheckCircle2 className="w-4 h-4 text-blue-400" />
-                    <span>Direct Gmail Delivery via Google App Password</span>
+                {((connectionStatus?.smtp as any)?.isConnectedViaSecrets || (connectionStatus?.smtp as any)?.hasEnvironmentPassword) ? (
+                  <div className="p-4 rounded-xl bg-emerald-950/30 border border-emerald-800/60 text-xs text-slate-300 space-y-2">
+                    <div className="flex items-center space-x-2 text-emerald-300 font-semibold">
+                      <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                      <span>Server Secrets Active: GMAIL_USER & GMAIL_APP_PASSWORD Connected</span>
+                    </div>
+                    <p className="leading-relaxed text-slate-300">
+                      The backend is connected to Google SMTP (<code className="text-emerald-300 font-mono">smtp.gmail.com:465</code>) using server environment secrets for <strong className="text-white font-mono">{smtpUser || 'ditribe31@gmail.com'}</strong>. All outreach emails will be dispatched directly and securely from this account.
+                    </p>
                   </div>
-                  <p className="leading-relaxed text-slate-400">
-                    Because preview environments can have dynamic URLs not yet listed in Google Cloud OAuth authorized domains, a <strong>Google App Password</strong> allows the server to connect directly to Google's official mail servers (<code className="text-indigo-300 font-mono">smtp.gmail.com:465</code>). All sent emails are guaranteed to reach recipients and will appear immediately in your Gmail <strong>Sent</strong> box.
-                  </p>
-                  <div className="bg-slate-900/80 p-3 rounded-lg border border-slate-800 text-[11px] text-slate-300 space-y-1">
-                    <span className="font-semibold text-white block">How to get your 16-character Google App Password (takes 30 seconds):</span>
-                    <ol className="list-decimal list-inside space-y-0.5 text-slate-400">
-                      <li>Log in to your Google Account (<span className="text-white font-mono">bfsitalenthub@gmail.com</span>) and go to <a href="https://myaccount.google.com/apppasswords" target="_blank" rel="noreferrer" className="text-blue-400 underline font-mono">myaccount.google.com/apppasswords</a></li>
-                      <li>Name the app <strong className="text-white">BFSITalentHub</strong> and click <strong>Create</strong></li>
-                      <li>Copy the 16-letter code and paste it below.</li>
-                    </ol>
+                ) : (
+                  <div className="p-4 rounded-xl bg-blue-950/30 border border-blue-800/60 text-xs text-slate-300 space-y-2">
+                    <div className="flex items-center space-x-2 text-blue-300 font-semibold">
+                      <CheckCircle2 className="w-4 h-4 text-blue-400" />
+                      <span>Direct Gmail Delivery via Google App Password</span>
+                    </div>
+                    <p className="leading-relaxed text-slate-400">
+                      Because preview environments can have dynamic URLs not yet listed in Google Cloud OAuth authorized domains, a <strong>Google App Password</strong> allows the server to connect directly to Google's official mail servers (<code className="text-indigo-300 font-mono">smtp.gmail.com:465</code>). All sent emails are guaranteed to reach recipients and will appear immediately in your Gmail <strong>Sent</strong> box.
+                    </p>
+                    <div className="bg-slate-900/80 p-3 rounded-lg border border-slate-800 text-[11px] text-slate-300 space-y-1">
+                      <span className="font-semibold text-white block">How to get your 16-character Google App Password (takes 30 seconds):</span>
+                      <ol className="list-decimal list-inside space-y-0.5 text-slate-400">
+                        <li>Log in to your Google Account (<span className="text-white font-mono">{senderEmail || 'ditribe31@gmail.com'}</span>) and go to <a href="https://myaccount.google.com/apppasswords" target="_blank" rel="noreferrer" className="text-blue-400 underline font-mono">myaccount.google.com/apppasswords</a></li>
+                        <li>Name the app <strong className="text-white">BFSITalentHub</strong> and click <strong>Create</strong></li>
+                        <li>Copy the 16-letter code and paste it below.</li>
+                      </ol>
+                    </div>
                   </div>
-                </div>
+                )}
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-slate-950/60 p-4 rounded-xl border border-slate-800 text-xs">
                   <div>
@@ -542,7 +607,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
                       type="email"
                       value={smtpUser}
                       onChange={e => setSmtpUser(e.target.value)}
-                      placeholder="bfsitalenthub@gmail.com"
+                      placeholder="ditribe31@gmail.com"
                       className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white font-mono focus:outline-none focus:border-blue-500"
                     />
                   </div>
@@ -555,7 +620,11 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
                       type="password"
                       value={smtpPass}
                       onChange={e => setSmtpPass(e.target.value)}
-                      placeholder="xxxx xxxx xxxx xxxx"
+                      placeholder={
+                        (outreachSettings?.smtpConfig?.auth as any)?.hasPass || (connectionStatus?.smtp as any)?.hasEnvironmentPassword
+                          ? '•••••••••••••••• (Configured via Server Secrets)'
+                          : 'xxxx xxxx xxxx xxxx'
+                      }
                       className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white font-mono focus:outline-none focus:border-blue-500"
                     />
                     <span className="text-[10px] text-slate-500 mt-1 block">Held securely in backend storage for candidate outreach.</span>
@@ -577,7 +646,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
                   <div className="flex flex-col sm:flex-row items-center gap-2">
                     <input
                       type="email"
-                      placeholder="Recipient email (e.g. bfsitalenthub@gmail.com)"
+                      placeholder="Recipient email (e.g. ditribe31@gmail.com)"
                       value={testRecipient}
                       onChange={e => setTestRecipient(e.target.value)}
                       className="w-full sm:w-80 bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white font-mono focus:outline-none focus:border-blue-500"
@@ -600,13 +669,31 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
 
                   {smtpTestResult && (
                     <div
-                      className={`p-3 rounded-lg border text-xs ${
+                      className={`p-3.5 rounded-xl border space-y-1 text-xs ${
                         smtpTestResult.success
-                          ? 'bg-emerald-950/60 border-emerald-800 text-emerald-300 font-mono'
+                          ? 'bg-emerald-950/60 border-emerald-800 text-emerald-200'
                           : 'bg-rose-950/60 border-rose-800 text-rose-300'
                       }`}
                     >
-                      {smtpTestResult.message}
+                      <div className="font-bold flex items-center space-x-1.5">
+                        {smtpTestResult.success ? (
+                          <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                        ) : (
+                          <AlertCircle className="w-4 h-4 text-rose-400" />
+                        )}
+                        <span>{smtpTestResult.success ? 'Successfully Accepted by Gmail SMTP (250 OK)!' : 'Delivery Rejected by Gmail SMTP'}</span>
+                      </div>
+                      <p className="leading-relaxed">{smtpTestResult.message}</p>
+                      {smtpTestResult.messageId && (
+                        <p className="font-mono text-[11px] text-slate-400">
+                          Google Message ID: <span className="text-emerald-300">{smtpTestResult.messageId}</span>
+                        </p>
+                      )}
+                      {smtpTestResult.smtpResponse && (
+                        <p className="font-mono text-[11px] text-slate-400">
+                          SMTP Server Response: <span className="text-emerald-300">{smtpTestResult.smtpResponse}</span>
+                        </p>
+                      )}
                     </div>
                   )}
                 </div>
@@ -711,7 +798,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
                   <div className="flex flex-col sm:flex-row items-center gap-2">
                     <input
                       type="email"
-                      placeholder="Enter recipient email (e.g. bfsitalenthub@gmail.com)"
+                      placeholder="Enter recipient email (e.g. ditribe31@gmail.com)"
                       value={testRecipient}
                       onChange={e => setTestRecipient(e.target.value)}
                       className="w-full sm:w-80 bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white font-mono focus:outline-none focus:border-blue-500"

@@ -95,6 +95,38 @@ export function getDatabase(mode: 'demo' | 'live' = 'demo'): AppDatabase {
       const demo = getInitialDemoDatabase();
       parsed.outreachSettings = JSON.parse(JSON.stringify(demo.outreachSettings));
     }
+
+    // Connect environment secrets (GMAIL_USER and GMAIL_APP_PASSWORD) to outreach settings
+    const envGmailUser = (process.env.GMAIL_USER && process.env.GMAIL_USER.trim()) || '';
+    const envGmailAppPassword = (process.env.GMAIL_APP_PASSWORD && process.env.GMAIL_APP_PASSWORD.trim()) || '';
+    if (envGmailUser) {
+      parsed.outreachSettings.senderEmail = envGmailUser;
+      parsed.outreachSettings.replyToEmail = envGmailUser;
+      if (!parsed.outreachSettings.smtpConfig) {
+        parsed.outreachSettings.smtpConfig = {
+          host: 'smtp.gmail.com',
+          port: 465,
+          secure: true,
+          auth: { user: envGmailUser, pass: '' },
+        };
+      } else {
+        if (!parsed.outreachSettings.smtpConfig.auth) {
+          parsed.outreachSettings.smtpConfig.auth = { user: envGmailUser, pass: '' };
+        } else {
+          parsed.outreachSettings.smtpConfig.auth.user = envGmailUser;
+        }
+      }
+    }
+    if (envGmailAppPassword) {
+      if (parsed.outreachSettings.smtpConfig) {
+        parsed.outreachSettings.smtpConfig.host = 'smtp.gmail.com';
+        parsed.outreachSettings.smtpConfig.port = 465;
+        parsed.outreachSettings.smtpConfig.secure = true;
+      }
+      if (parsed.outreachSettings.provider !== 'smtp' && !parsed.outreachSettings.gmailConnected) {
+        parsed.outreachSettings.provider = 'smtp';
+      }
+    }
     if (!Array.isArray(parsed.outreachMessages)) {
       parsed.outreachMessages = [];
     }
@@ -451,15 +483,15 @@ export async function startCandidateCollectionRun(
       // AUTOMATED 1ST OUTREACH PIPELINE (ZERO MANUAL INTERVENTION)
       // Any candidate under "Matches Criteria" having their email id
       // fetched automatically gets the 1st outreach mail sent from
-      // bfsitalenthub@gmail.com immediately after data extraction.
+      // ditribe31@gmail.com immediately after data extraction.
       // ---------------------------------------------------------
+      const activeSender = db.outreachSettings.senderEmail || 'ditribe31@gmail.com';
       activeRun.logs.push(
-        `[${new Date().toLocaleTimeString()}] [AUTO-OUTREACH] Evaluating candidates for immediate automated 1st outreach (Sender: bfsitalenthub@gmail.com)...`
+        `[${new Date().toLocaleTimeString()}] [AUTO-OUTREACH] Evaluating candidates for immediate automated 1st outreach (Sender: ${activeSender})...`
       );
 
-      // Enforce sender email identity: bfsitalenthub@gmail.com whoever the user is
-      db.outreachSettings.senderEmail = 'bfsitalenthub@gmail.com';
-      db.outreachSettings.replyToEmail = 'bfsitalenthub@gmail.com';
+      db.outreachSettings.senderEmail = activeSender;
+      db.outreachSettings.replyToEmail = db.outreachSettings.replyToEmail || activeSender;
 
       const eligibleForAutoOutreach = db.candidates.filter(c => {
         // 1. Must be under matched criteria
@@ -481,12 +513,12 @@ export async function startCandidateCollectionRun(
       let autoOutreachSentCount = 0;
       if (eligibleForAutoOutreach.length > 0) {
         activeRun.logs.push(
-          `[${new Date().toLocaleTimeString()}] [AUTO-OUTREACH] Found ${eligibleForAutoOutreach.length} candidate(s) under Matched Criteria with email fetched. Automatically dispatching 1st outreach mail from bfsitalenthub@gmail.com...`
+          `[${new Date().toLocaleTimeString()}] [AUTO-OUTREACH] Found ${eligibleForAutoOutreach.length} candidate(s) under Matched Criteria with email fetched. Automatically dispatching 1st outreach mail from ${activeSender}...`
         );
 
         for (const cand of eligibleForAutoOutreach) {
           activeRun.logs.push(
-            `[${new Date().toLocaleTimeString()}] [AUTO-OUTREACH] Sending 1st outreach email to ${cand.name || 'Candidate'} <${cand.email}> from bfsitalenthub@gmail.com...`
+            `[${new Date().toLocaleTimeString()}] [AUTO-OUTREACH] Sending 1st outreach email to ${cand.name || 'Candidate'} <${cand.email}> from ${activeSender}...`
           );
 
           try {
@@ -500,7 +532,7 @@ export async function startCandidateCollectionRun(
             if (sendResult.success) {
               autoOutreachSentCount++;
               activeRun.logs.push(
-                `[${new Date().toLocaleTimeString()}] [AUTO-OUTREACH] [DELIVERED] 1st outreach mail sent to ${cand.name || cand.email} from bfsitalenthub@gmail.com (Message ID: ${sendResult.messageId || 'auto_dispatched'}).`
+                `[${new Date().toLocaleTimeString()}] [AUTO-OUTREACH] 1st outreach mail sent to ${cand.name || cand.email} from ${activeSender} (Message ID: ${sendResult.messageId || 'auto_dispatched'}).`
               );
             } else {
               activeRun.logs.push(
@@ -516,7 +548,7 @@ export async function startCandidateCollectionRun(
         }
 
         activeRun.logs.push(
-          `[${new Date().toLocaleTimeString()}] [AUTO-OUTREACH] Complete: ${autoOutreachSentCount} outreach email(s) dispatched from bfsitalenthub@gmail.com with zero manual intervention.`
+          `[${new Date().toLocaleTimeString()}] [AUTO-OUTREACH] Complete: ${autoOutreachSentCount} outreach email(s) dispatched from ${activeSender} with zero manual intervention.`
         );
       } else {
         activeRun.logs.push(

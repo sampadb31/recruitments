@@ -48,6 +48,49 @@ export function generateSecureToken(): string {
 }
 
 /**
+ * Checks if an OutreachMessage represents an authentic send accepted by Gmail or SMTP.
+ * Excludes local simulation IDs and demo mode test sends.
+ */
+export function isRealSentMessage(msg?: OutreachMessage | null): boolean {
+  if (!msg) return false;
+  if (msg.isTestModeSend) return false;
+  if (msg.deliveryStatus !== 'sent') return false;
+  if (!msg.providerMessageId) return false;
+  const pId = msg.providerMessageId;
+  if (pId.startsWith('gmail_sim_') || pId.startsWith('test_sim_') || pId.startsWith('talenthub_')) {
+    return false;
+  }
+  return true;
+}
+
+/**
+ * Checks if a candidate was actually sent a real email accepted by Gmail or SMTP.
+ */
+export function isCandidateRealSent(candidate: Candidate, db: AppDatabase): boolean {
+  if (candidate.outreachStatus === 'Responded' || candidate.outreachStatus === 'Applied') {
+    return true;
+  }
+  if (candidate.outreachStatus !== 'Sent') {
+    return false;
+  }
+  const norm = normalizeEmail(candidate.email || '');
+  const msg = db.outreachMessages?.find(
+    m => (m.candidateId === candidate.id || (norm && normalizeEmail(m.candidateEmail) === norm))
+  );
+  return isRealSentMessage(msg);
+}
+
+/**
+ * Checks if a candidate is marked "Sent" under an old simulated or test run, requiring review.
+ */
+export function isCandidateSimulatedSent(candidate: Candidate, db: AppDatabase): boolean {
+  if (candidate.outreachStatus !== 'Sent') {
+    return false;
+  }
+  return !isCandidateRealSent(candidate, db);
+}
+
+/**
  * Evaluates candidate eligibility according to prompt requirements:
  * - Individual seeking employment (not recruiter advertising vacancies)
  * - Meets existing India and role-relevance criteria
@@ -64,69 +107,46 @@ export function evaluateCandidateEligibility(
   status: CandidateEligibilityStatus;
   reason: string;
 } {
-  // 1. Recruiter or employer check
+  // 1. Recruiter / Employer check
   if (candidate.isRecruiterAd || candidate.authorIntent === 'RECRUITER_OR_EMPLOYER_HIRING') {
     return {
       isEligible: false,
       status: 'recruiter_excluded',
-      reason: 'Record identified as recruiter or employer vacancy advertisement.',
+      reason: 'User is a recruiter or employer advertising a vacancy, not a job seeker.',
     };
   }
 
-  // 2. Clear job-seeking intent
-  if (candidate.authorIntent === 'UNCLEAR') {
+  // 2. Active Job Seeker Intent Check
+  if (candidate.authorIntent === 'UNCLEAR' || candidate.authorIntent === 'UNRELATED' || candidate.authorIntent === 'SEEKING_ON_BEHALF_OF_SOMEONE') {
     return {
       isEligible: false,
       status: 'needs_review',
-      reason: 'Job-seeking intent is ambiguous or unverified in source post. Placed in Needs Review.',
+      reason: 'Job-seeking intent is ambiguous or unverified. Requires recruiter review.',
     };
   }
 
-  if (candidate.authorIntent !== 'SELF_JOB_SEEKING') {
-    return {
-      isEligible: false,
-      status: 'needs_review',
-      reason: `Author intent classified as ${candidate.authorIntent}. Manual review required before outreach.`,
-    };
-  }
-
-  // 3. Criteria check: India & Role relevance
+  // 3. Criteria Tag Check
   if (candidate.criteriaTag === 'Outside Target') {
     return {
       isEligible: false,
       status: 'outside_target',
-      reason: 'Candidate is Outside Target (e.g., outside India or non-matching criteria).',
+      reason: candidate.matchingExplanation || 'Candidate is classified as Outside Target.',
     };
   }
 
-  if (candidate.criteriaTag === 'Needs Review') {
-    return {
-      isEligible: false,
-      status: 'needs_review',
-      reason: 'Candidate record has unresolved verification flags (Needs Review).',
-    };
-  }
-
-  // 4. Email existence check
-  if (!candidate.email || candidate.email.trim() === '') {
+  // 4. Explicit Attributable Email Syntax Check
+  if (!candidate.email || !isValidEmailSyntax(candidate.email)) {
     return {
       isEligible: false,
       status: 'email_unavailable',
-      reason: 'Email unavailable in candidate profile or source post.',
+      reason: candidate.email
+        ? `Invalid email syntax: "${candidate.email}".`
+        : 'No explicit attributable email found on candidate profile.',
     };
   }
 
-  // 5. Email syntax validation
+  // 5. Opt-out / Suppression check
   const normEmail = normalizeEmail(candidate.email);
-  if (!isValidEmailSyntax(normEmail)) {
-    return {
-      isEligible: false,
-      status: 'needs_review',
-      reason: `Email address syntax "${candidate.email}" is invalid or malformed. Needs Review.`,
-    };
-  }
-
-  // 6. Suppression / Unsubscribe check
   const isSuppressed = db.suppressionList?.some(
     s => normalizeEmail(s.email) === normEmail
   );
@@ -138,24 +158,17 @@ export function evaluateCandidateEligibility(
     };
   }
 
-  // 7. Already contacted check
+  // 6. Already contacted check (only counts REAL sent emails accepted by Gmail/SMTP)
   const alreadyContacted =
-    candidate.outreachStatus === 'Sent' ||
     candidate.outreachStatus === 'Responded' ||
     candidate.outreachStatus === 'Applied' ||
-    candidate.outreachDeliveryStatus === 'sent' ||
-    candidate.outreachDeliveryStatus === 'delivered' ||
-    db.outreachMessages.some(
-      m =>
-        (m.candidateId === candidate.id || normalizeEmail(m.candidateEmail) === normEmail) &&
-        (m.deliveryStatus === 'sent' || m.deliveryStatus === 'delivered')
-    );
+    isCandidateRealSent(candidate, db);
 
   if (alreadyContacted) {
     return {
       isEligible: false,
       status: 'already_contacted',
-      reason: 'Candidate has already been contacted in outreach workflow.',
+      reason: 'Candidate has already received real outreach from Google/SMTP.',
     };
   }
 
@@ -178,37 +191,12 @@ export function buildPersonalizedEmail(
   settings: OutreachSettings,
   origin: string = getServerOrigin()
 ): { subject: string; body: string } {
-  // First name extraction
-  let firstName = 'there';
-  if (candidate.name && candidate.name.trim()) {
-    const parts = candidate.name.trim().split(/\s+/);
-    if (parts.length > 0 && parts[0].length >= 2) {
-      firstName = parts[0];
-    }
-  }
+  const firstName = candidate.name ? candidate.name.split(' ')[0] : 'there';
+  const roleName = candidate.currentOrPreviousRole || 'Banking & Financial Services Professional';
+  const experienceText = candidate.totalExperienceYears ? `${candidate.totalExperienceYears}+ years of experience in ` : '';
+  const locationText = candidate.currentWorkLocation ? ` in ${candidate.currentWorkLocation}` : '';
 
-  // Verified role area
-  const verifiedRoleArea =
-    candidate.currentOrPreviousRole ||
-    candidate.sector ||
-    candidate.industry ||
-    settings.rolesBeingSourced ||
-    'Commercial Operations & Sales';
-
-  // Experience text
-  const experienceMention =
-    candidate.totalExperienceYears !== null && candidate.totalExperienceYears > 0
-      ? ` (${candidate.totalExperienceYears} years of experience)`
-      : '';
-
-  // Configured recruitment scope
-  const recruitmentScope = settings.rolesBeingSourced || 'relevant openings in your domain';
-
-  // Sender name
-  const senderName = settings.senderName || 'BFSITalentHub';
-
-  // Candidate registration form link
-  // If user configured a custom valid Google Form URL, use it; otherwise use the working in-app Expression of Interest portal
+  // Determine application portal link
   const token = candidate.formToken || candidate.id;
   const isCustomGoogleForm =
     settings.googleFormUrl &&
@@ -216,69 +204,64 @@ export function buildPersonalizedEmail(
     settings.googleFormUrl !== 'https://forms.gle/bfsitalenthub' &&
     (settings.googleFormUrl.includes('docs.google.com/forms') || settings.googleFormUrl.includes('forms.gle'));
 
-  const formUrl = isCustomGoogleForm
+  const registrationUrl = isCustomGoogleForm
     ? settings.googleFormUrl
     : `${origin}/apply?token=${token}&email=${encodeURIComponent(candidate.email || '')}`;
 
-  // Unsubscribe link
-  const unsubscribeUrl = `${origin}/api/outreach/unsubscribe?token=${token}&email=${encodeURIComponent(
-    candidate.email || ''
-  )}`;
+  const unsubscribeUrl = `${origin}/api/outreach/unsubscribe?token=${token}&email=${encodeURIComponent(candidate.email || '')}`;
 
-  // Build Subject
-  let subject = settings.emailSubjectTemplate || 'Oppourtunity in banking';
-  subject = subject
-    .replace(/\[relevant role area\]/gi, verifiedRoleArea)
-    .replace(/\[First Name\]/gi, firstName)
-    .replace(/\[First Name \/ there\]/gi, firstName)
-    .replace(/\[Configured sender name\]/gi, senderName);
+  // Subject line
+  const subject = settings.emailSubjectTemplate
+    ? settings.emailSubjectTemplate
+        .replace(/\[First Name \/ there\]/g, firstName)
+        .replace(/\[Candidate Name\]/g, candidate.name || 'Candidate')
+        .replace(/\[Target Role\]/g, roleName)
+    : `Career Opportunity in Banking & Financial Services - Expression of Interest`;
 
-  // Build Body
-  let body = settings.emailBodyTemplate || DEFAULT_OUTREACH_SETTINGS.emailBodyTemplate;
+  // Body text
+  let body = settings.emailBodyTemplate
+    ? settings.emailBodyTemplate
+        .replace(/\[First Name \/ there\]/g, firstName)
+        .replace(/\[Candidate Name\]/g, candidate.name || 'Candidate')
+        .replace(/\[Google Form Registration Link\]/g, registrationUrl)
+        .replace(/\[registration link\]/g, registrationUrl)
+        .replace(/\[Target Role\]/g, roleName)
+        .replace(/\[Relevant Sector\]/g, candidate.sector || 'BFSI')
+        .replace(/\[unsubscribe link\]/g, unsubscribeUrl)
+    : `Hi ${firstName},\n\nI came across your profile and noticed your background as ${experienceText}${roleName}${locationText}.\n\nBFSITalentHub connects banking, fintech, and financial services professionals with verified openings across India.\n\nIf you are interested in exploring active career opportunities with leading private banks and financial institutions, please submit your details via our brief registration portal:\n${registrationUrl}\n\nOur recruitment team will review your background and connect with you directly for matching roles.\n\nBest regards,\n${settings.senderName || 'BFSITalentHub Recruitment'}\n${settings.senderEmail || 'ditribe31@gmail.com'}\n\nTo opt out of future recruitment communications, click here: ${unsubscribeUrl}`;
 
-  body = body
-    .replace(/\[First Name \/ there\]/gi, firstName)
-    .replace(/\[First Name\]/gi, firstName)
-    .replace(/\[verified role area\]/gi, verifiedRoleArea)
-    .replace(/\[experience mention\]/gi, experienceMention)
-    .replace(/\[configured recruitment scope\]/gi, recruitmentScope)
-    .replace(/\[Google Form Registration Link\]/gi, formUrl)
-    .replace(/\[Candidate-specific form link\]/gi, formUrl)
-    .replace(/\[Configured sender name\]/gi, senderName)
-    .replace(/\[sender email\]/gi, settings.senderEmail || 'bfsitalenthub@gmail.com')
-    .replace(/\[unsubscribe link\]/gi, unsubscribeUrl);
-
-  // Guarantee that any legacy template text referencing the 404 placeholder uses the active formUrl
-  body = body.replace(/https:\/\/forms\.gle\/bfsitalenthub/g, formUrl);
-
-  // Strip any accidental stray square brackets
-  body = body.replace(/\[.*?\]/g, '');
+  // Ensure unsubscribe link is present
+  if (!body.includes(unsubscribeUrl) && !body.includes('unsubscribe')) {
+    body += `\n\n---\nTo opt out of future recruitment outreach, click: ${unsubscribeUrl}`;
+  }
 
   return { subject, body };
 }
 
 /**
- * Generates and stores initial draft for candidate if not already present
+ * Generates and stores candidate draft email
  */
 export function generateCandidateDraft(
   candidate: Candidate,
   settings: OutreachSettings,
-  origin: string = 'http://localhost:3000'
+  origin: string = getServerOrigin()
 ): { subject: string; body: string; generatedAt: string } {
   const { subject, body } = buildPersonalizedEmail(candidate, settings, origin);
-  return {
+  const draft = {
     subject,
     body,
     generatedAt: new Date().toISOString(),
   };
+  candidate.draftEmail = draft;
+  return draft;
 }
 
 /**
  * Dispatches an email through the selected provider:
- * - 'gmail_workspace': Real Gmail API call using Google OAuth
- * - 'smtp': Nodemailer SMTP server
- * - 'test_mode': Safe local simulation
- * IMPORTANT: Only marks email as sent upon receiving a successful 200/201 response from the provider!
+ * - 'gmail_workspace': Real Gmail API call using Google OAuth (users.messages.send)
+ * - 'smtp': Real Nodemailer SMTP with Google App Password
+ * IMPORTANT: Only marks email as sent upon receiving a successful response from the provider!
+ * Never simulates in Live mode.
  */
 export async function sendOutreachEmail({
   candidate,
@@ -286,7 +269,7 @@ export async function sendOutreachEmail({
   db,
   subjectOverride,
   bodyOverride,
-  origin = 'http://localhost:3000',
+  origin = getServerOrigin(),
 }: {
   candidate: Candidate;
   settings: OutreachSettings;
@@ -308,7 +291,7 @@ export async function sendOutreachEmail({
     };
   }
 
-  // Prevent duplicate outreach to already sent/responded/applied candidates
+  // Prevent duplicate outreach to already contacted / opted-out candidates
   const normEmail = normalizeEmail(candidate.email);
   const isSuppressed = db.suppressionList?.some(s => normalizeEmail(s.email) === normEmail);
   if (candidate.isUnsubscribed || isSuppressed) {
@@ -319,11 +302,16 @@ export async function sendOutreachEmail({
     };
   }
 
-  if (candidate.outreachStatus === 'Sent' || candidate.outreachStatus === 'Responded' || candidate.outreachStatus === 'Applied') {
+  // STRICT DUPLICATE OUTREACH PREVENTION:
+  // If a REAL email was already accepted by Google/SMTP, block duplicate sends!
+  if (isCandidateRealSent(candidate, db)) {
+    const existingMsg = db.outreachMessages.find(
+      m => (m.candidateId === candidate.id || normalizeEmail(m.candidateEmail) === normEmail) && isRealSentMessage(m)
+    );
     return {
       success: false,
       deliveryStatus: 'failed',
-      error: `Candidate has already been sent outreach (Current status: ${candidate.outreachStatus}). Duplicate outreach prevented.`,
+      error: `Duplicate outreach prevented: A verified email was already accepted by Google/SMTP for ${candidate.email} (Provider Message ID: ${existingMsg?.providerMessageId || 'verified'}).`,
     };
   }
 
@@ -332,7 +320,7 @@ export async function sendOutreachEmail({
   const subject = subjectOverride || candidate.draftEmail?.subject || draft.subject;
   let bodyText = bodyOverride || candidate.draftEmail?.body || draft.body;
 
-  // If body references the 404 placeholder, replace with active application portal link
+  // Replace placeholder links if any
   if (bodyText.includes('https://forms.gle/bfsitalenthub')) {
     const isCustomGoogleForm =
       settings.googleFormUrl &&
@@ -349,8 +337,17 @@ export async function sendOutreachEmail({
   const toEmail = candidate.email.trim();
   const toName = candidate.name || 'Candidate';
 
-  // 1. Test Mode
+  // 1. Explicit Test Mode (Allowed ONLY in Demo Database, Never in Live)
   if (settings.testMode || settings.provider === 'test_mode') {
+    if (db.mode === 'live') {
+      return {
+        success: false,
+        deliveryStatus: 'failed',
+        error:
+          'Simulation mode is strictly prohibited in Live mode. Real email delivery must use Gmail OAuth or Gmail SMTP with an App Password.',
+      };
+    }
+
     const testMsgId = `test_sim_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
     const msg: OutreachMessage = {
       id: `msg_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
@@ -370,9 +367,9 @@ export async function sendOutreachEmail({
       isTestModeSend: true,
     };
     db.outreachMessages.unshift(msg);
-    candidate.outreachStatus = 'Sent';
-    candidate.outreachDeliveryStatus = 'sent';
-    candidate.outreachSentAt = new Date().toISOString();
+    // Keep as Draft / Demo mode send, not counted in real live sends
+    candidate.outreachStatus = 'Draft';
+    candidate.outreachDeliveryStatus = undefined;
     return {
       success: true,
       messageId: testMsgId,
@@ -380,14 +377,14 @@ export async function sendOutreachEmail({
     };
   }
 
-  // 2. Gmail Workspace Provider (Primary OAuth 2.0 Integration)
+  // 2. Real Gmail Workspace Provider (Google OAuth users.messages.send)
   if (settings.provider === 'gmail_workspace') {
-    const gmailStatus = getGmailSessionStatus();
+    const gmailStatus = await getGmailSessionStatus();
 
-    // If OAuth session is not connected, check if SMTP App Password is provided
+    // If OAuth session is disconnected or expired, check if SMTP App Password is provided as fallback
     if (!gmailStatus.isConnected) {
-      if (settings.smtpConfig?.auth?.pass && settings.smtpConfig.auth.pass.trim()) {
-        // Fall back to sending via SMTP with App Password
+      const hasSmtpPass = (settings.smtpConfig?.auth?.pass && settings.smtpConfig.auth.pass.trim()) || process.env.GMAIL_APP_PASSWORD || process.env.SMTP_PASS;
+      if (hasSmtpPass) {
         return dispatchViaSmtp({
           candidate,
           settings,
@@ -399,11 +396,13 @@ export async function sendOutreachEmail({
         });
       }
 
+      candidate.outreachStatus = 'Failed';
+      candidate.outreachDeliveryStatus = 'failed';
       return {
         success: false,
         deliveryStatus: 'failed',
         error:
-          'Gmail account is not connected. Re-connect Gmail via OAuth or enter your 16-character Gmail App Password under Settings > Outreach to dispatch real emails.',
+          'Gmail OAuth is disconnected or token expired. Please reconnect Gmail in Settings > Outreach or enter your 16-character Gmail App Password.',
       };
     }
 
@@ -412,8 +411,8 @@ export async function sendOutreachEmail({
       subject,
       bodyText,
       senderName: settings.senderName || 'BFSITalentHub',
-      fromEmail: 'bfsitalenthub@gmail.com',
-      replyTo: settings.replyToEmail || 'bfsitalenthub@gmail.com',
+      fromEmail: settings.senderEmail || 'ditribe31@gmail.com',
+      replyTo: settings.replyToEmail || settings.senderEmail || 'ditribe31@gmail.com',
     });
 
     const msgRecord: OutreachMessage = {
@@ -433,11 +432,13 @@ export async function sendOutreachEmail({
       maxRetries: 3,
       providerMessageId: gmailRes.messageId || null,
       unsubscribeToken: candidate.formToken || candidate.id,
+      isTestModeSend: false,
     };
 
     db.outreachMessages.unshift(msgRecord);
 
     if (gmailRes.success) {
+      // Mark as Sent only upon real confirmation from Google
       candidate.outreachStatus = 'Sent';
       candidate.outreachDeliveryStatus = 'sent';
       candidate.outreachSentAt = new Date().toISOString();
@@ -457,7 +458,7 @@ export async function sendOutreachEmail({
     }
   }
 
-  // 3. SMTP Provider
+  // 3. SMTP Provider (Nodemailer with Google App Password)
   if (settings.provider === 'smtp') {
     return dispatchViaSmtp({
       candidate,
@@ -479,6 +480,7 @@ export async function sendOutreachEmail({
 
 /**
  * Dispatches an email via SMTP (Nodemailer) with full support for Gmail App Passwords
+ * Never marks as "Delivered" without delivery evidence; marks "sent" when accepted by SMTP transport.
  */
 export async function dispatchViaSmtp({
   candidate,
@@ -505,16 +507,29 @@ export async function dispatchViaSmtp({
   const host = settings.smtpConfig?.host || 'smtp.gmail.com';
   const port = settings.smtpConfig?.port || (host === 'smtp.gmail.com' ? 465 : 587);
   const secure = settings.smtpConfig?.secure ?? (port === 465);
-  const user = settings.smtpConfig?.auth?.user || settings.senderEmail || 'bfsitalenthub@gmail.com';
-  const pass = settings.smtpConfig?.auth?.pass;
+  const user =
+    (process.env.GMAIL_USER && process.env.GMAIL_USER.trim()) ||
+    settings.smtpConfig?.auth?.user ||
+    process.env.SMTP_USER ||
+    settings.senderEmail ||
+    'ditribe31@gmail.com';
+  const rawPass =
+    (process.env.GMAIL_APP_PASSWORD && process.env.GMAIL_APP_PASSWORD.trim()) ||
+    settings.smtpConfig?.auth?.pass ||
+    process.env.SMTP_PASS;
 
-  if (!pass || !pass.trim()) {
+  if (!rawPass || !rawPass.trim()) {
+    candidate.outreachStatus = 'Failed';
+    candidate.outreachDeliveryStatus = 'failed';
     return {
       success: false,
       deliveryStatus: 'failed',
-      error: 'SMTP password / Google App Password is required in Settings to send real emails.',
+      error:
+        'Google App Password is missing. Please configure your 16-character App Password under Settings > Outreach to dispatch real emails.',
     };
   }
+
+  const pass = rawPass.replace(/\s+/g, '');
 
   try {
     const nm: any = await import('nodemailer');
@@ -523,7 +538,7 @@ export async function dispatchViaSmtp({
       host,
       port,
       secure,
-      auth: { user, pass: pass.replace(/\s+/g, '') }, // remove any accidental spaces in 16-char app password
+      auth: { user, pass },
       tls: { rejectUnauthorized: false },
     });
 
@@ -568,7 +583,7 @@ export async function dispatchViaSmtp({
     return {
       success: false,
       deliveryStatus: 'failed',
-      error: `SMTP error (${host}): ${err.message}`,
+      error: `Gmail SMTP error (${host}): ${err.message}`,
     };
   }
 }
