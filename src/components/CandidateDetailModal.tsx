@@ -28,6 +28,7 @@ import { Candidate, CriteriaTag, SourcePost } from '../types/index.ts';
 interface CandidateDetailModalProps {
   candidate: Candidate;
   allPosts: SourcePost[];
+  googleFormUrl?: string;
   onClose: () => void;
   onSaveCorrection: (id: string, updates: Partial<Candidate>) => Promise<void>;
   onOpenDuplicateComparison?: (secondaryId: string) => void;
@@ -36,6 +37,7 @@ interface CandidateDetailModalProps {
 export const CandidateDetailModal: React.FC<CandidateDetailModalProps> = ({
   candidate,
   allPosts,
+  googleFormUrl,
   onClose,
   onSaveCorrection,
   onOpenDuplicateComparison,
@@ -658,9 +660,51 @@ export const CandidateDetailModal: React.FC<CandidateDetailModalProps> = ({
                     <p className="text-slate-400 line-clamp-2 italic text-[10px]">
                       "{candidate.draftEmail.body.slice(0, 150)}..."
                     </p>
+                    <div className="flex items-center justify-between text-[11px] pt-1 border-t border-slate-800/60 mt-1">
+                      <span className="text-emerald-400 flex items-center space-x-1">
+                        <CheckCircle2 className="w-3 h-3 text-emerald-400" />
+                        <span>Google Form Hyperlinked</span>
+                      </span>
+                      <a
+                        href={googleFormUrl && googleFormUrl.trim() !== '' && googleFormUrl !== 'https://forms.gle/bfsitalenthub' ? googleFormUrl.trim() : `/apply?token=${candidate.formToken || candidate.id}&email=${encodeURIComponent(candidate.email || '')}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-blue-400 hover:text-blue-300 flex items-center space-x-1 font-semibold"
+                      >
+                        <span>Open Form Link</span>
+                        <ExternalLink className="w-3 h-3" />
+                      </a>
+                    </div>
                   </div>
                 )}
               </div>
+
+              {/* Distinct LinkedIn Outreach Status */}
+              {(candidate.linkedInOutreachStatus || (!candidate.email && candidate.profileUrl)) && (
+                <div className="pt-3 border-t border-slate-800 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <label className="text-slate-400 font-medium block text-xs flex items-center space-x-1.5">
+                      <Linkedin className="w-3.5 h-3.5 text-[#0077b5]" />
+                      <span>LinkedIn Outreach Status</span>
+                    </label>
+                    <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-indigo-950 text-indigo-300 border border-indigo-800">
+                      {candidate.linkedInOutreachStatus || 'Ready Queue'}
+                    </span>
+                  </div>
+                  {candidate.linkedInOutreach?.connectionNote && (
+                    <div className="bg-slate-950/60 p-2.5 rounded-lg border border-slate-800 text-[11px] text-slate-300 space-y-1">
+                      <span className="text-[10px] text-slate-400 block font-semibold">Evidence-Grounded Note (&lt;300 chars):</span>
+                      <p className="italic font-sans text-slate-200">{candidate.linkedInOutreach.connectionNote}</p>
+                    </div>
+                  )}
+                  {candidate.linkedInOutreach?.invitationId && (
+                    <div className="text-[10px] text-slate-400 font-mono flex items-center justify-between">
+                      <span>Invite ID: {candidate.linkedInOutreach.invitationId}</span>
+                      <span>{candidate.linkedInOutreach.isSimulated ? '(Simulated)' : '(Official API)'}</span>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           </div>
 

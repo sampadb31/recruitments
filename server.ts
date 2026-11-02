@@ -45,11 +45,23 @@ import {
   sendOutreachEmail,
   buildPersonalizedEmail,
   generateCandidateDraft,
+  formatEmailHtml,
   handleCandidateOptOut,
   DEFAULT_OUTREACH_SETTINGS,
   setServerOrigin,
   isValidEmailSyntax,
 } from './src/server/outreachService.ts';
+import {
+  getLinkedInApiStatus,
+  sendLinkedInInvitation,
+  syncInvitationAcceptance,
+  sendLinkedInFollowUpMessage,
+  generatePersonalizedConnectionNote,
+  generatePersonalizedFollowUpMessage,
+  ensureCandidateLinkedInOutreach,
+} from './src/server/linkedinService.ts';
+
+import compression from 'compression';
 
 dotenv.config();
 
@@ -59,6 +71,9 @@ const __dirname = path.dirname(__filename);
 const app = express();
 const PORT = parseInt(process.env.PORT || '3000', 10);
 const isProduction = process.env.NODE_ENV === 'production';
+
+// Enable gzip/deflate compression for fast data transfer
+app.use(compression());
 
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
@@ -93,36 +108,61 @@ app.get('/api/status', async (req: Request, res: Response) => {
     gmailConnected: gmailSession.isConnected,
     activeRun: currentRun || latestRun,
     isCurrentlyRunning: Boolean(currentRun),
+    linkedin: getLinkedInApiStatus(),
     timestamp: new Date().toISOString(),
     supportedPlatforms: ['LinkedIn', 'Telegram', 'Demo'],
     defaultTimezone: 'Asia/Kolkata',
   });
 });
 
-// 2. Full Data Retrieval
+// 2. Full Data Retrieval (Optimized & sanitized without slow full deep cloning)
 app.get('/api/data', async (req: Request, res: Response) => {
   const mode = (req.query.mode as string) === 'live' ? 'live' : 'demo';
   const data = getDatabase(mode);
   const session = await getGmailSessionStatus();
-  // Deep clone to sanitize sensitive credentials before sending to client
-  const sanitized = JSON.parse(JSON.stringify(data));
-  if (sanitized.outreachSettings) {
-    sanitized.outreachSettings.gmailConnected = session.isConnected;
-    if (!session.isConnected) {
-      sanitized.outreachSettings.gmailConnectedAt = null;
-    }
-    // Never expose plain text SMTP password in client API responses
-    if (sanitized.outreachSettings.smtpConfig?.auth) {
-      const hasPass = Boolean(
-        data.outreachSettings?.smtpConfig?.auth?.pass ||
-        process.env.GMAIL_APP_PASSWORD ||
-        process.env.SMTP_PASS
-      );
-      sanitized.outreachSettings.smtpConfig.auth.hasPass = hasPass;
-      sanitized.outreachSettings.smtpConfig.auth.pass = hasPass ? '••••••••••••••••' : '';
-    }
-  }
-  res.json(sanitized);
+
+  const hasPass = Boolean(
+    data.outreachSettings?.smtpConfig?.auth?.pass ||
+    process.env.GMAIL_APP_PASSWORD ||
+    process.env.SMTP_PASS
+  );
+
+  const sanitizedOutreachSettings = data.outreachSettings
+    ? {
+        ...data.outreachSettings,
+        gmailConnected: session.isConnected,
+        gmailConnectedAt: session.isConnected ? data.outreachSettings.gmailConnectedAt : null,
+        smtpConfig: data.outreachSettings.smtpConfig
+          ? {
+              ...data.outreachSettings.smtpConfig,
+              auth: data.outreachSettings.smtpConfig.auth
+                ? {
+                    ...data.outreachSettings.smtpConfig.auth,
+                    hasPass,
+                    pass: hasPass ? '••••••••••••••••' : '',
+                  }
+                : undefined,
+            }
+          : undefined,
+      }
+    : data.outreachSettings;
+
+  // Ensure posts never carry heavy unneeded scrape payloads across network
+  const cleanPosts = Array.isArray(data.posts)
+    ? data.posts.map(p => {
+        if (p.rawPayload) {
+          const { rawPayload, ...clean } = p;
+          return clean;
+        }
+        return p;
+      })
+    : [];
+
+  res.json({
+    ...data,
+    posts: cleanPosts,
+    outreachSettings: sanitizedOutreachSettings,
+  });
 });
 
 // 3. Reset Demo Database
@@ -578,18 +618,28 @@ app.post('/api/outreach/send-test-email', async (req: Request, res: Response) =>
   }
 
   const testSubject = `[Verification Test] BFSITalentHub Recruitment Email Delivery Test`;
-  const formUrl = `${req.protocol}://${req.get('host')}/apply`;
+  const formUrl = db.outreachSettings.googleFormUrl && db.outreachSettings.googleFormUrl.trim() !== ''
+    ? db.outreachSettings.googleFormUrl.trim()
+    : `${req.protocol}://${req.get('host')}/apply`;
   const timestamp = new Date().toISOString();
 
   if (preferOAuth) {
     // Dispatch via Gmail API
     const activeFrom = db.outreachSettings?.senderEmail || 'ditribe31@gmail.com';
-    const testBody = `Hello,\n\nThis is a verified test email sent directly from your connected Gmail account (${session.email}) via Google Gmail API (users.messages.send).\n\nSender: ${activeFrom}\nRecipient: ${targetEmail}\nCandidate Application Portal: ${formUrl}\nTimestamp: ${timestamp}\nStatus: ACCEPTED BY GOOGLE GMAIL API\n\nCandidate recruitment emails are ready to send.`;
+    const testBody = `Hello,\n\nThis is a verified test email sent directly from your connected Gmail account (${session.email}) via Google Gmail API (users.messages.send).\n\nSender: ${activeFrom}\nRecipient: ${targetEmail}\nCandidate Application Portal / Google Form: ${formUrl}\nTimestamp: ${timestamp}\nStatus: ACCEPTED BY GOOGLE GMAIL API\n\nCandidate recruitment emails are ready to send.`;
+
+    const testHtml = formatEmailHtml({
+      bodyText: testBody,
+      googleFormUrl: formUrl,
+      candidateName: 'Test Recipient',
+      senderName: db.outreachSettings.senderName || 'BFSITalentHub Recruitment',
+    });
 
     const result = await sendEmailViaGmailApi({
       to: targetEmail,
       subject: testSubject,
       bodyText: testBody,
+      bodyHtml: testHtml,
       senderName: db.outreachSettings.senderName || 'BFSITalentHub Recruitment',
       fromEmail: activeFrom,
       replyTo: db.outreachSettings.replyToEmail || activeFrom,
@@ -646,12 +696,20 @@ app.post('/api/outreach/send-test-email', async (req: Request, res: Response) =>
 
     const testBody = `Hello,\n\nThis is a verified test email sent directly from ${user} using Gmail SMTP and Google App Password authentication.\n\nSender: ${user}\nRecipient: ${targetEmail}\nCandidate Application Portal: ${formUrl}\nTimestamp: ${timestamp}\nStatus: ACCEPTED BY GMAIL SMTP TRANSPORT\n\nCandidate recruitment emails are ready to send.`;
 
+    const testHtml = formatEmailHtml({
+      bodyText: testBody,
+      googleFormUrl: formUrl,
+      candidateName: 'Test Recipient',
+      senderName: db.outreachSettings.senderName || 'BFSITalentHub Recruitment',
+    });
+
     const info = await transporter.sendMail({
       from: `"${db.outreachSettings.senderName || 'BFSITalentHub'}" <${user}>`,
       to: targetEmail,
       replyTo: db.outreachSettings.replyToEmail || user,
       subject: testSubject,
       text: testBody,
+      html: testHtml,
     });
 
     db.outreachSettings.lastTestedAt = timestamp;
@@ -755,13 +813,23 @@ app.post('/api/gmail/test', async (req: Request, res: Response) => {
 
   const targetEmail = (req.body.toEmail || session.email || db.outreachSettings.senderEmail || 'ditribe31@gmail.com').trim();
   const testSubject = `[Verification Test] BFSITalentHub Recruitment Gmail API Integration`;
-  const formUrl = db.outreachSettings.googleFormUrl || 'https://forms.gle/bfsitalenthub';
+  const formUrl = db.outreachSettings.googleFormUrl && db.outreachSettings.googleFormUrl.trim() !== ''
+    ? db.outreachSettings.googleFormUrl.trim()
+    : `${req.protocol}://${req.get('host')}/apply`;
   const testBody = `Hello,\n\nThis is a verified test email sent directly from your connected Gmail account (${session.email}) via the Google Gmail API (users.messages.send with permission: https://www.googleapis.com/auth/gmail.send).\n\nIntegration Status: ACTIVE & VERIFIED\nSender Name: ${db.outreachSettings.senderName || 'BFSITalentHub'}\nRegistration Link: ${formUrl}\nTimestamp: ${new Date().toISOString()}\n\nCandidate outreach emails are ready to be sent using your Gmail address.`;
+
+  const testHtml = formatEmailHtml({
+    bodyText: testBody,
+    googleFormUrl: formUrl,
+    candidateName: 'Recruiter Test',
+    senderName: db.outreachSettings.senderName || 'BFSITalentHub Recruitment',
+  });
 
   const result = await sendEmailViaGmailApi({
     to: targetEmail,
     subject: testSubject,
     bodyText: testBody,
+    bodyHtml: testHtml,
     senderName: db.outreachSettings.senderName || 'BFSITalentHub Recruitment',
     replyTo: db.outreachSettings.replyToEmail || session.email || undefined,
   });
@@ -823,8 +891,17 @@ app.post('/api/smtp/test', async (req: Request, res: Response) => {
     });
 
     const testSubject = `[Verification Test] BFSITalentHub Gmail SMTP Verification`;
-    const formUrl = `${req.protocol}://${req.get('host')}/apply`;
-    const testBody = `Hello,\n\nThis is a real verified test email sent directly from ${user} using Gmail SMTP & Google App Password authentication.\n\nIntegration Status: ACTIVE & VERIFIED ON GOOGLE SERVERS\nSender Name: ${db.outreachSettings.senderName || 'BFSITalentHub'}\nCandidate Application Portal: ${formUrl}\nTimestamp: ${new Date().toISOString()}\n\nCandidate recruitment emails are ready to dispatch directly to inboxes.`;
+    const formUrl = db.outreachSettings.googleFormUrl && db.outreachSettings.googleFormUrl.trim() !== ''
+      ? db.outreachSettings.googleFormUrl.trim()
+      : `${req.protocol}://${req.get('host')}/apply`;
+    const testBody = `Hello,\n\nThis is a real verified test email sent directly from ${user} using Gmail SMTP & Google App Password authentication.\n\nIntegration Status: ACTIVE & VERIFIED ON GOOGLE SERVERS\nSender Name: ${db.outreachSettings.senderName || 'BFSITalentHub'}\nCandidate Application Portal / Google Form: ${formUrl}\nTimestamp: ${new Date().toISOString()}\n\nCandidate recruitment emails are ready to dispatch directly to inboxes.`;
+
+    const testHtml = formatEmailHtml({
+      bodyText: testBody,
+      googleFormUrl: formUrl,
+      candidateName: 'Recruiter Test',
+      senderName: db.outreachSettings.senderName || 'BFSITalentHub Recruitment',
+    });
 
     const info = await transporter.sendMail({
       from: `"${db.outreachSettings.senderName || 'BFSITalentHub'}" <${user}>`,
@@ -832,6 +909,7 @@ app.post('/api/smtp/test', async (req: Request, res: Response) => {
       replyTo: db.outreachSettings.replyToEmail || user,
       subject: testSubject,
       text: testBody,
+      html: testHtml,
     });
 
     // Save successful SMTP config to database (omit raw pass if provided by environment)
@@ -1101,6 +1179,200 @@ app.post('/api/outreach/batch-send', async (req: Request, res: Response) => {
     failedCount,
     errors,
     message: `Batch send finished: ${sentCount} emails sent successfully, ${failedCount} failed.`,
+  });
+});
+
+// -------------------------------------------------------------
+// LinkedIn Outreach Endpoints (For candidates with NO valid email)
+// -------------------------------------------------------------
+
+// Inspect LinkedIn API status & readiness
+app.get('/api/linkedin/status', (_req: Request, res: Response) => {
+  const status = getLinkedInApiStatus();
+  res.json({
+    success: true,
+    ...status,
+  });
+});
+
+// Send LinkedIn Connection Invitation
+app.post('/api/linkedin/send-invitation', async (req: Request, res: Response) => {
+  const { candidateId, mode = 'live', note } = req.body;
+  const targetMode = mode === 'demo' ? 'demo' : 'live';
+  const db = getDatabase(targetMode);
+  const candidate = db.candidates.find(c => c.id === candidateId);
+
+  if (!candidate) {
+    res.status(404).json({ success: false, error: 'Candidate not found.' });
+    return;
+  }
+
+  const finalNote = (note && note.trim()) || candidate.linkedInOutreach?.connectionNote || generatePersonalizedConnectionNote(candidate);
+
+  const result = await sendLinkedInInvitation({
+    candidate,
+    note: finalNote,
+    mode: targetMode,
+    db,
+  });
+
+  saveDatabase(db, targetMode);
+
+  if (result.success) {
+    res.json({
+      success: true,
+      invitationId: result.invitationId,
+      status: result.status,
+      isSimulated: result.isSimulated,
+      message: result.message,
+      candidate,
+    });
+  } else {
+    res.status(400).json({
+      success: false,
+      status: result.status,
+      error: result.error || result.message,
+      missingSetup: result.missingSetup,
+      message: result.message,
+      candidate,
+    });
+  }
+});
+
+// Check Invitation Acceptance Status
+app.post('/api/linkedin/check-acceptance', async (req: Request, res: Response) => {
+  const { candidateId, mode = 'live' } = req.body;
+  const targetMode = mode === 'demo' ? 'demo' : 'live';
+  const db = getDatabase(targetMode);
+  const candidate = db.candidates.find(c => c.id === candidateId);
+
+  if (!candidate) {
+    res.status(404).json({ success: false, error: 'Candidate not found.' });
+    return;
+  }
+
+  const result = await syncInvitationAcceptance({
+    candidate,
+    mode: targetMode,
+    db,
+  });
+
+  saveDatabase(db, targetMode);
+
+  res.json({
+    success: result.success,
+    status: result.status,
+    isAccepted: result.isAccepted,
+    followUpDraft: result.followUpDraft,
+    message: result.message,
+    candidate,
+  });
+});
+
+// Save / Update Recruiter Follow-up Draft
+app.post('/api/linkedin/save-followup-draft', (req: Request, res: Response) => {
+  const { candidateId, mode = 'live', message } = req.body;
+  const targetMode = mode === 'demo' ? 'demo' : 'live';
+  const db = getDatabase(targetMode);
+  const candidate = db.candidates.find(c => c.id === candidateId);
+
+  if (!candidate) {
+    res.status(404).json({ success: false, error: 'Candidate not found.' });
+    return;
+  }
+
+  if (candidate.linkedInOutreach) {
+    candidate.linkedInOutreach.followUpDraft = {
+      message: message || '',
+      generatedAt: candidate.linkedInOutreach.followUpDraft?.generatedAt || new Date().toISOString(),
+      editedByRecruiter: true,
+      lastSavedAt: new Date().toISOString(),
+    };
+    if (candidate.linkedInOutreachStatus === 'Invitation Accepted') {
+      candidate.linkedInOutreachStatus = 'Follow-Up Drafted';
+      candidate.linkedInOutreach.status = 'Follow-Up Drafted';
+    }
+  }
+
+  saveDatabase(db, targetMode);
+
+  res.json({
+    success: true,
+    candidate,
+    message: 'Follow-up draft updated.',
+  });
+});
+
+// Explicit Recruiter Send Follow-Up Message (Never automated)
+app.post('/api/linkedin/send-followup', async (req: Request, res: Response) => {
+  const { candidateId, mode = 'live', message } = req.body;
+  const targetMode = mode === 'demo' ? 'demo' : 'live';
+  const db = getDatabase(targetMode);
+  const candidate = db.candidates.find(c => c.id === candidateId);
+
+  if (!candidate) {
+    res.status(404).json({ success: false, error: 'Candidate not found.' });
+    return;
+  }
+
+  const textToSend = message || candidate.linkedInOutreach?.followUpDraft?.message || generatePersonalizedFollowUpMessage(candidate);
+
+  const result = await sendLinkedInFollowUpMessage({
+    candidate,
+    messageText: textToSend,
+    mode: targetMode,
+    db,
+  });
+
+  saveDatabase(db, targetMode);
+
+  if (result.success) {
+    res.json({
+      success: true,
+      messageId: result.messageId,
+      status: result.status,
+      message: result.message,
+      candidate,
+    });
+  } else {
+    res.status(400).json({
+      success: false,
+      status: result.status,
+      error: result.error || result.message,
+      message: result.message,
+      candidate,
+    });
+  }
+});
+
+// Regenerate personalized connection note
+app.post('/api/linkedin/regenerate-note', (req: Request, res: Response) => {
+  const { candidateId, mode = 'live' } = req.body;
+  const targetMode = mode === 'demo' ? 'demo' : 'live';
+  const db = getDatabase(targetMode);
+  const candidate = db.candidates.find(c => c.id === candidateId);
+
+  if (!candidate) {
+    res.status(404).json({ success: false, error: 'Candidate not found.' });
+    return;
+  }
+
+  const note = generatePersonalizedConnectionNote(candidate);
+  if (!candidate.linkedInOutreach) {
+    ensureCandidateLinkedInOutreach(candidate);
+  }
+  if (candidate.linkedInOutreach) {
+    candidate.linkedInOutreach.connectionNote = note;
+    candidate.linkedInOutreach.connectionNoteGeneratedAt = new Date().toISOString();
+  }
+
+  saveDatabase(db, targetMode);
+
+  res.json({
+    success: true,
+    note,
+    candidate,
+    message: 'Personalized connection note generated from candidate evidence.',
   });
 });
 

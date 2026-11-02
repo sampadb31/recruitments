@@ -186,11 +186,149 @@ export function evaluateCandidateEligibility(
  * - Relevant role & sector
  * - Configured Google Form registration link
  */
+/**
+ * Helper to escape HTML entities
+ */
+function escapeHtml(str: string): string {
+  return str
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
+/**
+ * Converts recruitment email text and Google Form link into clean, responsive HTML
+ * ensuring that doing outreach through Gmail renders the Google Form link as an
+ * unmistakable, clickable hyperlink (both button CTA and active hyperlinked URL).
+ */
+export function formatEmailHtml({
+  bodyText,
+  googleFormUrl,
+  unsubscribeUrl,
+  candidateName,
+  senderName,
+}: {
+  bodyText: string;
+  googleFormUrl: string;
+  unsubscribeUrl?: string;
+  candidateName?: string;
+  senderName?: string;
+}): string {
+  // Split into paragraphs by double newlines
+  const paragraphs = bodyText.split(/\n\n+/);
+
+  const renderedParagraphs = paragraphs
+    .map(p => {
+      const trimmed = p.trim();
+      if (!trimmed) return '';
+
+      // Check if this paragraph contains the Google Form / application link
+      if (googleFormUrl && trimmed.includes(googleFormUrl)) {
+        const parts = trimmed.split(googleFormUrl);
+        const beforeText = parts[0]?.trim() || '';
+        const afterText = parts[1]?.trim() || '';
+
+        return `
+          ${beforeText ? `<p style="margin: 0 0 14px 0; font-size: 14px; line-height: 1.6; color: #334155;">${escapeHtml(beforeText).replace(/\n/g, '<br/>')}</p>` : ''}
+          <table width="100%" cellpadding="0" cellspacing="0" style="margin: 20px 0; background-color: #f0fdf4; border: 1.5px solid #86efac; border-radius: 10px; overflow: hidden;">
+            <tr>
+              <td style="padding: 20px 24px; text-align: center;">
+                <p style="margin: 0 0 10px 0; font-size: 14px; font-weight: 700; color: #166534;">
+                  📋 Candidate Registration & Expression of Interest Form
+                </p>
+                <div style="margin: 14px 0;">
+                  <a href="${escapeHtml(googleFormUrl)}" target="_blank" rel="noopener noreferrer" style="display: inline-block; background-color: #2563eb; color: #ffffff !important; padding: 12px 28px; text-decoration: none !important; border-radius: 8px; font-weight: 700; font-size: 14px; box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.25);">
+                    👉 Open Google Form Application
+                  </a>
+                </div>
+                <p style="margin: 10px 0 0 0; font-size: 12px; color: #475569;">
+                  Direct Form Hyperlink: <a href="${escapeHtml(googleFormUrl)}" target="_blank" rel="noopener noreferrer" style="color: #2563eb !important; text-decoration: underline !important; font-weight: 600; word-break: break-all;">${escapeHtml(googleFormUrl)}</a>
+                </p>
+              </td>
+            </tr>
+          </table>
+          ${afterText ? `<p style="margin: 0 0 14px 0; font-size: 14px; line-height: 1.6; color: #334155;">${escapeHtml(afterText).replace(/\n/g, '<br/>')}</p>` : ''}
+        `;
+      }
+
+      // Check if it's the unsubscribe footer line
+      if (unsubscribeUrl && trimmed.includes(unsubscribeUrl)) {
+        const textWithoutUrl = trimmed
+          .replace(unsubscribeUrl, '')
+          .replace(/click here:?/i, '')
+          .replace(/--+/g, '')
+          .trim();
+        return `
+          <div style="margin-top: 24px; padding-top: 16px; border-top: 1px solid #e2e8f0; font-size: 11px; color: #94a3b8; text-align: center;">
+            <p style="margin: 0;">${escapeHtml(textWithoutUrl || 'To opt out of future recruitment outreach,')} <a href="${escapeHtml(unsubscribeUrl)}" target="_blank" rel="noopener noreferrer" style="color: #64748b; text-decoration: underline;">click here to unsubscribe</a>.</p>
+          </div>
+        `;
+      }
+
+      // Regular paragraph: auto-link any standalone URLs
+      const urlRegex = /(https?:\/\/[^\s]+)/g;
+      let safeText = escapeHtml(trimmed).replace(/\n/g, '<br/>');
+      safeText = safeText.replace(urlRegex, url => {
+        return `<a href="${url}" target="_blank" rel="noopener noreferrer" style="color: #2563eb; text-decoration: underline; font-weight: 600;">${url}</a>`;
+      });
+
+      return `<p style="margin: 0 0 14px 0; font-size: 14px; line-height: 1.6; color: #334155;">${safeText}</p>`;
+    })
+    .join('');
+
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Career Opportunity</title>
+</head>
+<body style="margin: 0; padding: 0; background-color: #f8fafc; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #1e293b; line-height: 1.6;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f8fafc; padding: 24px 12px;">
+    <tr>
+      <td align="center">
+        <table width="100%" cellpadding="0" cellspacing="0" style="max-width: 600px; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); border: 1px solid #e2e8f0;">
+          <!-- Header Banner -->
+          <tr>
+            <td style="background: linear-gradient(135deg, #0f172a, #1e293b); padding: 20px 28px; text-align: left;">
+              <h2 style="margin: 0; color: #ffffff; font-size: 18px; font-weight: 700; letter-spacing: -0.02em;">BFSITalentHub</h2>
+              <p style="margin: 4px 0 0 0; color: #94a3b8; font-size: 12px;">Career Opportunities & Talent Network</p>
+            </td>
+          </tr>
+          <!-- Main Content -->
+          <tr>
+            <td style="padding: 28px;">
+              ${renderedParagraphs}
+            </td>
+          </tr>
+          <!-- Sub-footer -->
+          <tr>
+            <td style="background-color: #f8fafc; padding: 14px 28px; border-top: 1px solid #f1f5f9; font-size: 11px; color: #94a3b8; text-align: center;">
+              Sent by ${escapeHtml(senderName || 'BFSITalentHub Recruitment')} to ${escapeHtml(candidateName || 'Candidate')}.
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>`;
+}
+
+/**
+ * Automatically generates personalized recruitment email using:
+ * - Candidate's name
+ * - Candidate's job-seeking information (statement, experience, location)
+ * - Relevant role & sector
+ * - Configured Google Form registration link with clickable hyperlink in HTML
+ */
 export function buildPersonalizedEmail(
   candidate: Candidate,
   settings: OutreachSettings,
   origin: string = getServerOrigin()
-): { subject: string; body: string } {
+): { subject: string; body: string; bodyHtml: string } {
   const firstName = candidate.name ? candidate.name.split(' ')[0] : 'there';
   const roleName = candidate.currentOrPreviousRole || 'Banking & Financial Services Professional';
   const experienceText = candidate.totalExperienceYears ? `${candidate.totalExperienceYears}+ years of experience in ` : '';
@@ -198,14 +336,15 @@ export function buildPersonalizedEmail(
 
   // Determine application portal link
   const token = candidate.formToken || candidate.id;
+  const configuredForm = settings.googleFormUrl?.trim();
   const isCustomGoogleForm =
-    settings.googleFormUrl &&
-    settings.googleFormUrl.trim() !== '' &&
-    settings.googleFormUrl !== 'https://forms.gle/bfsitalenthub' &&
-    (settings.googleFormUrl.includes('docs.google.com/forms') || settings.googleFormUrl.includes('forms.gle'));
+    configuredForm &&
+    configuredForm !== '' &&
+    configuredForm !== 'https://forms.gle/bfsitalenthub' &&
+    (configuredForm.startsWith('http://') || configuredForm.startsWith('https://'));
 
   const registrationUrl = isCustomGoogleForm
-    ? settings.googleFormUrl
+    ? configuredForm
     : `${origin}/apply?token=${token}&email=${encodeURIComponent(candidate.email || '')}`;
 
   const unsubscribeUrl = `${origin}/api/outreach/unsubscribe?token=${token}&email=${encodeURIComponent(candidate.email || '')}`;
@@ -235,7 +374,16 @@ export function buildPersonalizedEmail(
     body += `\n\n---\nTo opt out of future recruitment outreach, click: ${unsubscribeUrl}`;
   }
 
-  return { subject, body };
+  // Generate responsive HTML version with active clickable hyperlinks for Gmail & SMTP clients
+  const bodyHtml = formatEmailHtml({
+    bodyText: body,
+    googleFormUrl: registrationUrl,
+    unsubscribeUrl,
+    candidateName: candidate.name || undefined,
+    senderName: settings.senderName,
+  });
+
+  return { subject, body, bodyHtml };
 }
 
 /**
@@ -245,11 +393,12 @@ export function generateCandidateDraft(
   candidate: Candidate,
   settings: OutreachSettings,
   origin: string = getServerOrigin()
-): { subject: string; body: string; generatedAt: string } {
-  const { subject, body } = buildPersonalizedEmail(candidate, settings, origin);
+): { subject: string; body: string; bodyHtml: string; generatedAt: string } {
+  const { subject, body, bodyHtml } = buildPersonalizedEmail(candidate, settings, origin);
   const draft = {
     subject,
     body,
+    bodyHtml,
     generatedAt: new Date().toISOString(),
   };
   candidate.draftEmail = draft;
@@ -315,23 +464,39 @@ export async function sendOutreachEmail({
     };
   }
 
-  // Compose subject and body
+  // Compose subject, body, and responsive HTML with Google Form hyperlink
   const draft = buildPersonalizedEmail(candidate, settings, origin);
   const subject = subjectOverride || candidate.draftEmail?.subject || draft.subject;
   let bodyText = bodyOverride || candidate.draftEmail?.body || draft.body;
 
+  // Determine active registration link
+  const token = candidate.formToken || candidate.id;
+  const configuredForm = settings.googleFormUrl?.trim();
+  const isCustomGoogleForm =
+    configuredForm &&
+    configuredForm !== '' &&
+    configuredForm !== 'https://forms.gle/bfsitalenthub' &&
+    (configuredForm.startsWith('http://') || configuredForm.startsWith('https://'));
+  const activeFormUrl = isCustomGoogleForm
+    ? configuredForm
+    : `${origin}/apply?token=${token}&email=${encodeURIComponent(candidate.email || '')}`;
+  const unsubscribeUrl = `${origin}/api/outreach/unsubscribe?token=${token}&email=${encodeURIComponent(candidate.email || '')}`;
+
   // Replace placeholder links if any
   if (bodyText.includes('https://forms.gle/bfsitalenthub')) {
-    const isCustomGoogleForm =
-      settings.googleFormUrl &&
-      settings.googleFormUrl.trim() !== '' &&
-      settings.googleFormUrl !== 'https://forms.gle/bfsitalenthub' &&
-      (settings.googleFormUrl.includes('docs.google.com/forms') || settings.googleFormUrl.includes('forms.gle'));
-    const token = candidate.formToken || candidate.id;
-    const activeFormUrl = isCustomGoogleForm
-      ? settings.googleFormUrl
-      : `${origin}/apply?token=${token}&email=${encodeURIComponent(candidate.email || '')}`;
     bodyText = bodyText.replace(/https:\/\/forms\.gle\/bfsitalenthub/g, activeFormUrl);
+  }
+
+  // Generate or preserve responsive HTML version with active clickable hyperlinks
+  let bodyHtml = candidate.draftEmail?.bodyHtml || draft.bodyHtml;
+  if (bodyOverride || !bodyHtml || !bodyHtml.includes(activeFormUrl)) {
+    bodyHtml = formatEmailHtml({
+      bodyText,
+      googleFormUrl: activeFormUrl,
+      unsubscribeUrl,
+      candidateName: candidate.name || undefined,
+      senderName: settings.senderName,
+    });
   }
 
   const toEmail = candidate.email.trim();
@@ -357,6 +522,7 @@ export async function sendOutreachEmail({
       formToken: candidate.formToken || candidate.id,
       subject,
       body: bodyText,
+      bodyHtml,
       deliveryStatus: 'sent',
       sentAt: new Date().toISOString(),
       queuedAt: new Date().toISOString(),
@@ -391,6 +557,7 @@ export async function sendOutreachEmail({
           db,
           subject,
           bodyText,
+          bodyHtml,
           toEmail,
           toName,
         });
@@ -410,6 +577,7 @@ export async function sendOutreachEmail({
       to: toEmail,
       subject,
       bodyText,
+      bodyHtml,
       senderName: settings.senderName || 'BFSITalentHub',
       fromEmail: settings.senderEmail || 'ditribe31@gmail.com',
       replyTo: settings.replyToEmail || settings.senderEmail || 'ditribe31@gmail.com',
@@ -423,6 +591,7 @@ export async function sendOutreachEmail({
       formToken: candidate.formToken || candidate.id,
       subject,
       body: bodyText,
+      bodyHtml,
       deliveryStatus: gmailRes.success ? 'sent' : 'failed',
       sentAt: gmailRes.success ? new Date().toISOString() : null,
       queuedAt: new Date().toISOString(),
@@ -488,6 +657,7 @@ export async function dispatchViaSmtp({
   db,
   subject,
   bodyText,
+  bodyHtml,
   toEmail,
   toName,
 }: {
@@ -496,6 +666,7 @@ export async function dispatchViaSmtp({
   db: AppDatabase;
   subject: string;
   bodyText: string;
+  bodyHtml?: string;
   toEmail: string;
   toName: string;
 }): Promise<{
@@ -548,6 +719,7 @@ export async function dispatchViaSmtp({
       replyTo: settings.replyToEmail || user,
       subject,
       text: bodyText,
+      html: bodyHtml,
     });
 
     const msgRecord: OutreachMessage = {
@@ -558,6 +730,7 @@ export async function dispatchViaSmtp({
       formToken: candidate.formToken || candidate.id,
       subject,
       body: bodyText,
+      bodyHtml,
       deliveryStatus: 'sent',
       sentAt: new Date().toISOString(),
       queuedAt: new Date().toISOString(),

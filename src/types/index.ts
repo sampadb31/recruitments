@@ -159,6 +159,40 @@ export type OutreachStatus =
   | 'Responded'
   | 'Applied';
 
+export type LinkedInOutreachStatus =
+  | 'Not Applicable'
+  | 'Ready Queue'
+  | 'Invitation Sent'
+  | 'Invitation Accepted'
+  | 'Follow-Up Drafted'
+  | 'Follow-Up Sent'
+  | 'Failed'
+  | 'Declined';
+
+export interface LinkedInOutreachRecord {
+  candidateId: string;
+  candidateName: string | null;
+  profileUrl: string;
+  status: LinkedInOutreachStatus;
+  connectionNote: string;
+  connectionNoteGeneratedAt: string;
+  invitationId?: string | null;
+  invitationSentAt?: string | null;
+  invitationAcceptedAt?: string | null;
+  followUpDraft?: {
+    message: string;
+    generatedAt: string;
+    editedByRecruiter?: boolean;
+    lastSavedAt?: string | null;
+  } | null;
+  followUpSentAt?: string | null;
+  followUpMessageId?: string | null;
+  lastFailureReason?: string | null;
+  lastFailureTimestamp?: string | null;
+  syncTimestamp?: string | null;
+  isSimulated?: boolean;
+}
+
 export interface Candidate {
   id: string;
   name: string | null;
@@ -211,8 +245,12 @@ export interface Candidate {
   draftEmail?: {
     subject: string;
     body: string;
+    bodyHtml?: string;
     generatedAt: string;
   } | null;
+  // Separate LinkedIn outreach workflow fields (for candidates with no valid email)
+  linkedInOutreachStatus?: LinkedInOutreachStatus;
+  linkedInOutreach?: LinkedInOutreachRecord;
 }
 
 export interface AppErrorDetails {
@@ -439,6 +477,7 @@ export interface OutreachMessage {
   formToken: string;
   subject: string;
   body: string;
+  bodyHtml?: string;
   deliveryStatus: OutreachDeliveryStatus;
   sentAt?: string | null;
   queuedAt: string;
@@ -485,6 +524,7 @@ export interface AppDatabase {
   }[];
   queryCatalogue?: QueryCatalogueItem[];
   queryConfig?: QueryCatalogueConfig;
+  linkedInOutreachRecords?: LinkedInOutreachRecord[];
   mode?: 'demo' | 'live';
 }
 

@@ -237,6 +237,10 @@ export function clearGmailSession(): void {
 
 /**
  * Helper to build an RFC 2822 compliant MIME message and base64url encode it
+/**
+ * Helper to build an RFC 2822 compliant MIME message and base64url encode it.
+ * Uses multipart/alternative when bodyHtml is present so that hyperlinks (like Google Form links)
+ * are rendered as clickable HTML links while preserving a clean plain-text fallback.
  */
 function buildRfc2822RawMessage({
   from,
@@ -244,15 +248,44 @@ function buildRfc2822RawMessage({
   replyTo,
   subject,
   bodyText,
+  bodyHtml,
 }: {
   from: string;
   to: string;
   replyTo?: string;
   subject: string;
   bodyText: string;
+  bodyHtml?: string;
 }): string {
   const utf8Subject = `=?utf-8?B?${Buffer.from(subject, 'utf-8').toString('base64')}?=`;
 
+  if (!bodyHtml) {
+    const lines: string[] = [
+      `From: ${from}`,
+      `To: ${to}`,
+    ];
+
+    if (replyTo && replyTo.trim()) {
+      lines.push(`Reply-To: ${replyTo.trim()}`);
+    }
+
+    lines.push(`Subject: ${utf8Subject}`);
+    lines.push('MIME-Version: 1.0');
+    lines.push('Content-Type: text/plain; charset=UTF-8');
+    lines.push('Content-Transfer-Encoding: base64');
+    lines.push('');
+    lines.push(Buffer.from(bodyText, 'utf-8').toString('base64'));
+
+    const rawMessage = lines.join('\r\n');
+    return Buffer.from(rawMessage, 'utf-8')
+      .toString('base64')
+      .replace(/\+/g, '-')
+      .replace(/\//g, '_')
+      .replace(/=+$/, '');
+  }
+
+  // multipart/alternative for modern HTML email clients (Gmail, Outlook, Apple Mail)
+  const boundary = `----=_Part_${Date.now()}_${Math.random().toString(36).substring(2, 10)}`;
   const lines: string[] = [
     `From: ${from}`,
     `To: ${to}`,
@@ -264,14 +297,28 @@ function buildRfc2822RawMessage({
 
   lines.push(`Subject: ${utf8Subject}`);
   lines.push('MIME-Version: 1.0');
+  lines.push(`Content-Type: multipart/alternative; boundary="${boundary}"`);
+  lines.push('');
+
+  // 1. Plain text version
+  lines.push(`--${boundary}`);
   lines.push('Content-Type: text/plain; charset=UTF-8');
   lines.push('Content-Transfer-Encoding: base64');
   lines.push('');
   lines.push(Buffer.from(bodyText, 'utf-8').toString('base64'));
+  lines.push('');
+
+  // 2. HTML version with active clickable hyperlinks
+  lines.push(`--${boundary}`);
+  lines.push('Content-Type: text/html; charset=UTF-8');
+  lines.push('Content-Transfer-Encoding: base64');
+  lines.push('');
+  lines.push(Buffer.from(bodyHtml, 'utf-8').toString('base64'));
+  lines.push('');
+
+  lines.push(`--${boundary}--`);
 
   const rawMessage = lines.join('\r\n');
-
-  // Convert to base64url (RFC 4648 §5)
   return Buffer.from(rawMessage, 'utf-8')
     .toString('base64')
     .replace(/\+/g, '-')
@@ -282,12 +329,14 @@ function buildRfc2822RawMessage({
 /**
  * Dispatches an email using the Gmail REST API (users.messages.send).
  * Ensures outreach happens from ditribe31@gmail.com or authenticated account.
+ * Automatically hyperlinked Google Form links are rendered in the HTML part.
  * NEVER simulates sending. Only returns success when Google servers accept the message.
  */
 export async function sendEmailViaGmailApi({
   to,
   subject,
   bodyText,
+  bodyHtml,
   senderName = 'BFSITalentHub Recruitment',
   replyTo = 'ditribe31@gmail.com',
   fromEmail = 'ditribe31@gmail.com',
@@ -296,6 +345,7 @@ export async function sendEmailViaGmailApi({
   to: string;
   subject: string;
   bodyText: string;
+  bodyHtml?: string;
   senderName?: string;
   replyTo?: string;
   fromEmail?: string;
@@ -331,6 +381,7 @@ export async function sendEmailViaGmailApi({
     replyTo: targetReplyTo,
     subject,
     bodyText,
+    bodyHtml,
   });
 
   try {
@@ -356,6 +407,7 @@ export async function sendEmailViaGmailApi({
           replyTo: targetReplyTo,
           subject,
           bodyText,
+          bodyHtml,
         });
 
         res = await fetch('https://gmail.googleapis.com/gmail/v1/users/me/messages/send', {

@@ -9,6 +9,7 @@ import {
   TARGET_SECTORS,
 } from '../types/index.ts';
 import { isApifyConfigured } from './apify.ts';
+import { generatePersonalizedConnectionNote } from './linkedinService.ts';
 
 export const initialCriteriaFilters: CriteriaFilters = {
   requiredKeywords: [
@@ -275,6 +276,30 @@ export const initialSamplePosts: SourcePost[] = [
     authorIntent: 'SELF_JOB_SEEKING',
     intentEvidence:
       'Author personally seeks a new job: "Seeking a new role in commercial vehicle finance and lending!"',
+  },
+
+  // 9. BFSI Area Sales Manager seeking opportunities - NO email in post, LinkedIn profile present
+  {
+    id: 'post_verify_09_linkedin_no_email',
+    platform: 'LinkedIn',
+    collectionMethod: 'Demo',
+    externalId: 'urn:li:activity:7247000009',
+    sourceUrl: 'https://www.linkedin.com/feed/update/urn:li:activity:7247000009',
+    authorIdentifier: 'https://www.linkedin.com/in/ananya-sen-bfsi',
+    authorName: 'Ananya Sen',
+    authorHeadline:
+      'Area Sales Manager at HDFC Bank | BFSI Commercial Sales & Wealth Distribution | Mumbai, India',
+    authorLocation: 'Mumbai, Maharashtra, India',
+    authorProfileUrl: 'https://www.linkedin.com/in/ananya-sen-bfsi',
+    content:
+      'Actively exploring new leadership roles in BFSI sales and corporate relationship management in Mumbai. 4 years driving retail banking and wealth distribution at HDFC Bank. Please connect with me on LinkedIn or DM! #OpenToWork #BFSISales',
+    postedAt: '2026-10-04T08:30:00.000Z',
+    receivedAt: '2026-10-04T08:35:00.000Z',
+    extractionState: 'extracted',
+    extractedCandidateId: 'cand_verify_09_linkedin_no_email',
+    authorIntent: 'SELF_JOB_SEEKING',
+    intentEvidence:
+      'Author explicitly states personal job search: "Actively exploring new leadership roles in BFSI sales and corporate relationship management in Mumbai."',
   },
 ];
 
@@ -709,6 +734,86 @@ export const initialSampleCandidates: Candidate[] = [
     isManuallyCorrected: false,
     manuallyCorrectedFields: [],
   },
+
+  // 7. Ananya Sen - Area Sales Manager in BFSI (Matches Criteria, Self Job-Seeking, NO Email, Has LinkedIn Profile)
+  {
+    id: 'cand_verify_09_linkedin_no_email',
+    name: 'Ananya Sen',
+    currentOrPreviousRole: 'Area Sales Manager',
+    employer: 'HDFC Bank',
+    sector: 'BFSI',
+    currentWorkLocation: 'Mumbai, Maharashtra, India',
+    industry: 'Banking & Financial Services (BFSI)',
+    salesExperienceSummary:
+      '4 years managing retail banking relationships, wealth products, and branch sales distribution.',
+    totalExperienceYears: 4,
+    experienceType: 'stated',
+    preferredLocation: 'Mumbai, Maharashtra, India',
+    jobSeekingStatement:
+      'Actively exploring new leadership roles in BFSI sales and corporate relationship management in Mumbai. Please connect with me on LinkedIn!',
+    statedAvailability: '15 days',
+    originalPostDate: '2026-10-04T08:30:00.000Z',
+    postUrl: 'https://www.linkedin.com/feed/update/urn:li:activity:7247000009',
+    profileUrl: 'https://www.linkedin.com/in/ananya-sen-bfsi',
+    email: null,
+    phone: null,
+    profileUrlOrTelegramId: 'https://www.linkedin.com/in/ananya-sen-bfsi',
+    authorIntent: 'SELF_JOB_SEEKING',
+    intentEvidence:
+      'Author personally seeks a new job: "Actively exploring new leadership roles in BFSI sales and corporate relationship management in Mumbai."',
+    criteriaTag: 'Matches Criteria',
+    matchingExplanation:
+      'Confirmed Match: Self job-seeking Area Sales Manager at HDFC Bank (BFSI sector) with 4 years experience in Mumbai, India. No email address provided in post (eligible for LinkedIn outreach).',
+    isRecruiterAd: false,
+    isSeekingForOthers: false,
+    validationChecks: {
+      authorIsPersonallySeekingJob: {
+        passed: true,
+        evidence:
+          '"Actively exploring new leadership roles in BFSI sales and corporate relationship management in Mumbai. Please connect with me on LinkedIn!"',
+      },
+      currentlyEmployedInSalesRole: {
+        passed: true,
+        evidence: 'Area Sales Manager at HDFC Bank in Mumbai.',
+      },
+      currentlyWorkingInIndia: {
+        passed: true,
+        evidence: 'Location: Mumbai, Maharashtra, India.',
+      },
+      totalExperience1To10Years: {
+        passed: true,
+        evidence: '4 years experience stated in post (within 1–10 years).',
+        experienceType: 'stated',
+      },
+      currentEmployerInTargetSector: {
+        passed: true,
+        evidence: 'HDFC Bank operates in the core BFSI sector.',
+        detectedSector: 'BFSI',
+      },
+      postDateWithinSelectedPeriod: {
+        passed: true,
+        evidence: 'Posted Oct 4, 2026 (within selected date window).',
+      },
+    },
+    sourcePostIds: ['post_verify_09_linkedin_no_email'],
+    firstSeenAt: '2026-10-04T08:35:00.000Z',
+    lastUpdatedAt: '2026-10-04T08:35:00.000Z',
+    isManuallyCorrected: false,
+    manuallyCorrectedFields: [],
+    evidence: {
+      candidateName: 'Ananya Sen',
+      currentOrPreviousRole: 'Area Sales Manager',
+      employer: 'HDFC Bank',
+      sector: 'BFSI',
+      totalExperienceYears: '4 years stated',
+      currentLocation: 'Mumbai, Maharashtra, India',
+      jobSeekingStatement:
+        'Actively exploring new leadership roles in BFSI sales and corporate relationship management in Mumbai.',
+      postDate: '2026-10-04T08:30:00.000Z',
+      profileUrl: 'https://www.linkedin.com/in/ananya-sen-bfsi',
+    },
+    linkedInOutreachStatus: 'Ready Queue',
+  },
 ];
 
 export const initialScanRuns: ScanRun[] = [
@@ -842,8 +947,35 @@ export function getInitialDemoDatabase(): AppDatabase {
     } else if (c.id === 'cand_verify_01_recruiter_ad') {
       c.eligibilityStatus = 'recruiter_excluded';
       c.eligibilityReason = 'Post is a recruitment consultant advertising vacancies.';
+    } else if (c.id === 'cand_verify_09_linkedin_no_email') {
+      c.eligibilityStatus = 'eligible';
+      c.eligibilityReason = 'Area Sales Manager at HDFC Bank. No email provided in post (eligible for LinkedIn outreach).';
+      c.linkedInOutreachStatus = 'Ready Queue';
+      const note = generatePersonalizedConnectionNote(c);
+      c.linkedInOutreach = {
+        candidateId: c.id,
+        candidateName: c.name,
+        profileUrl: c.profileUrl || '',
+        status: 'Ready Queue',
+        connectionNote: note,
+        connectionNoteGeneratedAt: new Date().toISOString(),
+        invitationId: null,
+        invitationSentAt: null,
+        invitationAcceptedAt: null,
+        followUpDraft: null,
+        followUpSentAt: null,
+        followUpMessageId: null,
+        lastFailureReason: null,
+        lastFailureTimestamp: null,
+        syncTimestamp: new Date().toISOString(),
+        isSimulated: false,
+      };
     }
   });
+
+  const linkedInOutreachRecords = candidates
+    .filter(c => c.linkedInOutreach)
+    .map(c => c.linkedInOutreach!);
 
   return {
     candidates,
@@ -856,5 +988,6 @@ export function getInitialDemoDatabase(): AppDatabase {
     outreachMessages,
     candidateResponses,
     suppressionList: [],
+    linkedInOutreachRecords,
   };
 }

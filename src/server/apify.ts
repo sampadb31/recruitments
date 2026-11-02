@@ -243,13 +243,11 @@ export function mapTimeToPostedLimit(timeWindow?: string): '24h' | 'week' {
 }
 
 export const DEFAULT_EXPANDED_SEARCH_QUERIES: string[] = [
-  '("I am looking for" OR "currently exploring opportunities") AND "India"',
-  '("actively looking for" OR "seeking new opportunities") AND "India"',
-  '("open to work" OR "seeking my next role") AND ("years experience" OR "yrs exp")',
-  '("looking for a new job" OR "exploring new roles") AND "India"',
-  '("career opportunities" OR "immediate joiner") AND ("open to work" OR "resume")',
-  '("sales" OR "operations" OR "developer" OR "marketing" OR "finance") AND "open to work"',
-  '("open to work" OR "seeking opportunities") AND ("email" OR "phone" OR "mobile" OR "contact")',
+  '("sales" OR "relationship manager" OR "business development") AND ("open to work" OR "actively looking") AND "India"',
+  '("commercial sales" OR "banking" OR "BFSI" OR "finance") AND ("open to work" OR "seeking opportunities") AND "India"',
+  '("open to work" OR "seeking my next role") AND ("sales" OR "area sales manager" OR "branch manager")',
+  '("looking for a new job" OR "exploring new roles") AND ("sales" OR "banking") AND "India"',
+  '("career opportunities" OR "immediate joiner") AND ("open to work" OR "sales resume")',
 ];
 
 export const DEFAULT_FOCUSED_SEARCH_QUERIES: string[] = DEFAULT_EXPANDED_SEARCH_QUERIES;
@@ -271,17 +269,24 @@ export async function fetchLinkedInPostsViaApify(
   // 2. Ensure maxPosts is strictly an integer
   const maxPosts = Math.max(1, Math.min(Math.floor(Number(params.limit) || 20), 100));
 
-  // 3. Search queries: Multiple focused searches combining sales roles with job-seeking phrases
+  // 3. Search queries: Optimize count adaptively based on maxPosts to minimize scraping time:
+  // - Small/Quick test: 1 focused query (~10-15s)
+  // - Standard (<= 15 posts): Top 1-2 focused queries (~20-25s)
+  // - Medium (<= 30 posts): Top 2-3 focused queries (~30-40s)
+  // - Large (> 30 posts): All queries
   let searchQueries: string[];
   if (params.useSmallTestQuery) {
-    // Verified small test request query as documented
     searchQueries = ['sales AND "open to work"'];
   } else if (params.searchQueries && params.searchQueries.length > 0) {
     searchQueries = params.searchQueries;
   } else if (params.customQuery && params.customQuery.trim()) {
     searchQueries = [params.customQuery.trim()];
+  } else if (maxPosts <= 10) {
+    searchQueries = [DEFAULT_EXPANDED_SEARCH_QUERIES[0]];
+  } else if (maxPosts <= 25) {
+    searchQueries = [DEFAULT_EXPANDED_SEARCH_QUERIES[0], DEFAULT_EXPANDED_SEARCH_QUERIES[1]];
   } else {
-    searchQueries = DEFAULT_FOCUSED_SEARCH_QUERIES;
+    searchQueries = DEFAULT_EXPANDED_SEARCH_QUERIES;
   }
 
   // Documented provider input schema
@@ -366,9 +371,9 @@ export async function fetchLinkedInPostsViaApify(
 
   onProgress?.(`Apify run started (Run ID: ${runId}). Scraping posts with enriched author profiles...`);
 
-  // Poll for completion (up to 180s)
-  const maxPolls = 60;
-  const pollIntervalMs = 3000;
+  // Poll for completion (up to 180s, checking every 2s for fast response)
+  const maxPolls = 90;
+  const pollIntervalMs = 2000;
   let isFinished = false;
   let finalStatus = 'RUNNING';
 

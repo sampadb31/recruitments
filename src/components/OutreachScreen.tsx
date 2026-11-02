@@ -26,8 +26,10 @@ import {
   CheckSquare,
   Square,
   Info,
+  Linkedin,
 } from 'lucide-react';
 import { AppDatabase, Candidate, OutreachStatus, OutreachMessage } from '../types/index.ts';
+import { LinkedInOutreachSection } from './LinkedInOutreachSection.tsx';
 
 interface OutreachScreenProps {
   data: AppDatabase;
@@ -61,6 +63,7 @@ export const OutreachScreen: React.FC<OutreachScreenProps> = ({
   const senderEmail = outreachSettings?.senderEmail || 'ditribe31@gmail.com';
   const sendingMode = outreachSettings?.sendingMode || 'auto_send';
 
+  const [activeChannel, setActiveChannel] = useState<'email' | 'linkedin'>('email');
   const [activeStatusFilter, setActiveStatusFilter] = useState<OutreachStatus | 'all' | 'simulated'>('all');
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCandidate, setSelectedCandidate] = useState<Candidate | null>(null);
@@ -85,6 +88,7 @@ export const OutreachScreen: React.FC<OutreachScreenProps> = ({
     timestamp?: string;
     smtpResponse?: string;
   } | null>(null);
+  const [emailModalTab, setEmailModalTab] = useState<'preview' | 'edit'>('preview');
 
   // Review Simulated Sends Modal State
   const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
@@ -129,6 +133,18 @@ export const OutreachScreen: React.FC<OutreachScreenProps> = ({
   const failedCount = candidates.filter(c => c.outreachStatus === 'Failed').length;
   const respondedCount = candidates.filter(c => c.outreachStatus === 'Responded').length;
   const appliedCount = candidates.filter(c => c.outreachStatus === 'Applied').length;
+
+  // Channel candidate counts
+  const emailCandidatesCount = candidates.filter(c => Boolean(c.email)).length;
+  const linkedInCandidatesCount = candidates.filter(c => {
+    if (c.linkedInOutreachStatus && c.linkedInOutreachStatus !== 'Not Applicable') return true;
+    const hasValidEmail = Boolean(c.email && c.email.includes('@'));
+    if (!hasValidEmail && c.criteriaTag === 'Matches Criteria' && c.authorIntent === 'SELF_JOB_SEEKING') {
+      const p = c.profileUrl || c.profileUrlOrTelegramId || '';
+      return p.toLowerCase().includes('linkedin.com');
+    }
+    return false;
+  }).length;
 
   // Filtered candidate list
   const filteredCandidates = candidates.filter(cand => {
@@ -426,6 +442,68 @@ export const OutreachScreen: React.FC<OutreachScreenProps> = ({
 
   return (
     <div className="space-y-6">
+      {/* Primary Outreach Channel Switcher */}
+      <div className="bg-slate-900 border border-slate-800 rounded-2xl p-2 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-sm">
+        <div className="flex flex-wrap items-center gap-2">
+          <button
+            onClick={() => setActiveChannel('email')}
+            className={`px-4 py-2 rounded-xl text-xs font-bold transition flex items-center space-x-2 cursor-pointer ${
+              activeChannel === 'email'
+                ? 'bg-blue-600 text-white shadow-md'
+                : 'text-slate-400 hover:text-white hover:bg-slate-800'
+            }`}
+          >
+            <Mail className="w-4 h-4" />
+            <span>Email Outreach (Gmail / SMTP)</span>
+            <span
+              className={`ml-1 px-2 py-0.5 rounded-full text-[10px] font-mono font-semibold ${
+                activeChannel === 'email'
+                  ? 'bg-blue-900/80 text-blue-200'
+                  : 'bg-slate-800 text-slate-400'
+              }`}
+            >
+              {emailCandidatesCount}
+            </span>
+          </button>
+
+          <button
+            onClick={() => setActiveChannel('linkedin')}
+            className={`px-4 py-2 rounded-xl text-xs font-bold transition flex items-center space-x-2 cursor-pointer ${
+              activeChannel === 'linkedin'
+                ? 'bg-[#0077b5] text-white shadow-md'
+                : 'text-slate-400 hover:text-white hover:bg-slate-800'
+            }`}
+          >
+            <Linkedin className="w-4 h-4 text-white" />
+            <span>LinkedIn Outreach (No Email Available)</span>
+            <span
+              className={`ml-1 px-2 py-0.5 rounded-full text-[10px] font-mono font-semibold ${
+                activeChannel === 'linkedin'
+                  ? 'bg-[#005a8c] text-white'
+                  : 'bg-slate-800 text-slate-400'
+              }`}
+            >
+              {linkedInCandidatesCount}
+            </span>
+          </button>
+        </div>
+
+        <div className="hidden sm:flex items-center space-x-2 text-[11px] text-slate-400 pr-3">
+          <span className="font-mono text-[10px] px-2.5 py-1 rounded-lg bg-slate-800/80 border border-slate-700">
+            {activeChannel === 'email' ? '✉️ Mode: Gmail/SMTP' : '💼 Mode: LinkedIn Direct'}
+          </span>
+        </div>
+      </div>
+
+      {activeChannel === 'linkedin' ? (
+        <LinkedInOutreachSection
+          data={data}
+          mode={mode}
+          onRefresh={onRefresh}
+          showToast={showToast}
+        />
+      ) : (
+        <>
       {/* Top Banner & Primary Actions */}
       <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-sm space-y-4">
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
@@ -869,8 +947,14 @@ export const OutreachScreen: React.FC<OutreachScreenProps> = ({
                   {/* Draft preview snippet */}
                   {candidate.draftEmail && (
                     <div className="bg-slate-800/40 p-2.5 rounded-xl border border-slate-800 text-[11px] space-y-1">
-                      <div className="text-slate-300 font-semibold truncate">
-                        Subject: {candidate.draftEmail.subject}
+                      <div className="flex items-center justify-between gap-1">
+                        <span className="text-slate-300 font-semibold truncate">
+                          Subject: {candidate.draftEmail.subject}
+                        </span>
+                        <span className="px-1.5 py-0.5 rounded bg-emerald-950 text-emerald-300 border border-emerald-800/80 text-[9px] font-semibold flex items-center space-x-1 shrink-0">
+                          <CheckCircle2 className="w-2.5 h-2.5 text-emerald-400" />
+                          <span>Google Form Linked</span>
+                        </span>
                       </div>
                       <p className="text-slate-400 line-clamp-2 italic text-[10px]">
                         "{candidate.draftEmail.body.slice(0, 140)}..."
@@ -954,12 +1038,38 @@ export const OutreachScreen: React.FC<OutreachScreenProps> = ({
                   Invitation for {selectedCandidate.name || 'Candidate'} ({selectedCandidate.email})
                 </p>
               </div>
-              <button
-                onClick={() => setSelectedCandidate(null)}
-                className="text-slate-400 hover:text-white p-1 cursor-pointer"
-              >
-                ✕
-              </button>
+              <div className="flex items-center space-x-2">
+                <div className="flex bg-slate-950 p-1 rounded-xl border border-slate-800 text-[11px]">
+                  <button
+                    onClick={() => setEmailModalTab('preview')}
+                    className={`px-3 py-1 rounded-lg font-medium transition cursor-pointer flex items-center space-x-1.5 ${
+                      emailModalTab === 'preview'
+                        ? 'bg-blue-600 text-white shadow-sm'
+                        : 'text-slate-400 hover:text-white'
+                    }`}
+                  >
+                    <Eye className="w-3.5 h-3.5" />
+                    <span>Gmail Hyperlink Preview</span>
+                  </button>
+                  <button
+                    onClick={() => setEmailModalTab('edit')}
+                    className={`px-3 py-1 rounded-lg font-medium transition cursor-pointer flex items-center space-x-1.5 ${
+                      emailModalTab === 'edit'
+                        ? 'bg-blue-600 text-white shadow-sm'
+                        : 'text-slate-400 hover:text-white'
+                    }`}
+                  >
+                    <FileText className="w-3.5 h-3.5" />
+                    <span>Edit Raw Text</span>
+                  </button>
+                </div>
+                <button
+                  onClick={() => setSelectedCandidate(null)}
+                  className="text-slate-400 hover:text-white p-1 cursor-pointer"
+                >
+                  ✕
+                </button>
+              </div>
             </div>
 
             <div className="p-6 overflow-y-auto space-y-4 text-xs">
@@ -985,7 +1095,7 @@ export const OutreachScreen: React.FC<OutreachScreenProps> = ({
                 </div>
               )}
 
-              {/* Recipient Details */}
+              {/* Recipient & Provider Details */}
               <div className="grid grid-cols-2 gap-3 bg-slate-950/60 p-3 rounded-xl border border-slate-800">
                 <div>
                   <span className="text-slate-400 block text-[10px] uppercase font-semibold">Recipient</span>
@@ -993,7 +1103,7 @@ export const OutreachScreen: React.FC<OutreachScreenProps> = ({
                   <p className="text-blue-400 font-mono text-[11px]">{selectedCandidate.email || 'No email'}</p>
                 </div>
                 <div>
-                  <span className="text-slate-400 block text-[10px] uppercase font-semibold">Sender Account</span>
+                  <span className="text-slate-400 block text-[10px] uppercase font-semibold">Sender Account (Gmail)</span>
                   <span className="text-emerald-400 font-medium">
                     {outreachSettings?.senderName || 'BFSITalentHub Recruitment'}
                   </span>
@@ -1001,39 +1111,185 @@ export const OutreachScreen: React.FC<OutreachScreenProps> = ({
                 </div>
               </div>
 
-              {/* Subject */}
-              <div>
-                <label className="text-slate-300 font-semibold block mb-1">Email Subject</label>
-                <input
-                  type="text"
-                  value={editingDraft?.subject || ''}
-                  onChange={e =>
-                    setEditingDraft(prev => (prev ? { ...prev, subject: e.target.value } : null))
-                  }
-                  className="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white"
-                />
-              </div>
+              {/* Verified Hyperlink Notice */}
+              {(() => {
+                const token = selectedCandidate.formToken || selectedCandidate.id;
+                const rawForm = outreachSettings?.googleFormUrl?.trim();
+                const activeFormUrl = rawForm && rawForm !== '' && rawForm !== 'https://forms.gle/bfsitalenthub' && (rawForm.startsWith('http://') || rawForm.startsWith('https://'))
+                  ? rawForm
+                  : `${window.location.origin}/apply?token=${token}&email=${encodeURIComponent(selectedCandidate.email || '')}`;
+                const unsubUrl = `${window.location.origin}/api/outreach/unsubscribe?token=${token}&email=${encodeURIComponent(selectedCandidate.email || '')}`;
 
-              {/* Body */}
-              <div>
-                <label className="text-slate-300 font-semibold block mb-1">Email Message Body</label>
-                <textarea
-                  rows={10}
-                  value={editingDraft?.body || ''}
-                  onChange={e =>
-                    setEditingDraft(prev => (prev ? { ...prev, body: e.target.value } : null))
-                  }
-                  className="w-full bg-slate-800 border border-slate-700 rounded-xl p-3 text-xs text-white font-sans leading-relaxed whitespace-pre-wrap"
-                />
-              </div>
+                return (
+                  <>
+                    <div className="p-3 bg-emerald-950/40 border border-emerald-800/80 rounded-xl flex items-center justify-between text-emerald-200">
+                      <div className="flex items-center space-x-2">
+                        <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                        <div>
+                          <span className="font-semibold text-emerald-300 block">Google Form Hyperlink Active</span>
+                          <span className="text-[11px] text-emerald-400/80">
+                            When sent via Gmail, the recipient receives a clickable button and active HTML hyperlink.
+                          </span>
+                        </div>
+                      </div>
+                      <a
+                        href={activeFormUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="px-2.5 py-1.5 rounded-lg bg-emerald-700/50 hover:bg-emerald-600/60 text-white font-semibold text-[11px] border border-emerald-500/50 flex items-center space-x-1 shrink-0 transition"
+                        title="Test clicking the form link before sending"
+                      >
+                        <span>Test Open Form</span>
+                        <ExternalLink className="w-3 h-3" />
+                      </a>
+                    </div>
 
-              <div className="bg-slate-800/40 p-3 rounded-xl border border-slate-800 text-[11px] text-slate-400 space-y-1">
-                <span className="font-semibold text-slate-300 block">Registration Link Included:</span>
-                <p className="text-indigo-300 font-mono">{outreachSettings?.googleFormUrl || '/apply'}</p>
-                <p className="text-[10px] text-slate-500">
-                  Recipient can also opt out via automated one-click unsubscribe link at bottom.
-                </p>
-              </div>
+                    {emailModalTab === 'preview' ? (
+                      /* Realistic Gmail Rendered Preview */
+                      <div className="space-y-3">
+                        <div className="bg-slate-950 rounded-xl border border-slate-800 overflow-hidden shadow-inner">
+                          {/* Gmail Simulated Header */}
+                          <div className="bg-slate-900/90 px-4 py-3 border-b border-slate-800 space-y-1 text-[11px]">
+                            <div className="flex items-center justify-between text-slate-400">
+                              <div>
+                                <span className="text-slate-500">From: </span>
+                                <strong className="text-slate-200">{outreachSettings?.senderName || 'BFSITalentHub Recruitment'}</strong>{' '}
+                                &lt;{senderEmail}&gt;
+                              </div>
+                              <span className="text-[10px] text-slate-500 font-mono">Gmail API (users.messages.send)</span>
+                            </div>
+                            <div>
+                              <span className="text-slate-500">To: </span>
+                              <span className="text-slate-300">{selectedCandidate.name || 'Candidate'}</span> &lt;{selectedCandidate.email}&gt;
+                            </div>
+                            <div>
+                              <span className="text-slate-500">Subject: </span>
+                              <span className="text-white font-semibold">{editingDraft?.subject || 'Career Opportunity'}</span>
+                            </div>
+                          </div>
+
+                          {/* Gmail Simulated Email Body with Interactive Hyperlinks */}
+                          <div className="p-5 bg-white text-slate-800 rounded-b-xl space-y-4 font-sans leading-relaxed text-xs">
+                            {/* Email Card Top Banner */}
+                            <div className="bg-gradient-to-r from-slate-900 to-slate-800 -mx-5 -mt-5 p-4 text-white flex items-center justify-between">
+                              <div>
+                                <h4 className="font-bold text-sm tracking-tight">BFSITalentHub</h4>
+                                <p className="text-[10px] text-slate-400">Career Opportunities & Talent Network</p>
+                              </div>
+                              <span className="px-2 py-0.5 rounded bg-blue-500/20 text-blue-300 border border-blue-400/30 text-[10px] font-semibold">
+                                Recruitment Outreach
+                              </span>
+                            </div>
+
+                            {/* Message paragraphs */}
+                            <div className="space-y-3 pt-2 text-slate-700 text-xs">
+                              {editingDraft?.body
+                                ? editingDraft.body
+                                    .split(/\n\n+/)
+                                    .filter(p => !p.includes(activeFormUrl) && !p.includes(unsubUrl) && !p.includes('/apply') && !p.includes('opt out'))
+                                    .map((p, idx) => (
+                                      <p key={idx} className="whitespace-pre-line">
+                                        {p}
+                                      </p>
+                                    ))
+                                : null}
+                            </div>
+
+                            {/* The Clickable Google Form Hyperlink Callout */}
+                            <div className="my-4 p-4 rounded-xl bg-blue-50 border-2 border-blue-200 text-center space-y-2.5">
+                              <p className="font-bold text-blue-950 text-xs">
+                                📋 Candidate Registration & Expression of Interest Form
+                              </p>
+                              <div>
+                                <a
+                                  href={activeFormUrl}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="inline-flex items-center space-x-1.5 px-5 py-2.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs shadow-md transition"
+                                >
+                                  <span>👉 Open Google Form Application</span>
+                                  <ExternalLink className="w-3.5 h-3.5 text-white" />
+                                </a>
+                              </div>
+                              <p className="text-[11px] text-slate-600 font-mono break-all">
+                                Direct Hyperlink:{' '}
+                                <a
+                                  href={activeFormUrl}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="text-blue-600 hover:underline font-semibold"
+                                >
+                                  {activeFormUrl}
+                                </a>
+                              </p>
+                            </div>
+
+                            {/* Sign-off */}
+                            <div className="text-slate-600 pt-1 text-xs">
+                              <p>Best regards,</p>
+                              <p className="font-semibold text-slate-800">
+                                {outreachSettings?.senderName || 'BFSITalentHub Recruitment'}
+                              </p>
+                              <p className="text-slate-500 text-[11px]">{senderEmail}</p>
+                            </div>
+
+                            {/* Footer opt-out */}
+                            <div className="pt-3 border-t border-slate-200 text-center text-[10px] text-slate-400">
+                              <p>
+                                To opt out of future recruitment outreach,{' '}
+                                <a
+                                  href={unsubUrl}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="text-slate-500 underline"
+                                >
+                                  click here to unsubscribe
+                                </a>
+                                .
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    ) : (
+                      /* Raw Text Editor */
+                      <div className="space-y-4">
+                        <div>
+                          <label className="text-slate-300 font-semibold block mb-1">Email Subject</label>
+                          <input
+                            type="text"
+                            value={editingDraft?.subject || ''}
+                            onChange={e =>
+                              setEditingDraft(prev => (prev ? { ...prev, subject: e.target.value } : null))
+                            }
+                            className="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="text-slate-300 font-semibold block mb-1">Email Message Body (Plain Text)</label>
+                          <textarea
+                            rows={10}
+                            value={editingDraft?.body || ''}
+                            onChange={e =>
+                              setEditingDraft(prev => (prev ? { ...prev, body: e.target.value } : null))
+                            }
+                            className="w-full bg-slate-800 border border-slate-700 rounded-xl p-3 text-xs text-white font-sans leading-relaxed whitespace-pre-wrap"
+                          />
+                        </div>
+
+                        <div className="bg-slate-800/40 p-3 rounded-xl border border-slate-800 text-[11px] text-slate-400 space-y-1">
+                          <span className="font-semibold text-slate-300 block">Active Google Form Link:</span>
+                          <p className="text-indigo-300 font-mono break-all">{activeFormUrl}</p>
+                          <p className="text-[10px] text-slate-500">
+                            The system automatically builds both plain text and rich HTML containing active clickable hyperlinks before sending through Gmail.
+                          </p>
+                        </div>
+                      </div>
+                    )}
+                  </>
+                );
+              })()}
             </div>
 
             <div className="px-6 py-4 border-t border-slate-800 bg-slate-900/90 flex items-center justify-between">
@@ -1373,6 +1629,8 @@ export const OutreachScreen: React.FC<OutreachScreenProps> = ({
             </table>
           </div>
         </div>
+      )}
+        </>
       )}
     </div>
   );

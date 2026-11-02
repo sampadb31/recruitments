@@ -30,6 +30,7 @@ import {
   Inbox,
   Mail,
   Phone,
+  Zap,
 } from 'lucide-react';
 import {
   AppDatabase,
@@ -537,9 +538,41 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
           </div>
         </div>
 
-        {/* Active Run Progress Bar */}
+        {/* Speed & Architecture Insight Banner */}
+        <div className="bg-slate-950/70 border border-slate-800/80 rounded-xl p-3.5 flex flex-col md:flex-row items-start md:items-center justify-between gap-3 text-xs">
+          <div className="flex items-start md:items-center space-x-2.5">
+            <div className="p-1.5 rounded-lg bg-blue-500/10 border border-blue-500/20 text-blue-400 shrink-0 mt-0.5 md:mt-0">
+              <Zap className="w-4 h-4" />
+            </div>
+            <div>
+              <span className="font-semibold text-slate-200 block">
+                Why does Live Data Fetching take time?
+              </span>
+              <p className="text-[11px] text-slate-400 mt-0.5 leading-relaxed">
+                • <strong>Apify Cloud Actor:</strong> Starts a headless browser to search LinkedIn live and scrape full author profiles while observing LinkedIn rate limits (15–30s).<br className="hidden sm:inline" />
+                • <strong>Gemini 5-Point AI Extraction:</strong> Evaluates posts in parallel batches of 3 to verify self-seeking intent, 1–10 yrs experience, and India location (~10–15s).
+              </p>
+            </div>
+          </div>
+          <div className="flex items-center space-x-2 shrink-0 self-end md:self-auto">
+            <span className="text-[11px] text-slate-400">Fast Scan:</span>
+            <button
+              onClick={() => {
+                setUsageCap(5);
+                handleStartSearch(true);
+              }}
+              disabled={Boolean(isBusy)}
+              className="px-2.5 py-1.5 rounded-lg bg-indigo-600/30 hover:bg-indigo-600/40 text-indigo-300 border border-indigo-500/40 font-semibold text-[11px] transition cursor-pointer flex items-center space-x-1"
+            >
+              <Sparkles className="w-3 h-3 text-indigo-400" />
+              <span>Quick 5 Posts (~15s)</span>
+            </button>
+          </div>
+        </div>
+
+        {/* Active Run Multi-Step Progress Tracker */}
         {activeRun && (
-          <div className="bg-slate-950/80 border border-slate-800 rounded-xl p-4 space-y-3">
+          <div className="bg-slate-950/90 border border-slate-800 rounded-xl p-4 space-y-3.5 shadow-xl">
             <div className="flex items-center justify-between text-xs">
               <div className="flex items-center space-x-2">
                 {activeRun.status === 'completed' ? (
@@ -566,6 +599,51 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
               </div>
               <div className="text-slate-400 text-[11px] font-mono">
                 Fetched: {activeRun.fetchedPostsCount} • Validated: {activeRun.analyzedCandidatesCount} • Duplicates: {activeRun.duplicatesCount} • Errors: {activeRun.failuresCount}
+              </div>
+            </div>
+
+            {/* 4-Step Pipeline Milestones */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-1 text-[11px]">
+              <div className={`p-2 rounded-lg border ${
+                activeRun.status !== 'starting' ? 'bg-emerald-950/30 border-emerald-800/60 text-emerald-300' : 'bg-blue-950/40 border-blue-700/60 text-blue-300 animate-pulse'
+              }`}>
+                <span className="font-semibold block">1. Scraper Container</span>
+                <span className="text-[10px] opacity-80">{activeRun.status !== 'starting' ? '✓ Initialized' : 'Spinning up...'}</span>
+              </div>
+
+              <div className={`p-2 rounded-lg border ${
+                activeRun.status === 'analyzing' || activeRun.status === 'completed'
+                  ? 'bg-emerald-950/30 border-emerald-800/60 text-emerald-300'
+                  : activeRun.status === 'fetching_posts'
+                  ? 'bg-blue-950/40 border-blue-700/60 text-blue-300 animate-pulse'
+                  : 'bg-slate-900 border-slate-800 text-slate-500'
+              }`}>
+                <span className="font-semibold block">2. LinkedIn Posts & Profiles</span>
+                <span className="text-[10px] opacity-80">
+                  {activeRun.fetchedPostsCount > 0 ? `✓ Harvested ${activeRun.fetchedPostsCount}` : activeRun.status === 'fetching_posts' ? 'Harvesting...' : 'Queued'}
+                </span>
+              </div>
+
+              <div className={`p-2 rounded-lg border ${
+                activeRun.status === 'completed'
+                  ? 'bg-emerald-950/30 border-emerald-800/60 text-emerald-300'
+                  : activeRun.status === 'analyzing'
+                  ? 'bg-blue-950/40 border-blue-700/60 text-blue-300 animate-pulse'
+                  : 'bg-slate-900 border-slate-800 text-slate-500'
+              }`}>
+                <span className="font-semibold block">3. Parallel AI Validation</span>
+                <span className="text-[10px] opacity-80">
+                  {activeRun.analyzedCandidatesCount > 0 ? `✓ Verified ${activeRun.analyzedCandidatesCount}` : activeRun.status === 'analyzing' ? 'Validating batches...' : 'Pending'}
+                </span>
+              </div>
+
+              <div className={`p-2 rounded-lg border ${
+                activeRun.status === 'completed'
+                  ? 'bg-emerald-950/30 border-emerald-800/60 text-emerald-300'
+                  : 'bg-slate-900 border-slate-800 text-slate-500'
+              }`}>
+                <span className="font-semibold block">4. Hyperlinked Outreach Ready</span>
+                <span className="text-[10px] opacity-80">{activeRun.status === 'completed' ? '✓ Ready in Outreach' : 'Waiting...'}</span>
               </div>
             </div>
 
@@ -999,6 +1077,7 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
         <CandidateDetailModal
           candidate={inspectingCandidate}
           allPosts={posts}
+          googleFormUrl={data.outreachSettings?.googleFormUrl}
           onClose={() => setInspectingCandidate(null)}
           onSaveCorrection={async (id, updates) => {
             await onSaveCorrection(id, updates);

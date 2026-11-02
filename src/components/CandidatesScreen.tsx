@@ -37,6 +37,7 @@ interface CandidatesScreenProps {
   candidates: Candidate[];
   allPosts: SourcePost[];
   mode: 'demo' | 'live';
+  googleFormUrl?: string;
   onSaveCorrection: (id: string, updates: Partial<Candidate>) => Promise<void>;
   onResolveDuplicate: (
     primaryId: string,
@@ -57,6 +58,7 @@ export const CandidatesScreen: React.FC<CandidatesScreenProps> = ({
   candidates,
   allPosts,
   mode,
+  googleFormUrl,
   onSaveCorrection,
   onResolveDuplicate,
   onReprocessPosts,
@@ -923,6 +925,7 @@ export const CandidatesScreen: React.FC<CandidatesScreenProps> = ({
         <CandidateDetailModal
           candidate={inspectingCandidate}
           allPosts={allPosts}
+          googleFormUrl={googleFormUrl}
           onClose={() => setInspectingCandidate(null)}
           onSaveCorrection={async (id, updates) => {
             await onSaveCorrection(id, updates);

@@ -470,6 +470,7 @@ export default function App() {
                 candidates={dbData.candidates}
                 allPosts={dbData.posts}
                 mode={mode}
+                googleFormUrl={dbData.outreachSettings?.googleFormUrl}
                 onSaveCorrection={handleSaveCorrection}
                 onResolveDuplicate={handleResolveDuplicate}
                 onReprocessPosts={handleReprocessPosts}

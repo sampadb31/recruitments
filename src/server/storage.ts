@@ -17,6 +17,7 @@ import { extractCandidateFromPost } from './gemini.ts';
 import { fetchLinkedInPostsViaApify, isApifyConfigured, mapTimeToPostedLimit } from './apify.ts';
 import { DEFAULT_QUERY_CATALOGUE, INITIAL_QUERY_CONFIG } from './queryCatalogue.ts';
 import { generateCandidateDraft, sendOutreachEmail, isValidEmailSyntax, normalizeEmail, getServerOrigin } from './outreachService.ts';
+import { isCandidateEligibleForLinkedIn, ensureCandidateLinkedInOutreach } from './linkedinService.ts';
 
 const DATA_DIR = path.resolve(process.cwd(), 'data');
 
@@ -30,6 +31,16 @@ const LIVE_FILE = path.join(DATA_DIR, 'live_db.json');
 // In-memory active runs registry to prevent duplicate runs and allow progress polling
 const activeRunsMap = new Map<string, ActiveCollectionRun>();
 let currentRunningId: string | null = null;
+
+// High-performance in-memory database cache to eliminate slow disk reads and repeated JSON parsing
+const dbCache: { demo: AppDatabase | null; live: AppDatabase | null } = {
+  demo: null,
+  live: null,
+};
+const fileMtime: { demo: number; live: number } = {
+  demo: 0,
+  live: 0,
+};
 
 function ensureFileExists(filepath: string, defaultData: () => AppDatabase) {
   if (!fs.existsSync(filepath)) {
@@ -75,6 +86,11 @@ export function getDatabase(mode: 'demo' | 'live' = 'demo'): AppDatabase {
   ensureFileExists(filepath, initialFn);
 
   try {
+    const stats = fs.statSync(filepath);
+    if (dbCache[mode] && stats.mtimeMs <= fileMtime[mode]) {
+      return dbCache[mode]!;
+    }
+
     const raw = fs.readFileSync(filepath, 'utf-8');
     const parsed: AppDatabase = JSON.parse(raw);
     // Keep apify status in sync with env var
@@ -136,9 +152,30 @@ export function getDatabase(mode: 'demo' | 'live' = 'demo'): AppDatabase {
     if (!Array.isArray(parsed.suppressionList)) {
       parsed.suppressionList = [];
     }
+    if (!Array.isArray(parsed.linkedInOutreachRecords)) {
+      parsed.linkedInOutreachRecords = [];
+    }
+
+    let modified = false;
+
+    // In demo mode, ensure default sample candidates (including candidate 9 for LinkedIn outreach) are present
+    if (mode === 'demo') {
+      const demoInit = getInitialDemoDatabase();
+      for (const sc of demoInit.candidates) {
+        if (!parsed.candidates.some(c => c.id === sc.id)) {
+          parsed.candidates.push(sc);
+          modified = true;
+        }
+      }
+      for (const sp of demoInit.posts) {
+        if (!parsed.posts.some(p => p.id === sp.id)) {
+          parsed.posts.push(sp);
+          modified = true;
+        }
+      }
+    }
 
     // Ensure candidates have formToken, outreachStatus, and draftEmail
-    let modified = false;
     for (const c of parsed.candidates) {
       if (!c.formToken) {
         c.formToken = `tok_${c.id}_${crypto.randomBytes(8).toString('hex')}`;
@@ -154,20 +191,43 @@ export function getDatabase(mode: 'demo' | 'live' = 'demo'): AppDatabase {
         }
         modified = true;
       }
-      if (!c.draftEmail && c.email) {
+      if ((!c.draftEmail || !c.draftEmail.bodyHtml) && c.email) {
         c.draftEmail = generateCandidateDraft(c, parsed.outreachSettings);
         modified = true;
+      }
+      // Ensure candidates with no valid email but with a LinkedIn profile have separate LinkedIn outreach record
+      if (isCandidateEligibleForLinkedIn(c)) {
+        if (!c.linkedInOutreachStatus) {
+          c.linkedInOutreachStatus = 'Ready Queue';
+          modified = true;
+        }
+        if (!c.linkedInOutreach) {
+          const existingRec = parsed.linkedInOutreachRecords.find(r => r.candidateId === c.id);
+          const rec = ensureCandidateLinkedInOutreach(c, existingRec);
+          if (rec) {
+            c.linkedInOutreach = rec;
+            if (!existingRec) {
+              parsed.linkedInOutreachRecords.push(rec);
+            }
+            modified = true;
+          }
+        }
       }
     }
     if (modified) {
       saveDatabase(parsed, mode);
+    } else {
+      dbCache[mode] = parsed;
+      fileMtime[mode] = stats.mtimeMs;
     }
 
     return parsed;
   } catch (err) {
     console.error(`Error reading ${filepath}, resetting to initial`, err);
     const initial = initialFn();
-    fs.writeFileSync(filepath, JSON.stringify(initial, null, 2), 'utf-8');
+    fs.writeFileSync(filepath, JSON.stringify(initial), 'utf-8');
+    dbCache[mode] = initial;
+    fileMtime[mode] = Date.now();
     return initial;
   }
 }
@@ -180,12 +240,31 @@ export function saveDatabase(db: AppDatabase, mode: 'demo' | 'live' = 'demo') {
     delete (db.outreachSettings as any).accessToken;
     delete (db.outreachSettings as any).token;
   }
-  fs.writeFileSync(filepath, JSON.stringify(db, null, 2), 'utf-8');
+  // Security guarantee: NEVER write LinkedIn OAuth tokens or secrets to disk
+  delete (db as any).linkedInAccessToken;
+  delete (db as any).linkedInClientSecret;
+
+  // Performance guarantee: strip massive raw scraping dumps before persisting to disk
+  if (Array.isArray(db.posts)) {
+    for (const p of db.posts) {
+      if (p.rawPayload) delete p.rawPayload;
+    }
+  }
+
+  // Update in-memory cache immediately
+  dbCache[mode] = db;
+
+  fs.writeFileSync(filepath, JSON.stringify(db), 'utf-8');
+  try {
+    fileMtime[mode] = fs.statSync(filepath).mtimeMs;
+  } catch {
+    fileMtime[mode] = Date.now();
+  }
 }
 
 export function resetDemoDatabase(): AppDatabase {
   const fresh = getInitialDemoDatabase();
-  fs.writeFileSync(DEMO_FILE, JSON.stringify(fresh, null, 2), 'utf-8');
+  saveDatabase(fresh, 'demo');
   return fresh;
 }
 
@@ -337,8 +416,8 @@ export async function startCandidateCollectionRun(
           `[${new Date().toLocaleTimeString()}] [DEMO SANDBOX] Loading simulated candidate posts for evaluation. (No external Apify calls are executed in Demo mode).`
         );
 
-        // Simulated network delay for realistic feedback
-        await new Promise(r => setTimeout(r, 1200));
+        // Fast simulated delay for snappy demo feedback
+        await new Promise(r => setTimeout(r, 350));
 
         postsToProcess = initialSamplePosts.map((p, idx) => ({
           ...p,
@@ -423,60 +502,64 @@ export async function startCandidateCollectionRun(
 
       activeRun.status = 'analyzing';
       activeRun.logs.push(
-        `[${new Date().toLocaleTimeString()}] Deduplicating posts and running Gemini 5-point candidate validation...`
+        `[${new Date().toLocaleTimeString()}] Deduplicating posts and running fast multi-point candidate verification...`
       );
 
       // Deduplicate posts
       const { added, duplicates } = deduplicateAndInsertPosts(postsToProcess, mode, db);
       activeRun.duplicatesCount += duplicates.length;
 
-      // Analyze newly added posts
-      for (const post of added) {
-        try {
-          activeRun.logs.push(
-            `[${new Date().toLocaleTimeString()}] Validating candidate evidence for: ${
-              post.authorName || post.authorIdentifier || 'Author'
-            }...`
-          );
-
-          if (mode === 'live') {
-            // Pacing delay to avoid exceeding free-tier RPM limits
-            await new Promise(r => setTimeout(r, 1200));
-          }
-
-          const extraction = await extractCandidateFromPost(post.content, db.criteria, {
-            platform: post.platform,
-            sourceUrl: post.sourceUrl || undefined,
-            authorIdentifier: post.authorIdentifier || undefined,
-            authorName: post.authorName || undefined,
-            authorHeadline: post.authorHeadline || undefined,
-            authorLocation: post.authorLocation || undefined,
-            authorProfileUrl: post.authorProfileUrl || undefined,
-            postedAt: post.postedAt || undefined,
-            timeWindow: options.timeWindow,
-          });
-
-          if (extraction.isRecruiterAd || extraction.isSeekingForOthers) {
-            post.extractionState = 'recruiter_ad';
-          } else {
-            post.extractionState = 'extracted';
-            const mergeResult = mergeOrInsertCandidate(db, post, extraction);
-            post.extractedCandidateId = mergeResult.candidateId;
-            if (mergeResult.wasMerged) {
-              activeRun.duplicatesCount++;
-            } else {
-              activeRun.analyzedCandidatesCount++;
-            }
-          }
-        } catch (err: any) {
-          activeRun.failuresCount++;
-          post.extractionState = 'failed';
-          post.extractionError = err.message || 'Validation error';
-          activeRun.logs.push(
-            `[${new Date().toLocaleTimeString()}] Error extracting post ${post.id}: ${err.message}`
-          );
-        }
+      // Analyze newly added posts in concurrent batches for high-speed AI evaluation
+      const batchSize = mode === 'live' ? 3 : 5;
+      for (let i = 0; i < added.length; i += batchSize) {
+        const batch = added.slice(i, i + batchSize);
+        activeRun.logs.push(
+          `[${new Date().toLocaleTimeString()}] Validating candidate batch ${Math.floor(i / batchSize) + 1}/${Math.ceil(added.length / batchSize)} (${batch.length} posts concurrently with Gemini)...`
+        );
         activeRun.updatedAt = new Date().toISOString();
+
+        await Promise.all(
+          batch.map(async post => {
+            try {
+              const extraction = await extractCandidateFromPost(post.content, db.criteria, {
+                platform: post.platform,
+                sourceUrl: post.sourceUrl || undefined,
+                authorIdentifier: post.authorIdentifier || undefined,
+                authorName: post.authorName || undefined,
+                authorHeadline: post.authorHeadline || undefined,
+                authorLocation: post.authorLocation || undefined,
+                authorProfileUrl: post.authorProfileUrl || undefined,
+                postedAt: post.postedAt || undefined,
+                timeWindow: options.timeWindow,
+              });
+
+              if (extraction.isRecruiterAd || extraction.isSeekingForOthers) {
+                post.extractionState = 'recruiter_ad';
+              } else {
+                post.extractionState = 'extracted';
+                const mergeResult = mergeOrInsertCandidate(db, post, extraction);
+                post.extractedCandidateId = mergeResult.candidateId;
+                if (mergeResult.wasMerged) {
+                  activeRun.duplicatesCount++;
+                } else {
+                  activeRun.analyzedCandidatesCount++;
+                }
+              }
+            } catch (err: any) {
+              activeRun.failuresCount++;
+              post.extractionState = 'failed';
+              post.extractionError = err.message || 'Validation error';
+              activeRun.logs.push(
+                `[${new Date().toLocaleTimeString()}] Error extracting post ${post.id}: ${err.message}`
+              );
+            }
+          })
+        );
+
+        if (mode === 'live' && i + batchSize < added.length) {
+          // Controlled pacing between batches
+          await new Promise(r => setTimeout(r, 600));
+        }
       }
 
       // ---------------------------------------------------------
@@ -553,6 +636,38 @@ export async function startCandidateCollectionRun(
       } else {
         activeRun.logs.push(
           `[${new Date().toLocaleTimeString()}] [AUTO-OUTREACH] No new uncontacted candidates with email found under Matched Criteria in this run.`
+        );
+      }
+
+      // Automatic LinkedIn Outreach Queuing for candidates with NO valid email but with a LinkedIn profile
+      const eligibleForLinkedIn = db.candidates.filter(c => {
+        if (!isCandidateEligibleForLinkedIn(c)) return false;
+        // Prevent duplicate invitations on later scans
+        if (
+          c.linkedInOutreachStatus === 'Invitation Sent' ||
+          c.linkedInOutreachStatus === 'Invitation Accepted' ||
+          c.linkedInOutreachStatus === 'Follow-Up Drafted' ||
+          c.linkedInOutreachStatus === 'Follow-Up Sent'
+        ) {
+          return false;
+        }
+        return true;
+      });
+
+      if (eligibleForLinkedIn.length > 0) {
+        if (!db.linkedInOutreachRecords) db.linkedInOutreachRecords = [];
+        let newlyQueuedCount = 0;
+        for (const c of eligibleForLinkedIn) {
+          const isNew = !c.linkedInOutreach;
+          const existingRec = db.linkedInOutreachRecords.find(r => r.candidateId === c.id);
+          const rec = ensureCandidateLinkedInOutreach(c, existingRec);
+          if (rec && !existingRec) {
+            db.linkedInOutreachRecords.push(rec);
+          }
+          if (isNew) newlyQueuedCount++;
+        }
+        activeRun.logs.push(
+          `[${new Date().toLocaleTimeString()}] [LINKEDIN-OUTREACH] Processed ${eligibleForLinkedIn.length} candidate(s) without valid email under Matched Criteria. ${newlyQueuedCount} newly placed in LinkedIn Ready Queue with personalized evidence-based connection notes (duplicate invitations prevented).`
         );
       }
 
@@ -730,7 +845,6 @@ export function deduplicateAndInsertPosts(
         postedAt: raw.postedAt || new Date().toISOString(),
         receivedAt: new Date().toISOString(),
         extractionState: 'pending',
-        rawPayload: raw.rawPayload,
       };
       db.posts.push(newPost);
       added.push(newPost);
@@ -756,47 +870,53 @@ export async function runExtractionProcess(
   let duplicatesFoundCount = 0;
   let failuresCount = 0;
 
-  for (const post of pendingPosts) {
-    try {
-      if (mode === 'live') {
-        await new Promise(r => setTimeout(r, 1200));
-      }
+  const batchSize = mode === 'live' ? 3 : 5;
+  for (let i = 0; i < pendingPosts.length; i += batchSize) {
+    const batch = pendingPosts.slice(i, i + batchSize);
+    await Promise.all(
+      batch.map(async post => {
+        try {
+          const extraction = await extractCandidateFromPost(post.content, db.criteria, {
+            platform: post.platform,
+            sourceUrl: post.sourceUrl || undefined,
+            authorIdentifier: post.authorIdentifier || undefined,
+            authorName: post.authorName || undefined,
+            authorHeadline: post.authorHeadline || undefined,
+            authorLocation: post.authorLocation || undefined,
+            authorProfileUrl: post.authorProfileUrl || undefined,
+            postedAt: post.postedAt || undefined,
+          });
 
-      const extraction = await extractCandidateFromPost(post.content, db.criteria, {
-        platform: post.platform,
-        sourceUrl: post.sourceUrl || undefined,
-        authorIdentifier: post.authorIdentifier || undefined,
-        authorName: post.authorName || undefined,
-        authorHeadline: post.authorHeadline || undefined,
-        authorLocation: post.authorLocation || undefined,
-        authorProfileUrl: post.authorProfileUrl || undefined,
-        postedAt: post.postedAt || undefined,
-      });
+          post.authorIntent = extraction.authorIntent;
+          post.intentEvidence = extraction.intentEvidence;
+          post.rejectionReason = extraction.rejectionReason;
 
-      post.authorIntent = extraction.authorIntent;
-      post.intentEvidence = extraction.intentEvidence;
-      post.rejectionReason = extraction.rejectionReason;
+          if (extraction.authorIntent !== 'SELF_JOB_SEEKING' || extraction.isRecruiterAd || extraction.isSeekingForOthers) {
+            post.extractionState = extraction.isRecruiterAd ? 'recruiter_ad' : 'rejected_post';
+            return;
+          }
 
-      if (extraction.authorIntent !== 'SELF_JOB_SEEKING' || extraction.isRecruiterAd || extraction.isSeekingForOthers) {
-        post.extractionState = extraction.isRecruiterAd ? 'recruiter_ad' : 'rejected_post';
-        continue;
-      }
+          // Candidate matching and deduplication
+          const mergeResult = mergeOrInsertCandidate(db, post, extraction);
+          post.extractionState = 'extracted';
+          post.extractedCandidateId = mergeResult.candidateId;
 
-      // Candidate matching and deduplication
-      const mergeResult = mergeOrInsertCandidate(db, post, extraction);
-      post.extractionState = 'extracted';
-      post.extractedCandidateId = mergeResult.candidateId;
+          if (mergeResult.wasMerged) {
+            duplicatesFoundCount++;
+          } else {
+            extractedCandidatesCount++;
+          }
+        } catch (err: any) {
+          console.error(`Extraction failed for post ${post.id}`, err);
+          post.extractionState = 'failed';
+          post.extractionError = err.message || 'Unknown extraction error';
+          failuresCount++;
+        }
+      })
+    );
 
-      if (mergeResult.wasMerged) {
-        duplicatesFoundCount++;
-      } else {
-        extractedCandidatesCount++;
-      }
-    } catch (err: any) {
-      console.error(`Extraction failed for post ${post.id}`, err);
-      post.extractionState = 'failed';
-      post.extractionError = err.message || 'Unknown extraction error';
-      failuresCount++;
+    if (mode === 'live' && i + batchSize < pendingPosts.length) {
+      await new Promise(r => setTimeout(r, 600));
     }
   }
 
