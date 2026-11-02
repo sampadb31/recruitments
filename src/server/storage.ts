@@ -17,7 +17,6 @@ import { extractCandidateFromPost } from './gemini.ts';
 import { fetchLinkedInPostsViaApify, isApifyConfigured, mapTimeToPostedLimit } from './apify.ts';
 import { DEFAULT_QUERY_CATALOGUE, INITIAL_QUERY_CONFIG } from './queryCatalogue.ts';
 import { generateCandidateDraft, sendOutreachEmail, isValidEmailSyntax, normalizeEmail, getServerOrigin } from './outreachService.ts';
-import { isCandidateEligibleForLinkedIn, ensureCandidateLinkedInOutreach } from './linkedinService.ts';
 
 const DATA_DIR = path.resolve(process.cwd(), 'data');
 
@@ -25,7 +24,6 @@ if (!fs.existsSync(DATA_DIR)) {
   fs.mkdirSync(DATA_DIR, { recursive: true });
 }
 
-const DEMO_FILE = path.join(DATA_DIR, 'demo_db.json');
 const LIVE_FILE = path.join(DATA_DIR, 'live_db.json');
 
 // In-memory active runs registry to prevent duplicate runs and allow progress polling
@@ -33,14 +31,10 @@ const activeRunsMap = new Map<string, ActiveCollectionRun>();
 let currentRunningId: string | null = null;
 
 // High-performance in-memory database cache to eliminate slow disk reads and repeated JSON parsing
-const dbCache: { demo: AppDatabase | null; live: AppDatabase | null } = {
-  demo: null,
+const dbCache: { live: AppDatabase | null } = {
   live: null,
 };
-const fileMtime: { demo: number; live: number } = {
-  demo: 0,
-  live: 0,
-};
+let fileMtime: number = 0;
 
 function ensureFileExists(filepath: string, defaultData: () => AppDatabase) {
   if (!fs.existsSync(filepath)) {
@@ -80,15 +74,14 @@ function getInitialLiveDatabase(): AppDatabase {
   };
 }
 
-export function getDatabase(mode: 'demo' | 'live' = 'demo'): AppDatabase {
-  const filepath = mode === 'live' ? LIVE_FILE : DEMO_FILE;
-  const initialFn = mode === 'live' ? getInitialLiveDatabase : getInitialDemoDatabase;
-  ensureFileExists(filepath, initialFn);
+export function getDatabase(_mode?: string): AppDatabase {
+  const filepath = LIVE_FILE;
+  ensureFileExists(filepath, getInitialLiveDatabase);
 
   try {
     const stats = fs.statSync(filepath);
-    if (dbCache[mode] && stats.mtimeMs <= fileMtime[mode]) {
-      return dbCache[mode]!;
+    if (dbCache.live && stats.mtimeMs <= fileMtime) {
+      return dbCache.live;
     }
 
     const raw = fs.readFileSync(filepath, 'utf-8');
@@ -152,28 +145,8 @@ export function getDatabase(mode: 'demo' | 'live' = 'demo'): AppDatabase {
     if (!Array.isArray(parsed.suppressionList)) {
       parsed.suppressionList = [];
     }
-    if (!Array.isArray(parsed.linkedInOutreachRecords)) {
-      parsed.linkedInOutreachRecords = [];
-    }
 
     let modified = false;
-
-    // In demo mode, ensure default sample candidates (including candidate 9 for LinkedIn outreach) are present
-    if (mode === 'demo') {
-      const demoInit = getInitialDemoDatabase();
-      for (const sc of demoInit.candidates) {
-        if (!parsed.candidates.some(c => c.id === sc.id)) {
-          parsed.candidates.push(sc);
-          modified = true;
-        }
-      }
-      for (const sp of demoInit.posts) {
-        if (!parsed.posts.some(p => p.id === sp.id)) {
-          parsed.posts.push(sp);
-          modified = true;
-        }
-      }
-    }
 
     // Ensure candidates have formToken, outreachStatus, and draftEmail
     for (const c of parsed.candidates) {
@@ -195,45 +168,27 @@ export function getDatabase(mode: 'demo' | 'live' = 'demo'): AppDatabase {
         c.draftEmail = generateCandidateDraft(c, parsed.outreachSettings);
         modified = true;
       }
-      // Ensure candidates with no valid email but with a LinkedIn profile have separate LinkedIn outreach record
-      if (isCandidateEligibleForLinkedIn(c)) {
-        if (!c.linkedInOutreachStatus) {
-          c.linkedInOutreachStatus = 'Ready Queue';
-          modified = true;
-        }
-        if (!c.linkedInOutreach) {
-          const existingRec = parsed.linkedInOutreachRecords.find(r => r.candidateId === c.id);
-          const rec = ensureCandidateLinkedInOutreach(c, existingRec);
-          if (rec) {
-            c.linkedInOutreach = rec;
-            if (!existingRec) {
-              parsed.linkedInOutreachRecords.push(rec);
-            }
-            modified = true;
-          }
-        }
-      }
     }
     if (modified) {
-      saveDatabase(parsed, mode);
+      saveDatabase(parsed, 'live');
     } else {
-      dbCache[mode] = parsed;
-      fileMtime[mode] = stats.mtimeMs;
+      dbCache.live = parsed;
+      fileMtime = stats.mtimeMs;
     }
 
     return parsed;
   } catch (err) {
     console.error(`Error reading ${filepath}, resetting to initial`, err);
-    const initial = initialFn();
+    const initial = getInitialLiveDatabase();
     fs.writeFileSync(filepath, JSON.stringify(initial), 'utf-8');
-    dbCache[mode] = initial;
-    fileMtime[mode] = Date.now();
+    dbCache.live = initial;
+    fileMtime = Date.now();
     return initial;
   }
 }
 
-export function saveDatabase(db: AppDatabase, mode: 'demo' | 'live' = 'demo') {
-  const filepath = mode === 'live' ? LIVE_FILE : DEMO_FILE;
+export function saveDatabase(db: AppDatabase, _mode: string = 'live') {
+  const filepath = LIVE_FILE;
   // Security guarantee: NEVER write OAuth tokens or secrets to disk
   if (db.outreachSettings) {
     delete (db.outreachSettings as any).gmailAccessToken;
@@ -252,84 +207,56 @@ export function saveDatabase(db: AppDatabase, mode: 'demo' | 'live' = 'demo') {
   }
 
   // Update in-memory cache immediately
-  dbCache[mode] = db;
+  dbCache.live = db;
 
   fs.writeFileSync(filepath, JSON.stringify(db), 'utf-8');
   try {
-    fileMtime[mode] = fs.statSync(filepath).mtimeMs;
+    fileMtime = fs.statSync(filepath).mtimeMs;
   } catch {
-    fileMtime[mode] = Date.now();
+    fileMtime = Date.now();
   }
 }
 
-export function resetDemoDatabase(): AppDatabase {
-  const fresh = getInitialDemoDatabase();
-  saveDatabase(fresh, 'demo');
-  return fresh;
-}
-
-export function clearDatabase(mode: 'demo' | 'live' | 'all' = 'all'): { demo?: AppDatabase; live?: AppDatabase } {
-  const result: { demo?: AppDatabase; live?: AppDatabase } = {};
-
-  if (mode === 'demo' || mode === 'all') {
-    const db = getDatabase('demo');
-    db.posts = [];
-    db.candidates = [];
-    db.scanRuns = [];
-    db.outreachMessages = [];
-    db.candidateResponses = [];
-    saveDatabase(db, 'demo');
-    result.demo = db;
-  }
-
-  if (mode === 'live' || mode === 'all') {
-    const db = getDatabase('live');
-    db.posts = [];
-    db.candidates = [];
-    db.scanRuns = [];
-    db.outreachMessages = [];
-    db.candidateResponses = [];
-    saveDatabase(db, 'live');
-    result.live = db;
-  }
-
-  return result;
+export function clearDatabase(_mode: string = 'live'): { live: AppDatabase } {
+  const db = getDatabase('live');
+  db.posts = [];
+  db.candidates = [];
+  db.scanRuns = [];
+  db.outreachMessages = [];
+  db.candidateResponses = [];
+  saveDatabase(db, 'live');
+  return { live: db };
 }
 
 export function getActiveRun(runId: string): ActiveCollectionRun | undefined {
   return activeRunsMap.get(runId);
 }
 
-export function getCurrentActiveRun(mode?: 'demo' | 'live'): ActiveCollectionRun | null {
+export function getCurrentActiveRun(_mode?: string): ActiveCollectionRun | null {
   if (currentRunningId && activeRunsMap.has(currentRunningId)) {
     const run = activeRunsMap.get(currentRunningId)!;
     if (run.status !== 'completed' && run.status !== 'failed') {
-      if (mode && run.mode !== mode) {
-        return null;
-      }
       return run;
     }
   }
   return null;
 }
 
-export function getLatestRunForMode(mode: 'demo' | 'live'): ActiveCollectionRun | null {
+export function getLatestRunForMode(_mode?: string): ActiveCollectionRun | null {
   // 1. Check in activeRunsMap in reverse order
   const allRuns = Array.from(activeRunsMap.values());
   for (let i = allRuns.length - 1; i >= 0; i--) {
-    if (allRuns[i].mode === mode) {
-      return allRuns[i];
-    }
+    return allRuns[i];
   }
 
   // 2. Check persisted scanRuns in db
   try {
-    const db = getDatabase(mode);
+    const db = getDatabase('live');
     const latestScan = db.scanRuns[0];
     if (latestScan) {
       return {
         runId: latestScan.id,
-        mode,
+        mode: 'live',
         status: latestScan.status === 'failed' ? 'failed' : 'completed',
         timeWindow: latestScan.queryConfig?.timeWindow || '7d',
         limit: latestScan.queryConfig?.limit || 20,
@@ -347,7 +274,7 @@ export function getLatestRunForMode(mode: 'demo' | 'live'): ActiveCollectionRun 
       };
     }
   } catch (err) {
-    console.error('Error fetching latest scan for mode:', mode, err);
+    console.error('Error fetching latest scan:', err);
   }
 
   return null;
@@ -375,14 +302,14 @@ export async function startCandidateCollectionRun(
   const runId = `run_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`;
   currentRunningId = runId;
 
-  const mode = options.mode === 'live' ? 'live' : 'demo';
+  const mode = 'live';
   // Strict mapping: "7d" -> "week", "24h" -> "24h"
   const postedLimit = mapTimeToPostedLimit(options.timeWindow);
   const maxPosts = Math.max(1, Math.min(Math.floor(Number(options.limit) || 20), 100));
 
   const activeRun: ActiveCollectionRun = {
     runId,
-    mode,
+    mode: 'live',
     status: 'starting',
     timeWindow: options.timeWindow,
     limit: maxPosts,
@@ -394,7 +321,7 @@ export async function startCandidateCollectionRun(
     startedAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
     logs: [
-      `[${new Date().toLocaleTimeString()}] [${mode.toUpperCase()} MODE] Collection run initialized (Time Window: ${options.timeWindow} -> postedLimit: "${postedLimit}", Limit: ${maxPosts}).`,
+      `[${new Date().toLocaleTimeString()}] Live collection run initialized (Time Window: ${options.timeWindow} -> postedLimit: "${postedLimit}", Limit: ${maxPosts}).`,
     ],
   };
 
@@ -403,102 +330,73 @@ export async function startCandidateCollectionRun(
   // Run in background asynchronously so response returns runId immediately
   (async () => {
     const startTime = Date.now();
-    const db = getDatabase(mode);
+    const db = getDatabase('live');
 
     try {
-      let postsToProcess: Array<Partial<SourcePost> & { content: string }> = [];
+      activeRun.status = 'fetching_posts';
+      activeRun.updatedAt = new Date().toISOString();
+      activeRun.logs.push(
+        `[${new Date().toLocaleTimeString()}] Querying LinkedIn via Apify harvestapi/linkedin-post-search (postedLimit: "${postedLimit}", maxPosts: ${maxPosts})...`
+      );
 
-      if (mode === 'demo') {
-        // DEMO SANDBOX MODE: Use clearly labelled sample data, NEVER call Apify!
-        activeRun.status = 'fetching_posts';
-        activeRun.updatedAt = new Date().toISOString();
-        activeRun.logs.push(
-          `[${new Date().toLocaleTimeString()}] [DEMO SANDBOX] Loading simulated candidate posts for evaluation. (No external Apify calls are executed in Demo mode).`
-        );
+      const rawApifyItems = await fetchLinkedInPostsViaApify(
+        {
+          timeWindow: options.timeWindow,
+          limit: maxPosts,
+          useSmallTestQuery: options.useSmallTestQuery,
+          searchQueries: options.searchQueries,
+        },
+        msg => {
+          activeRun.logs.push(`[${new Date().toLocaleTimeString()}] ${msg}`);
+          activeRun.updatedAt = new Date().toISOString();
+        }
+      );
 
-        // Fast simulated delay for snappy demo feedback
-        await new Promise(r => setTimeout(r, 350));
+      activeRun.fetchedPostsCount = rawApifyItems.length;
 
-        postsToProcess = initialSamplePosts.map((p, idx) => ({
-          ...p,
-          id: `post_demo_${Date.now()}_${idx}`,
-          externalId: `urn:li:activity:demo_${Date.now()}_${idx}`,
-          sourceUrl: p.sourceUrl || `https://www.linkedin.com/feed/update/urn:li:activity:demo_${Date.now()}_${idx}`,
-          extractionState: 'pending' as const,
-          extractedCandidateId: null,
-        })).slice(0, maxPosts);
+      const postsToProcess: Array<Partial<SourcePost> & { content: string }> = rawApifyItems.map(item => {
+        const text = item.text || item.content || '';
+        const postUrl = item.url || item.linkedinUrl || null;
+        const externalId = item.id || item.urn || (postUrl ? postUrl.split('?')[0] : null);
+        const author = item.author || {};
+        const authorProfileUrl = author.linkedinUrl || author.url || null;
+        const authorName = author.name || null;
+        const rawHeadline = author.headline || author.tagline || author.info || null;
+        const authorHeadline = typeof rawHeadline === 'string' ? rawHeadline : (rawHeadline ? String(rawHeadline) : null);
 
-        activeRun.fetchedPostsCount = postsToProcess.length;
-        activeRun.logs.push(
-          `[${new Date().toLocaleTimeString()}] [DEMO SANDBOX] Ingested ${postsToProcess.length} canonical simulated posts covering mandatory validation scenarios.`
-        );
-      } else {
-        // LIVE MODE: Call configured Apify Actor backend integration
-        activeRun.status = 'fetching_posts';
-        activeRun.updatedAt = new Date().toISOString();
-        activeRun.logs.push(
-          `[${new Date().toLocaleTimeString()}] [LIVE MODE] Querying LinkedIn via Apify harvestapi/linkedin-post-search (postedLimit: "${postedLimit}", maxPosts: ${maxPosts})...`
-        );
+        let rawLocation: any = author.location || author.geographicArea || null;
+        if (typeof rawLocation === 'object' && rawLocation !== null) {
+          rawLocation = rawLocation.name || rawLocation.city || rawLocation.country || rawLocation.text || null;
+        }
+        if (!rawLocation && Array.isArray(author.locations)) {
+          rawLocation = author.locations
+            .map((l: any) => (typeof l === 'string' ? l : l?.name || l?.city || l?.country || ''))
+            .filter(Boolean)
+            .join(', ');
+        }
+        const authorLocation = typeof rawLocation === 'string' ? rawLocation : null;
 
-        const rawApifyItems = await fetchLinkedInPostsViaApify(
-          {
-            timeWindow: options.timeWindow,
-            limit: maxPosts,
-            useSmallTestQuery: options.useSmallTestQuery,
-            searchQueries: options.searchQueries,
-          },
-          msg => {
-            activeRun.logs.push(`[${new Date().toLocaleTimeString()}] ${msg}`);
-            activeRun.updatedAt = new Date().toISOString();
-          }
-        );
+        let rawPostedAt: any = item.postedAtISO || item.postedAt || item.publishedAt || null;
+        if (typeof rawPostedAt === 'object' && rawPostedAt !== null) {
+          rawPostedAt = rawPostedAt.date || rawPostedAt.iso || (rawPostedAt.timestamp ? new Date(rawPostedAt.timestamp).toISOString() : null);
+        }
+        const postedAt = typeof rawPostedAt === 'string' ? rawPostedAt : null;
 
-        activeRun.fetchedPostsCount = rawApifyItems.length;
-
-        postsToProcess = rawApifyItems.map(item => {
-          const text = item.text || item.content || '';
-          const postUrl = item.url || item.linkedinUrl || null;
-          const externalId = item.id || item.urn || (postUrl ? postUrl.split('?')[0] : null);
-          const author = item.author || {};
-          const authorProfileUrl = author.linkedinUrl || author.url || null;
-          const authorName = author.name || null;
-          const rawHeadline = author.headline || author.tagline || author.info || null;
-          const authorHeadline = typeof rawHeadline === 'string' ? rawHeadline : (rawHeadline ? String(rawHeadline) : null);
-
-          let rawLocation: any = author.location || author.geographicArea || null;
-          if (typeof rawLocation === 'object' && rawLocation !== null) {
-            rawLocation = rawLocation.name || rawLocation.city || rawLocation.country || rawLocation.text || null;
-          }
-          if (!rawLocation && Array.isArray(author.locations)) {
-            rawLocation = author.locations
-              .map((l: any) => (typeof l === 'string' ? l : l?.name || l?.city || l?.country || ''))
-              .filter(Boolean)
-              .join(', ');
-          }
-          const authorLocation = typeof rawLocation === 'string' ? rawLocation : null;
-
-          let rawPostedAt: any = item.postedAtISO || item.postedAt || item.publishedAt || null;
-          if (typeof rawPostedAt === 'object' && rawPostedAt !== null) {
-            rawPostedAt = rawPostedAt.date || rawPostedAt.iso || (rawPostedAt.timestamp ? new Date(rawPostedAt.timestamp).toISOString() : null);
-          }
-          const postedAt = typeof rawPostedAt === 'string' ? rawPostedAt : null;
-
-          return {
-            platform: 'LinkedIn' as const,
-            collectionMethod: 'Apify' as const,
-            content: text,
-            sourceUrl: postUrl,
-            externalId,
-            authorIdentifier: authorProfileUrl || authorName || null,
-            authorName,
-            authorHeadline,
-            authorLocation,
-            authorProfileUrl,
-            postedAt,
-            rawPayload: item,
-          };
-        });
-      }
+        return {
+          platform: 'LinkedIn' as const,
+          collectionMethod: 'Apify' as const,
+          content: text,
+          sourceUrl: postUrl,
+          externalId,
+          authorIdentifier: authorProfileUrl || authorName || null,
+          authorName,
+          authorHeadline,
+          authorLocation,
+          authorProfileUrl,
+          postedAt,
+          rawPayload: item,
+        };
+      });
 
       activeRun.status = 'analyzing';
       activeRun.logs.push(
@@ -639,45 +537,13 @@ export async function startCandidateCollectionRun(
         );
       }
 
-      // Automatic LinkedIn Outreach Queuing for candidates with NO valid email but with a LinkedIn profile
-      const eligibleForLinkedIn = db.candidates.filter(c => {
-        if (!isCandidateEligibleForLinkedIn(c)) return false;
-        // Prevent duplicate invitations on later scans
-        if (
-          c.linkedInOutreachStatus === 'Invitation Sent' ||
-          c.linkedInOutreachStatus === 'Invitation Accepted' ||
-          c.linkedInOutreachStatus === 'Follow-Up Drafted' ||
-          c.linkedInOutreachStatus === 'Follow-Up Sent'
-        ) {
-          return false;
-        }
-        return true;
-      });
-
-      if (eligibleForLinkedIn.length > 0) {
-        if (!db.linkedInOutreachRecords) db.linkedInOutreachRecords = [];
-        let newlyQueuedCount = 0;
-        for (const c of eligibleForLinkedIn) {
-          const isNew = !c.linkedInOutreach;
-          const existingRec = db.linkedInOutreachRecords.find(r => r.candidateId === c.id);
-          const rec = ensureCandidateLinkedInOutreach(c, existingRec);
-          if (rec && !existingRec) {
-            db.linkedInOutreachRecords.push(rec);
-          }
-          if (isNew) newlyQueuedCount++;
-        }
-        activeRun.logs.push(
-          `[${new Date().toLocaleTimeString()}] [LINKEDIN-OUTREACH] Processed ${eligibleForLinkedIn.length} candidate(s) without valid email under Matched Criteria. ${newlyQueuedCount} newly placed in LinkedIn Ready Queue with personalized evidence-based connection notes (duplicate invitations prevented).`
-        );
-      }
-
       // Record ScanRun
       const durationMs = Date.now() - startTime;
       const scanRun: ScanRun = {
         id: runId,
         runAt: new Date().toISOString(),
         triggerType: 'find_candidates',
-        mode,
+        mode: 'live',
         receivedPostsCount: activeRun.fetchedPostsCount,
         extractedCandidatesCount: activeRun.analyzedCandidatesCount,
         duplicatesFoundCount: activeRun.duplicatesCount,
@@ -689,10 +555,7 @@ export async function startCandidateCollectionRun(
               ? 'warning'
               : 'failed'
             : 'success',
-        message:
-          mode === 'demo'
-            ? `[Demo Sandbox] Simulated collection completed: ${activeRun.fetchedPostsCount} sample posts processed, ${activeRun.analyzedCandidatesCount} candidates validated.`
-            : `[Live Mode] Apify harvestapi/linkedin-post-search run completed: ${activeRun.fetchedPostsCount} posts retrieved, ${activeRun.analyzedCandidatesCount} candidates validated, ${activeRun.duplicatesCount} duplicates prevented.`,
+        message: `Apify harvestapi/linkedin-post-search run completed: ${activeRun.fetchedPostsCount} posts retrieved, ${activeRun.analyzedCandidatesCount} candidates validated, ${activeRun.duplicatesCount} duplicates prevented.`,
         queryConfig: {
           timeWindow: options.timeWindow,
           limit: maxPosts,
@@ -706,16 +569,16 @@ export async function startCandidateCollectionRun(
       if (db.scanRuns.length > 50) db.scanRuns = db.scanRuns.slice(0, 50);
 
       db.schedule.lastRunAt = scanRun.runAt;
-      if (mode === 'live' && db.connections.apify) {
+      if (db.connections.apify) {
         db.connections.apify.lastRunAt = scanRun.runAt;
       }
 
-      saveDatabase(db, mode);
+      saveDatabase(db, 'live');
 
       activeRun.status = 'completed';
       activeRun.completedAt = new Date().toISOString();
       activeRun.logs.push(
-        `[${new Date().toLocaleTimeString()}] [${mode.toUpperCase()} MODE] Completed in ${(durationMs / 1000).toFixed(1)}s.`
+        `[${new Date().toLocaleTimeString()}] Completed in ${(durationMs / 1000).toFixed(1)}s.`
       );
     } catch (err: any) {
       console.error('Candidate collection run error:', err);
@@ -753,7 +616,7 @@ export async function startCandidateCollectionRun(
         },
       };
       db.scanRuns.unshift(scanRun);
-      saveDatabase(db, mode);
+      saveDatabase(db, 'live');
     } finally {
       if (currentRunningId === runId) {
         currentRunningId = null;
@@ -771,10 +634,10 @@ export async function startCandidateCollectionRun(
  */
 export function deduplicateAndInsertPosts(
   rawPosts: Array<Partial<SourcePost> & { content: string }>,
-  mode: 'demo' | 'live',
+  mode: string = 'live',
   existingDb?: AppDatabase
 ): { added: SourcePost[]; duplicates: SourcePost[] } {
-  const db = existingDb || getDatabase(mode);
+  const db = existingDb || getDatabase('live');
   const added: SourcePost[] = [];
   const duplicates: SourcePost[] = [];
 
@@ -785,8 +648,8 @@ export function deduplicateAndInsertPosts(
   for (const raw of rawPosts) {
     if (!raw.content || raw.content.trim() === '') continue;
 
-    const platform = raw.platform || (mode === 'demo' ? 'Demo' : 'LinkedIn');
-    const collectionMethod = raw.collectionMethod || (mode === 'demo' ? 'Demo' : 'Manual');
+    const platform = raw.platform || 'LinkedIn';
+    const collectionMethod = raw.collectionMethod || 'Manual';
     const externalId = raw.externalId?.trim() || null;
     const sourceUrl = raw.sourceUrl?.trim() || null;
     const authorIdentifier = raw.authorIdentifier?.trim() || null;
@@ -1221,8 +1084,8 @@ export interface ReprocessResult {
  * Reprocess existing collected posts with strict two-stage rules before making additional paid API calls.
  * Preserves recruiter manual corrections and reports accurate counts.
  */
-export async function reprocessExistingPosts(mode: 'demo' | 'live' = 'demo'): Promise<ReprocessResult> {
-  const db = getDatabase(mode);
+export async function reprocessExistingPosts(_mode: string = 'live'): Promise<ReprocessResult> {
+  const db = getDatabase('live');
   const posts = db.posts;
 
   let rejectedCount = 0;
@@ -1298,7 +1161,7 @@ export async function reprocessExistingPosts(mode: 'demo' | 'live' = 'demo'): Pr
     }
   }
 
-  saveDatabase(db, mode);
+  saveDatabase(db, 'live');
 
   return {
     retrievedCount: posts.length,
@@ -1339,7 +1202,7 @@ export async function runCanonicalVerificationSuite(): Promise<{
     checks: Record<string, any>;
   }>;
 }> {
-  const db = getDatabase('demo');
+  const db = getDatabase('live');
   const scenarios = [
     {
       name: 'A recruiter advertising a sales vacancy',
@@ -1550,8 +1413,8 @@ export function generateCandidatesCsv(candidates: Candidate[], posts: SourcePost
   return [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
 }
 
-export function getQueryCatalogue(mode: 'demo' | 'live' = 'demo'): { catalogue: QueryCatalogueItem[]; config: QueryCatalogueConfig } {
-  const db = getDatabase(mode);
+export function getQueryCatalogue(_mode: string = 'live'): { catalogue: QueryCatalogueItem[]; config: QueryCatalogueConfig } {
+  const db = getDatabase('live');
   if (!db.queryCatalogue || !Array.isArray(db.queryCatalogue) || db.queryCatalogue.length === 0) {
     db.queryCatalogue = JSON.parse(JSON.stringify(DEFAULT_QUERY_CATALOGUE));
   }
@@ -1562,24 +1425,24 @@ export function getQueryCatalogue(mode: 'demo' | 'live' = 'demo'): { catalogue: 
 }
 
 export function updateQueryCatalogue(
-  mode: 'demo' | 'live' = 'demo',
+  _mode: string = 'live',
   updates: { catalogue?: QueryCatalogueItem[]; config?: QueryCatalogueConfig }
 ): { catalogue: QueryCatalogueItem[]; config: QueryCatalogueConfig } {
-  const db = getDatabase(mode);
+  const db = getDatabase('live');
   if (updates.catalogue && Array.isArray(updates.catalogue)) {
     db.queryCatalogue = updates.catalogue;
   }
   if (updates.config) {
     db.queryConfig = { ...(db.queryConfig || INITIAL_QUERY_CONFIG), ...updates.config };
   }
-  saveDatabase(db, mode);
+  saveDatabase(db, 'live');
   return { catalogue: db.queryCatalogue || DEFAULT_QUERY_CATALOGUE, config: db.queryConfig || INITIAL_QUERY_CONFIG };
 }
 
-export function resetQueryCatalogue(mode: 'demo' | 'live' = 'demo'): { catalogue: QueryCatalogueItem[]; config: QueryCatalogueConfig } {
-  const db = getDatabase(mode);
+export function resetQueryCatalogue(_mode: string = 'live'): { catalogue: QueryCatalogueItem[]; config: QueryCatalogueConfig } {
+  const db = getDatabase('live');
   db.queryCatalogue = JSON.parse(JSON.stringify(DEFAULT_QUERY_CATALOGUE));
   db.queryConfig = JSON.parse(JSON.stringify(INITIAL_QUERY_CONFIG));
-  saveDatabase(db, mode);
+  saveDatabase(db, 'live');
   return { catalogue: db.queryCatalogue!, config: db.queryConfig! };
 }

@@ -5,7 +5,6 @@ import {
   LayoutDashboard,
   Settings as SettingsIcon,
   Search,
-  RotateCcw,
   Sparkles,
   Radio,
   Loader2,
@@ -19,14 +18,11 @@ import { ActiveCollectionRun, ApifyDiagnostics } from '../types/index.ts';
 interface NavbarProps {
   currentTab: 'dashboard' | 'sources' | 'candidates' | 'outreach' | 'queries' | 'settings';
   setCurrentTab: (tab: 'dashboard' | 'sources' | 'candidates' | 'outreach' | 'queries' | 'settings') => void;
-  mode: 'demo' | 'live';
-  setMode: (mode: 'demo' | 'live') => void;
   geminiConfigured: boolean;
   apifyConfigured: boolean;
   apifyDiagnostics?: ApifyDiagnostics | null;
   gmailConnected?: boolean;
   onFindCandidates: () => void;
-  onResetDemo: () => void;
   onClearDatabase?: () => void;
   isScanning: boolean;
   activeRun: ActiveCollectionRun | null;
@@ -37,14 +33,11 @@ interface NavbarProps {
 export const Navbar: React.FC<NavbarProps> = ({
   currentTab,
   setCurrentTab,
-  mode,
-  setMode,
   geminiConfigured,
   apifyConfigured,
   apifyDiagnostics,
   gmailConnected,
   onFindCandidates,
-  onResetDemo,
   onClearDatabase,
   isScanning,
   activeRun,
@@ -54,227 +47,173 @@ export const Navbar: React.FC<NavbarProps> = ({
   const isBusy = isScanning || (activeRun && activeRun.status !== 'completed' && activeRun.status !== 'failed');
 
   return (
-    <header className="sticky top-0 z-30 bg-slate-900 border-b border-slate-800 text-white shadow-md">
+    <header className="sticky top-0 z-30 bg-slate-900 border-b border-slate-800 text-white shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
-          {/* Logo & Brand */}
-          <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-500 flex items-center justify-center shadow-inner">
+          {/* Logo & Executive Brand */}
+          <div className="flex items-center space-x-3.5">
+            <div className="w-9 h-9 rounded-lg bg-blue-600 flex items-center justify-center shadow">
               <Users className="w-5 h-5 text-white" />
             </div>
             <div>
               <div className="flex items-center space-x-2">
-                <span className="font-bold text-lg tracking-tight text-white">
+                <span className="font-semibold text-base tracking-tight text-white">
                   Recruitment Data Collector
                 </span>
-                <span className="text-[11px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full bg-blue-900/60 text-blue-300 border border-blue-700/50">
-                  Sales India
+                <span className="text-[11px] font-medium tracking-wide px-2 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700">
+                  Talent Intelligence
                 </span>
               </div>
               <p className="text-xs text-slate-400">
-                Apify harvestapi/linkedin-post-search • Gemini 5-Point Validation • Deduplication
+                LinkedIn Post Sourcing &bull; Automated Gmail Outreach
               </p>
             </div>
           </div>
 
-          {/* Mode Switcher & Quick Controls */}
+          {/* Status Indicators & Live Actions */}
           <div className="flex items-center space-x-3">
-            {/* Environment Badge */}
-            <div className="flex items-center bg-slate-800/90 rounded-lg p-1 border border-slate-700">
-              <button
-                onClick={() => setMode('demo')}
-                className={`px-3 py-1 text-xs font-semibold rounded-md transition-all ${
-                  mode === 'demo'
-                    ? 'bg-amber-500 text-slate-950 shadow-sm'
-                    : 'text-slate-400 hover:text-white'
-                }`}
-                title="Demo Mode: Contains 5-point validated fictional test candidates"
-              >
-                Demo Sandbox
-              </button>
-              <button
-                onClick={() => setMode('live')}
-                className={`px-3 py-1 text-xs font-semibold rounded-md transition-all flex items-center space-x-1.5 ${
-                  mode === 'live'
-                    ? 'bg-emerald-600 text-white shadow-sm'
-                    : 'text-slate-400 hover:text-white'
-                }`}
-                title="Live Mode: Apify LinkedIn post harvesting & persistent database"
-              >
-                <Radio className={`w-3 h-3 ${mode === 'live' ? 'animate-pulse text-emerald-200' : ''}`} />
-                <span>Live Mode</span>
-              </button>
+            {/* Live Environment Badge */}
+            <div className="flex items-center space-x-1.5 px-2.5 py-1 rounded-md text-xs font-medium bg-emerald-950/60 border border-emerald-700/50 text-emerald-300">
+              <Radio className="w-3 h-3 text-emerald-400 animate-pulse" />
+              <span>Live Production</span>
             </div>
 
-            {/* Gmail Provider Status */}
+            {/* Gmail Outreach Channel Status */}
             <div
-              className={`hidden lg:flex items-center space-x-1.5 px-2.5 py-1 rounded-full text-xs border ${
+              onClick={() => setCurrentTab('outreach')}
+              className={`hidden md:flex items-center space-x-1.5 px-2.5 py-1 rounded-md text-xs border cursor-pointer transition ${
                 gmailConnected
-                  ? 'bg-emerald-950/60 border-emerald-700/50 text-emerald-300'
-                  : 'bg-slate-800/60 border-slate-700/50 text-slate-400'
+                  ? 'bg-slate-800 border-slate-700 text-slate-200 hover:border-slate-600'
+                  : 'bg-slate-800/80 border-slate-700 text-slate-400 hover:border-slate-600'
               }`}
-              title={
-                gmailConnected
-                  ? 'Gmail OAuth 2.0 connected and ready to send'
-                  : 'Recruiter Gmail: Not Connected'
-              }
+              title={gmailConnected ? 'Gmail automated outreach is active' : 'Click to configure Gmail'}
             >
               <Mail className={`w-3.5 h-3.5 ${gmailConnected ? 'text-emerald-400' : 'text-slate-400'}`} />
-              <span>{gmailConnected ? 'Gmail Active' : 'Gmail Offline'}</span>
+              <span>{gmailConnected ? 'Gmail Active' : 'Gmail Standby'}</span>
             </div>
 
             {/* Apify Provider Status */}
             <div
               onClick={() => setCurrentTab('settings')}
-              className={`hidden lg:flex items-center space-x-1.5 px-2.5 py-1 rounded-full text-xs border cursor-pointer transition ${
+              className={`hidden lg:flex items-center space-x-1.5 px-2.5 py-1 rounded-md text-xs border cursor-pointer transition ${
                 apifyConfigured
-                  ? 'bg-blue-950/60 border-blue-700/50 text-blue-300'
-                  : apifyDiagnostics?.isPlaceholder
-                  ? 'bg-amber-950/80 border-amber-500/80 text-amber-200 hover:bg-amber-900/80'
+                  ? 'bg-slate-800 border-slate-700 text-slate-200 hover:border-slate-600'
                   : 'bg-amber-950/50 border-amber-700/50 text-amber-300 hover:bg-amber-900/50'
               }`}
               title={
                 apifyConfigured
-                  ? 'Apify actor harvestapi/linkedin-post-search ready'
-                  : apifyDiagnostics?.isPlaceholder
-                  ? 'APIFY_API_TOKEN is set to placeholder "MY_APIFY_API_TOKEN". Click Settings to view instructions.'
-                  : 'Setup Required: APIFY_API_TOKEN secret is not set in environment. Click Settings to view instructions.'
+                  ? 'LinkedIn search actor connected'
+                  : apifyDiagnostics?.message || 'Apify setup required'
               }
             >
               {apifyConfigured ? (
                 <Sparkles className="w-3.5 h-3.5 text-blue-400" />
               ) : (
-                <AlertCircle className="w-3.5 h-3.5 text-amber-400 animate-pulse" />
+                <AlertCircle className="w-3.5 h-3.5 text-amber-400" />
               )}
-              <span>
-                {apifyConfigured
-                  ? 'Apify Connected'
-                  : apifyDiagnostics?.isPlaceholder
-                  ? 'Apify: Placeholder Token'
-                  : 'Apify: Setup Required'}
-              </span>
+              <span>{apifyConfigured ? 'Apify Connected' : 'Apify Setup'}</span>
             </div>
 
-            {/* Primary "Find Candidates" Button */}
+            {/* Primary Action Button */}
             <button
               onClick={onFindCandidates}
               disabled={Boolean(isBusy)}
-              className="flex items-center space-x-1.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 disabled:opacity-50 text-white text-xs font-semibold px-4 py-2 rounded-xl shadow-md transition-all cursor-pointer"
-              title="Search LinkedIn via Apify for sales job-seekers in India"
+              className="flex items-center space-x-1.5 bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white text-xs font-medium px-3.5 py-2 rounded-lg shadow-sm transition-colors cursor-pointer"
+              title="Search LinkedIn via Apify for sales candidates"
             >
               {isBusy ? (
-                <Loader2 className="w-4 h-4 animate-spin text-white" />
+                <Loader2 className="w-3.5 h-3.5 animate-spin text-white" />
               ) : (
-                <Search className="w-4 h-4 text-white" />
+                <Search className="w-3.5 h-3.5 text-white" />
               )}
-              <span>{isBusy ? 'Searching...' : 'Find Candidates'}</span>
+              <span>{isBusy ? 'Collecting...' : 'Find Candidates'}</span>
             </button>
-
-            {/* Reset Demo button */}
-            {mode === 'demo' && (
-              <button
-                onClick={onResetDemo}
-                className="hidden xl:flex items-center space-x-1 text-slate-400 hover:text-white bg-slate-800 hover:bg-slate-700 border border-slate-700 px-2.5 py-1.5 rounded-lg text-xs transition-colors"
-                title="Reset Demo Data back to the original fictional candidates"
-              >
-                <RotateCcw className="w-3.5 h-3.5" />
-                <span>Reset Demo</span>
-              </button>
-            )}
 
             {/* Clear Database button */}
             {onClearDatabase && (
               <button
-                onClick={onClearDatabase}
-                className="hidden xl:flex items-center space-x-1 text-rose-400 hover:text-rose-200 bg-rose-950/40 hover:bg-rose-900/50 border border-rose-800/60 px-2.5 py-1.5 rounded-lg text-xs transition-colors cursor-pointer"
-                title="Clear all posts, candidates, and runs from the database"
+                onClick={() => {
+                  if (window.confirm('Are you sure you want to clear stored collection runs and candidate records?')) {
+                    onClearDatabase();
+                  }
+                }}
+                className="hidden xl:flex items-center space-x-1 text-slate-400 hover:text-rose-300 hover:bg-slate-800 border border-slate-700 px-2 py-1.5 rounded-lg text-xs transition-colors cursor-pointer"
+                title="Clear current candidate and post records"
               >
                 <Trash2 className="w-3.5 h-3.5" />
-                <span>Clear Database</span>
+                <span>Clear Data</span>
               </button>
             )}
           </div>
         </div>
 
-        {/* Tab Navigation */}
-        <nav className="flex space-x-2 py-2 overflow-x-auto border-t border-slate-800/80">
+        {/* Senior-Facing 5-Tab Navigation */}
+        <nav className="flex space-x-1 py-1.5 overflow-x-auto border-t border-slate-800">
           <button
             onClick={() => setCurrentTab('dashboard')}
-            className={`flex items-center space-x-2 px-3.5 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+            className={`flex items-center space-x-2 px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
               currentTab === 'dashboard'
-                ? 'bg-blue-600/20 text-blue-400 border border-blue-500/30'
-                : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800'
+                ? 'bg-slate-800 text-blue-400 border border-slate-700'
+                : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60'
             }`}
           >
-            <LayoutDashboard className="w-4 h-4" />
-            <span>Dashboard</span>
+            <LayoutDashboard className="w-3.5 h-3.5" />
+            <span>Overview</span>
           </button>
 
           <button
             onClick={() => setCurrentTab('candidates')}
-            className={`flex items-center space-x-2 px-3.5 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+            className={`flex items-center space-x-2 px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
               currentTab === 'candidates'
-                ? 'bg-blue-600/20 text-blue-400 border border-blue-500/30'
-                : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800'
+                ? 'bg-slate-800 text-blue-400 border border-slate-700'
+                : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60'
             }`}
           >
-            <Users className="w-4 h-4" />
-            <span>Candidate Database</span>
-            <span className="ml-1 px-1.5 py-0.2 rounded-full bg-slate-800 text-[10px] text-slate-300">
+            <Users className="w-3.5 h-3.5" />
+            <span>Candidates</span>
+            <span className="px-1.5 py-0.2 rounded bg-slate-800/80 text-[10px] text-slate-300 border border-slate-700">
               {totalCandidates}
             </span>
           </button>
 
           <button
             onClick={() => setCurrentTab('outreach')}
-            className={`flex items-center space-x-2 px-3.5 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+            className={`flex items-center space-x-2 px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
               currentTab === 'outreach'
-                ? 'bg-indigo-600/20 text-indigo-400 border border-indigo-500/30'
-                : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800'
+                ? 'bg-slate-800 text-blue-400 border border-slate-700'
+                : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60'
             }`}
           >
-            <Mail className="w-4 h-4" />
-            <span>Recruiter Outreach</span>
+            <Mail className="w-3.5 h-3.5" />
+            <span>Gmail Outreach</span>
             {gmailConnected && <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>}
           </button>
 
           <button
             onClick={() => setCurrentTab('sources')}
-            className={`flex items-center space-x-2 px-3.5 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+            className={`flex items-center space-x-2 px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
               currentTab === 'sources'
-                ? 'bg-blue-600/20 text-blue-400 border border-blue-500/30'
-                : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800'
+                ? 'bg-slate-800 text-blue-400 border border-slate-700'
+                : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60'
             }`}
           >
-            <Inbox className="w-4 h-4" />
-            <span>Sources & Intake</span>
-            <span className="ml-1 px-1.5 py-0.2 rounded-full bg-slate-800 text-[10px] text-slate-300">
+            <Inbox className="w-3.5 h-3.5" />
+            <span>Sources</span>
+            <span className="px-1.5 py-0.2 rounded bg-slate-800/80 text-[10px] text-slate-300 border border-slate-700">
               {totalPosts}
             </span>
           </button>
 
           <button
-            onClick={() => setCurrentTab('queries')}
-            className={`flex items-center space-x-2 px-3.5 py-1.5 rounded-lg text-xs font-medium transition-colors ${
-              currentTab === 'queries'
-                ? 'bg-blue-600/20 text-blue-400 border border-blue-500/30'
-                : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800'
-            }`}
-          >
-            <Search className="w-4 h-4" />
-            <span>Query Catalogue</span>
-          </button>
-
-          <button
             onClick={() => setCurrentTab('settings')}
-            className={`flex items-center space-x-2 px-3.5 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+            className={`flex items-center space-x-2 px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
               currentTab === 'settings'
-                ? 'bg-blue-600/20 text-blue-400 border border-blue-500/30'
-                : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800'
+                ? 'bg-slate-800 text-blue-400 border border-slate-700'
+                : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60'
             }`}
           >
-            <SettingsIcon className="w-4 h-4" />
-            <span>Settings & Integration</span>
+            <SettingsIcon className="w-3.5 h-3.5" />
+            <span>Settings</span>
           </button>
         </nav>
       </div>

@@ -26,10 +26,8 @@ import {
   CheckSquare,
   Square,
   Info,
-  Linkedin,
 } from 'lucide-react';
 import { AppDatabase, Candidate, OutreachStatus, OutreachMessage } from '../types/index.ts';
-import { LinkedInOutreachSection } from './LinkedInOutreachSection.tsx';
 
 interface OutreachScreenProps {
   data: AppDatabase;
@@ -63,7 +61,6 @@ export const OutreachScreen: React.FC<OutreachScreenProps> = ({
   const senderEmail = outreachSettings?.senderEmail || 'ditribe31@gmail.com';
   const sendingMode = outreachSettings?.sendingMode || 'auto_send';
 
-  const [activeChannel, setActiveChannel] = useState<'email' | 'linkedin'>('email');
   const [activeStatusFilter, setActiveStatusFilter] = useState<OutreachStatus | 'all' | 'simulated'>('all');
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCandidate, setSelectedCandidate] = useState<Candidate | null>(null);
@@ -133,18 +130,6 @@ export const OutreachScreen: React.FC<OutreachScreenProps> = ({
   const failedCount = candidates.filter(c => c.outreachStatus === 'Failed').length;
   const respondedCount = candidates.filter(c => c.outreachStatus === 'Responded').length;
   const appliedCount = candidates.filter(c => c.outreachStatus === 'Applied').length;
-
-  // Channel candidate counts
-  const emailCandidatesCount = candidates.filter(c => Boolean(c.email)).length;
-  const linkedInCandidatesCount = candidates.filter(c => {
-    if (c.linkedInOutreachStatus && c.linkedInOutreachStatus !== 'Not Applicable') return true;
-    const hasValidEmail = Boolean(c.email && c.email.includes('@'));
-    if (!hasValidEmail && c.criteriaTag === 'Matches Criteria' && c.authorIntent === 'SELF_JOB_SEEKING') {
-      const p = c.profileUrl || c.profileUrlOrTelegramId || '';
-      return p.toLowerCase().includes('linkedin.com');
-    }
-    return false;
-  }).length;
 
   // Filtered candidate list
   const filteredCandidates = candidates.filter(cand => {
@@ -442,68 +427,92 @@ export const OutreachScreen: React.FC<OutreachScreenProps> = ({
 
   return (
     <div className="space-y-6">
-      {/* Primary Outreach Channel Switcher */}
-      <div className="bg-slate-900 border border-slate-800 rounded-2xl p-2 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-sm">
-        <div className="flex flex-wrap items-center gap-2">
-          <button
-            onClick={() => setActiveChannel('email')}
-            className={`px-4 py-2 rounded-xl text-xs font-bold transition flex items-center space-x-2 cursor-pointer ${
-              activeChannel === 'email'
-                ? 'bg-blue-600 text-white shadow-md'
-                : 'text-slate-400 hover:text-white hover:bg-slate-800'
-            }`}
-          >
-            <Mail className="w-4 h-4" />
-            <span>Email Outreach (Gmail / SMTP)</span>
-            <span
-              className={`ml-1 px-2 py-0.5 rounded-full text-[10px] font-mono font-semibold ${
-                activeChannel === 'email'
-                  ? 'bg-blue-900/80 text-blue-200'
-                  : 'bg-slate-800 text-slate-400'
-              }`}
-            >
-              {emailCandidatesCount}
-            </span>
-          </button>
+      {/* Executive Automated Gmail Outreach Banner */}
+      <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-sm space-y-4">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+          <div className="space-y-1.5">
+            <div className="flex items-center space-x-2.5">
+              <div className="p-2 rounded-xl bg-blue-600/20 border border-blue-500/30">
+                <Mail className="w-5 h-5 text-blue-400" />
+              </div>
+              <div>
+                <div className="flex items-center space-x-2">
+                  <h1 className="text-lg font-bold text-white tracking-tight">
+                    Gmail Outreach Automation
+                  </h1>
+                  <span className="flex items-center space-x-1 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-950 text-emerald-300 border border-emerald-800">
+                    <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                    <span>Automated Dispatch Active</span>
+                  </span>
+                </div>
+                <p className="text-xs text-slate-400">
+                  Sends 1st outreach email automatically from <span className="font-mono text-slate-200">{senderEmail}</span> immediately when candidates under "Matches Criteria" have an email address.
+                </p>
+              </div>
+            </div>
+          </div>
 
-          <button
-            onClick={() => setActiveChannel('linkedin')}
-            className={`px-4 py-2 rounded-xl text-xs font-bold transition flex items-center space-x-2 cursor-pointer ${
-              activeChannel === 'linkedin'
-                ? 'bg-[#0077b5] text-white shadow-md'
-                : 'text-slate-400 hover:text-white hover:bg-slate-800'
-            }`}
-          >
-            <Linkedin className="w-4 h-4 text-white" />
-            <span>LinkedIn Outreach (No Email Available)</span>
-            <span
-              className={`ml-1 px-2 py-0.5 rounded-full text-[10px] font-mono font-semibold ${
-                activeChannel === 'linkedin'
-                  ? 'bg-[#005a8c] text-white'
-                  : 'bg-slate-800 text-slate-400'
-              }`}
+          <div className="flex items-center space-x-2">
+            <button
+              onClick={() => {
+                setTestResult(null);
+                setTestRecipient(senderEmail);
+                setTestConfirmed(true);
+                setIsTestModalOpen(true);
+              }}
+              className="flex items-center space-x-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 px-3.5 py-2 rounded-xl text-xs font-medium transition cursor-pointer"
             >
-              {linkedInCandidatesCount}
-            </span>
-          </button>
+              <SendHorizontal className="w-3.5 h-3.5 text-blue-400" />
+              <span>Test Live Send</span>
+            </button>
+            <button
+              onClick={onNavigateToSettings}
+              className="flex items-center space-x-1.5 bg-blue-600 hover:bg-blue-500 text-white px-3.5 py-2 rounded-xl text-xs font-medium transition cursor-pointer"
+            >
+              <span>Outreach Settings</span>
+              <ChevronRight className="w-3.5 h-3.5" />
+            </button>
+          </div>
         </div>
 
-        <div className="hidden sm:flex items-center space-x-2 text-[11px] text-slate-400 pr-3">
-          <span className="font-mono text-[10px] px-2.5 py-1 rounded-lg bg-slate-800/80 border border-slate-700">
-            {activeChannel === 'email' ? '✉️ Mode: Gmail/SMTP' : '💼 Mode: LinkedIn Direct'}
-          </span>
+        {/* Live Automation Policy Highlights */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-3 pt-3 border-t border-slate-800/80 text-xs">
+          <div className="bg-slate-950/60 p-3 rounded-xl border border-slate-800/80">
+            <span className="text-slate-400 block text-[10px] uppercase font-semibold">Active Transport</span>
+            <span className="font-semibold text-white mt-0.5 block flex items-center space-x-1">
+              <CheckCircle2 className="w-3 h-3 text-emerald-400" />
+              <span>{isGmailConnected ? 'Gmail OAuth 2.0' : hasSmtpConfigured ? 'Gmail SMTP' : 'Configuration Ready'}</span>
+            </span>
+          </div>
+
+          <div className="bg-slate-950/60 p-3 rounded-xl border border-slate-800/80">
+            <span className="text-slate-400 block text-[10px] uppercase font-semibold">Auto-Trigger Rule</span>
+            <span className="font-semibold text-white mt-0.5 block">
+              1st Mail on Scrape Match
+            </span>
+          </div>
+
+          <div className="bg-slate-950/60 p-3 rounded-xl border border-slate-800/80">
+            <span className="text-slate-400 block text-[10px] uppercase font-semibold">Daily Rate Limit</span>
+            <span className="font-semibold text-white mt-0.5 block">
+              {outreachSettings?.dailySendingLimit || 50} emails/day (2s jitter)
+            </span>
+          </div>
+
+          <div className="bg-slate-950/60 p-3 rounded-xl border border-slate-800/80">
+            <span className="text-slate-400 block text-[10px] uppercase font-semibold">Embedded Registration</span>
+            <a
+              href={outreachSettings?.googleFormUrl || 'https://forms.gle/4NfxJ2j2eW4P9vCQA'}
+              target="_blank"
+              rel="noreferrer"
+              className="text-blue-400 hover:underline mt-0.5 block truncate font-mono text-[11px] flex items-center space-x-1"
+            >
+              <span>Google Form Link</span>
+              <ExternalLink className="w-2.5 h-2.5" />
+            </a>
+          </div>
         </div>
       </div>
-
-      {activeChannel === 'linkedin' ? (
-        <LinkedInOutreachSection
-          data={data}
-          mode={mode}
-          onRefresh={onRefresh}
-          showToast={showToast}
-        />
-      ) : (
-        <>
       {/* Top Banner & Primary Actions */}
       <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-sm space-y-4">
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
@@ -1629,8 +1638,6 @@ export const OutreachScreen: React.FC<OutreachScreenProps> = ({
             </table>
           </div>
         </div>
-      )}
-        </>
       )}
     </div>
   );

@@ -6,7 +6,6 @@ import { createServer as createViteServer } from 'vite';
 import {
   getDatabase,
   saveDatabase,
-  resetDemoDatabase,
   clearDatabase,
   deduplicateAndInsertPosts,
   runExtractionProcess,
@@ -51,15 +50,6 @@ import {
   setServerOrigin,
   isValidEmailSyntax,
 } from './src/server/outreachService.ts';
-import {
-  getLinkedInApiStatus,
-  sendLinkedInInvitation,
-  syncInvitationAcceptance,
-  sendLinkedInFollowUpMessage,
-  generatePersonalizedConnectionNote,
-  generatePersonalizedFollowUpMessage,
-  ensureCandidateLinkedInOutreach,
-} from './src/server/linkedinService.ts';
 
 import compression from 'compression';
 
@@ -87,18 +77,17 @@ app.use((req: Request, _res: Response, next) => {
   next();
 });
 
-// 1. Health and Status (Scoped to selected mode to ensure Demo Sandbox never shows Live Apify logs)
-app.get('/api/status', async (req: Request, res: Response) => {
-  const mode = (req.query.mode as string) === 'live' ? 'live' : 'demo';
-  const currentRun = getCurrentActiveRun(mode);
-  const latestRun = getLatestRunForMode(mode);
+// 1. Health and Status (Strictly Live Mode for Production)
+app.get('/api/status', async (_req: Request, res: Response) => {
+  const currentRun = getCurrentActiveRun('live');
+  const latestRun = getLatestRunForMode('live');
   const quota = isGeminiQuotaExhausted();
   const gmailSession = await getGmailSessionStatus();
   const apifyDiagnostics = getApifyDiagnostics();
 
   res.json({
     status: 'ok',
-    mode,
+    mode: 'live',
     geminiConfigured: isGeminiConfigured(),
     geminiQuotaExhausted: quota.isExhausted,
     geminiQuotaReason: quota.reason,
@@ -108,17 +97,15 @@ app.get('/api/status', async (req: Request, res: Response) => {
     gmailConnected: gmailSession.isConnected,
     activeRun: currentRun || latestRun,
     isCurrentlyRunning: Boolean(currentRun),
-    linkedin: getLinkedInApiStatus(),
     timestamp: new Date().toISOString(),
-    supportedPlatforms: ['LinkedIn', 'Telegram', 'Demo'],
+    supportedPlatforms: ['LinkedIn', 'Telegram'],
     defaultTimezone: 'Asia/Kolkata',
   });
 });
 
-// 2. Full Data Retrieval (Optimized & sanitized without slow full deep cloning)
-app.get('/api/data', async (req: Request, res: Response) => {
-  const mode = (req.query.mode as string) === 'live' ? 'live' : 'demo';
-  const data = getDatabase(mode);
+// 2. Full Data Retrieval (Live Production Database)
+app.get('/api/data', async (_req: Request, res: Response) => {
+  const data = getDatabase('live');
   const session = await getGmailSessionStatus();
 
   const hasPass = Boolean(
@@ -165,33 +152,26 @@ app.get('/api/data', async (req: Request, res: Response) => {
   });
 });
 
-// 3. Reset Demo Database
-app.post('/api/demo/reset', (req: Request, res: Response) => {
-  const resetData = resetDemoDatabase();
-  res.json({ message: 'Demo database reset to initial 5-point validated candidate posts.', data: resetData });
-});
-
 // Clear Database (candidates, posts, scan runs)
-app.post('/api/database/clear', (req: Request, res: Response) => {
-  const mode = (req.body?.mode as 'demo' | 'live' | 'all') || 'all';
-  const cleared = clearDatabase(mode);
+app.post('/api/database/clear', (_req: Request, res: Response) => {
+  const cleared = clearDatabase('live');
   res.json({
     success: true,
-    message: `Database cleared successfully (${mode}). All candidates, posts, and run histories removed.`,
-    data: mode === 'live' ? cleared.live : mode === 'demo' ? cleared.demo : cleared,
+    message: 'Database cleared successfully. All candidates, posts, and run histories removed.',
+    data: cleared.live,
   });
 });
 
 // 4. Authenticated Endpoint: Start "Find Candidates" Collection Run
 app.post('/api/runs/find-candidates', async (req: Request, res: Response) => {
-  const mode = (req.body.mode as string) === 'demo' ? 'demo' : 'live';
+  const mode = 'live';
   const rawTime = req.body.timeWindow || req.body.postedLimit || '7d';
   const timeWindow: '24h' | '7d' = (rawTime === '24h' || rawTime === '1d' || rawTime === 'day') ? '24h' : '7d';
   const limit = Math.max(1, Math.min(parseInt(req.body.limit || '20', 10), 100));
   const useSmallTestQuery = Boolean(req.body.useSmallTestQuery);
 
-  // Check credentials if live mode
-  if (mode === 'live' && !isApifyConfigured()) {
+  // Check credentials in live mode
+  if (!isApifyConfigured()) {
     const diag = getApifyDiagnostics();
     res.status(400).json({
       setupRequired: true,
@@ -202,11 +182,11 @@ app.post('/api/runs/find-candidates', async (req: Request, res: Response) => {
     return;
   }
 
-  // Prevent duplicate runs within same mode
-  const running = getCurrentActiveRun(mode);
+  // Prevent duplicate runs
+  const running = getCurrentActiveRun('live');
   if (running) {
     res.status(409).json({
-      error: `A collection run (${running.runId}) is already in progress in ${mode.toUpperCase()} mode. Please wait for it to complete.`,
+      error: `A collection run (${running.runId}) is already in progress. Please wait for it to complete.`,
       activeRun: running,
     });
     return;
@@ -216,7 +196,7 @@ app.post('/api/runs/find-candidates', async (req: Request, res: Response) => {
     const { runId } = await startCandidateCollectionRun({
       timeWindow,
       limit,
-      mode,
+      mode: 'live',
       useSmallTestQuery,
       searchQueries: Array.isArray(req.body.searchQueries) ? req.body.searchQueries : undefined,
     });
@@ -224,12 +204,9 @@ app.post('/api/runs/find-candidates', async (req: Request, res: Response) => {
     res.json({
       success: true,
       runId,
-      mode,
+      mode: 'live',
       status: 'started',
-      message:
-        mode === 'demo'
-          ? `Started Demo Sandbox evaluation run ${runId} (Window: ${timeWindow}, Limit: ${limit}). Processing sample candidate data.`
-          : `Started Live collection run ${runId} for sales candidates in India (Window: ${timeWindow}, Limit: ${limit}${useSmallTestQuery ? ', Small Verification Query' : ''}). Harvesting via Apify.`,
+      message: `Started Live collection run ${runId} for sales candidates in India (Window: ${timeWindow}, Limit: ${limit}${useSmallTestQuery ? ', Small Verification Query' : ''}). Harvesting via Apify.`,
     });
   } catch (err: any) {
     res.status(500).json({ error: err.message || 'Failed to start collection run' });
@@ -1182,200 +1159,6 @@ app.post('/api/outreach/batch-send', async (req: Request, res: Response) => {
   });
 });
 
-// -------------------------------------------------------------
-// LinkedIn Outreach Endpoints (For candidates with NO valid email)
-// -------------------------------------------------------------
-
-// Inspect LinkedIn API status & readiness
-app.get('/api/linkedin/status', (_req: Request, res: Response) => {
-  const status = getLinkedInApiStatus();
-  res.json({
-    success: true,
-    ...status,
-  });
-});
-
-// Send LinkedIn Connection Invitation
-app.post('/api/linkedin/send-invitation', async (req: Request, res: Response) => {
-  const { candidateId, mode = 'live', note } = req.body;
-  const targetMode = mode === 'demo' ? 'demo' : 'live';
-  const db = getDatabase(targetMode);
-  const candidate = db.candidates.find(c => c.id === candidateId);
-
-  if (!candidate) {
-    res.status(404).json({ success: false, error: 'Candidate not found.' });
-    return;
-  }
-
-  const finalNote = (note && note.trim()) || candidate.linkedInOutreach?.connectionNote || generatePersonalizedConnectionNote(candidate);
-
-  const result = await sendLinkedInInvitation({
-    candidate,
-    note: finalNote,
-    mode: targetMode,
-    db,
-  });
-
-  saveDatabase(db, targetMode);
-
-  if (result.success) {
-    res.json({
-      success: true,
-      invitationId: result.invitationId,
-      status: result.status,
-      isSimulated: result.isSimulated,
-      message: result.message,
-      candidate,
-    });
-  } else {
-    res.status(400).json({
-      success: false,
-      status: result.status,
-      error: result.error || result.message,
-      missingSetup: result.missingSetup,
-      message: result.message,
-      candidate,
-    });
-  }
-});
-
-// Check Invitation Acceptance Status
-app.post('/api/linkedin/check-acceptance', async (req: Request, res: Response) => {
-  const { candidateId, mode = 'live' } = req.body;
-  const targetMode = mode === 'demo' ? 'demo' : 'live';
-  const db = getDatabase(targetMode);
-  const candidate = db.candidates.find(c => c.id === candidateId);
-
-  if (!candidate) {
-    res.status(404).json({ success: false, error: 'Candidate not found.' });
-    return;
-  }
-
-  const result = await syncInvitationAcceptance({
-    candidate,
-    mode: targetMode,
-    db,
-  });
-
-  saveDatabase(db, targetMode);
-
-  res.json({
-    success: result.success,
-    status: result.status,
-    isAccepted: result.isAccepted,
-    followUpDraft: result.followUpDraft,
-    message: result.message,
-    candidate,
-  });
-});
-
-// Save / Update Recruiter Follow-up Draft
-app.post('/api/linkedin/save-followup-draft', (req: Request, res: Response) => {
-  const { candidateId, mode = 'live', message } = req.body;
-  const targetMode = mode === 'demo' ? 'demo' : 'live';
-  const db = getDatabase(targetMode);
-  const candidate = db.candidates.find(c => c.id === candidateId);
-
-  if (!candidate) {
-    res.status(404).json({ success: false, error: 'Candidate not found.' });
-    return;
-  }
-
-  if (candidate.linkedInOutreach) {
-    candidate.linkedInOutreach.followUpDraft = {
-      message: message || '',
-      generatedAt: candidate.linkedInOutreach.followUpDraft?.generatedAt || new Date().toISOString(),
-      editedByRecruiter: true,
-      lastSavedAt: new Date().toISOString(),
-    };
-    if (candidate.linkedInOutreachStatus === 'Invitation Accepted') {
-      candidate.linkedInOutreachStatus = 'Follow-Up Drafted';
-      candidate.linkedInOutreach.status = 'Follow-Up Drafted';
-    }
-  }
-
-  saveDatabase(db, targetMode);
-
-  res.json({
-    success: true,
-    candidate,
-    message: 'Follow-up draft updated.',
-  });
-});
-
-// Explicit Recruiter Send Follow-Up Message (Never automated)
-app.post('/api/linkedin/send-followup', async (req: Request, res: Response) => {
-  const { candidateId, mode = 'live', message } = req.body;
-  const targetMode = mode === 'demo' ? 'demo' : 'live';
-  const db = getDatabase(targetMode);
-  const candidate = db.candidates.find(c => c.id === candidateId);
-
-  if (!candidate) {
-    res.status(404).json({ success: false, error: 'Candidate not found.' });
-    return;
-  }
-
-  const textToSend = message || candidate.linkedInOutreach?.followUpDraft?.message || generatePersonalizedFollowUpMessage(candidate);
-
-  const result = await sendLinkedInFollowUpMessage({
-    candidate,
-    messageText: textToSend,
-    mode: targetMode,
-    db,
-  });
-
-  saveDatabase(db, targetMode);
-
-  if (result.success) {
-    res.json({
-      success: true,
-      messageId: result.messageId,
-      status: result.status,
-      message: result.message,
-      candidate,
-    });
-  } else {
-    res.status(400).json({
-      success: false,
-      status: result.status,
-      error: result.error || result.message,
-      message: result.message,
-      candidate,
-    });
-  }
-});
-
-// Regenerate personalized connection note
-app.post('/api/linkedin/regenerate-note', (req: Request, res: Response) => {
-  const { candidateId, mode = 'live' } = req.body;
-  const targetMode = mode === 'demo' ? 'demo' : 'live';
-  const db = getDatabase(targetMode);
-  const candidate = db.candidates.find(c => c.id === candidateId);
-
-  if (!candidate) {
-    res.status(404).json({ success: false, error: 'Candidate not found.' });
-    return;
-  }
-
-  const note = generatePersonalizedConnectionNote(candidate);
-  if (!candidate.linkedInOutreach) {
-    ensureCandidateLinkedInOutreach(candidate);
-  }
-  if (candidate.linkedInOutreach) {
-    candidate.linkedInOutreach.connectionNote = note;
-    candidate.linkedInOutreach.connectionNoteGeneratedAt = new Date().toISOString();
-  }
-
-  saveDatabase(db, targetMode);
-
-  res.json({
-    success: true,
-    note,
-    candidate,
-    message: 'Personalized connection note generated from candidate evidence.',
-  });
-});
-
 // Candidate Unsubscribe / Opt-out Endpoint
 app.get('/api/outreach/unsubscribe', (req: Request, res: Response) => {
   const { email, token } = req.query as { email?: string; token?: string };
@@ -1384,12 +1167,9 @@ app.get('/api/outreach/unsubscribe', (req: Request, res: Response) => {
     return;
   }
 
-  const modes: ('demo' | 'live')[] = ['demo', 'live'];
-  for (const m of modes) {
-    const db = getDatabase(m);
-    handleCandidateOptOut(email || '', token || '', db);
-    saveDatabase(db, m);
-  }
+  const db = getDatabase('live');
+  handleCandidateOptOut(email || '', token || '', db);
+  saveDatabase(db, 'live');
 
   res.send(`
     <html>
@@ -1405,21 +1185,12 @@ app.get('/api/outreach/unsubscribe', (req: Request, res: Response) => {
 
 // Candidate Registration Form Info Endpoint
 app.get('/api/candidate/form-info', (req: Request, res: Response) => {
-  const { token, email, mode = 'live' } = req.query as { token?: string; email?: string; mode?: string };
-  const targetMode = mode === 'demo' ? 'demo' : 'live';
-  const db = getDatabase(targetMode);
+  const { token, email } = req.query as { token?: string; email?: string };
+  const db = getDatabase('live');
 
-  let candidate = db.candidates.find(
+  const candidate = db.candidates.find(
     c => (token && c.formToken === token) || (email && c.email && c.email.toLowerCase() === email.toLowerCase())
   );
-
-  // If not found in target mode, try alternate mode
-  if (!candidate) {
-    const altDb = getDatabase(targetMode === 'live' ? 'demo' : 'live');
-    candidate = altDb.candidates.find(
-      c => (token && c.formToken === token) || (email && c.email && c.email.toLowerCase() === email.toLowerCase())
-    );
-  }
 
   res.json({
     success: true,
@@ -1449,35 +1220,16 @@ app.get('/api/candidate/form-info', (req: Request, res: Response) => {
 
 // Candidate Form Submission Endpoint
 app.post('/api/candidate/submit-form', (req: Request, res: Response) => {
-  const { token, email, fields, mode = 'live' } = req.body;
+  const { token, email, fields } = req.body;
   if (!fields || !fields.fullName || !fields.email) {
     res.status(400).json({ error: 'Full name and email are required fields.' });
     return;
   }
 
-  const modes: ('demo' | 'live')[] = [mode === 'demo' ? 'demo' : 'live', mode === 'demo' ? 'live' : 'demo'];
-  let matchedCandidate = null;
-  let targetDb = null;
-  let activeMode: 'demo' | 'live' = 'live';
-
-  for (const m of modes) {
-    const db = getDatabase(m);
-    const cand = db.candidates.find(
-      c => (token && c.formToken === token) || (email && c.email && c.email.toLowerCase() === email.toLowerCase())
-    );
-    if (cand) {
-      matchedCandidate = cand;
-      targetDb = db;
-      activeMode = m;
-      break;
-    }
-  }
-
-  if (!matchedCandidate || !targetDb) {
-    // If not found in existing candidates, still accept submission into current db
-    targetDb = getDatabase(mode === 'demo' ? 'demo' : 'live');
-    activeMode = mode === 'demo' ? 'demo' : 'live';
-  }
+  const db = getDatabase('live');
+  const matchedCandidate = db.candidates.find(
+    c => (token && c.formToken === token) || (email && c.email && c.email.toLowerCase() === email.toLowerCase())
+  );
 
   const responseId = `resp_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
   const submissionRecord = {
@@ -1487,15 +1239,15 @@ app.post('/api/candidate/submit-form', (req: Request, res: Response) => {
     submittedAt: new Date().toISOString(),
     submissionIp: req.ip,
     fields,
-    sourcePlatform: matchedCandidate?.sourcePostIds?.length ? ('LinkedIn' as const) : ('Demo' as const),
+    sourcePlatform: 'LinkedIn' as const,
     sourcePostUrl: matchedCandidate?.postUrl || null,
     recruiterNotes: 'Candidate submitted Expression of Interest registration form.',
   };
 
-  if (!Array.isArray(targetDb.candidateResponses)) {
-    targetDb.candidateResponses = [];
+  if (!Array.isArray(db.candidateResponses)) {
+    db.candidateResponses = [];
   }
-  targetDb.candidateResponses.unshift(submissionRecord);
+  db.candidateResponses.unshift(submissionRecord);
 
   if (matchedCandidate) {
     matchedCandidate.outreachStatus = 'Applied';
@@ -1511,7 +1263,7 @@ app.post('/api/candidate/submit-form', (req: Request, res: Response) => {
     }
   }
 
-  saveDatabase(targetDb, activeMode);
+  saveDatabase(db, 'live');
 
   res.json({
     success: true,

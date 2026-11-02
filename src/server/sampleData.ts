@@ -9,7 +9,6 @@ import {
   TARGET_SECTORS,
 } from '../types/index.ts';
 import { isApifyConfigured } from './apify.ts';
-import { generatePersonalizedConnectionNote } from './linkedinService.ts';
 
 export const initialCriteriaFilters: CriteriaFilters = {
   requiredKeywords: [
@@ -949,33 +948,11 @@ export function getInitialDemoDatabase(): AppDatabase {
       c.eligibilityReason = 'Post is a recruitment consultant advertising vacancies.';
     } else if (c.id === 'cand_verify_09_linkedin_no_email') {
       c.eligibilityStatus = 'eligible';
-      c.eligibilityReason = 'Area Sales Manager at HDFC Bank. No email provided in post (eligible for LinkedIn outreach).';
-      c.linkedInOutreachStatus = 'Ready Queue';
-      const note = generatePersonalizedConnectionNote(c);
-      c.linkedInOutreach = {
-        candidateId: c.id,
-        candidateName: c.name,
-        profileUrl: c.profileUrl || '',
-        status: 'Ready Queue',
-        connectionNote: note,
-        connectionNoteGeneratedAt: new Date().toISOString(),
-        invitationId: null,
-        invitationSentAt: null,
-        invitationAcceptedAt: null,
-        followUpDraft: null,
-        followUpSentAt: null,
-        followUpMessageId: null,
-        lastFailureReason: null,
-        lastFailureTimestamp: null,
-        syncTimestamp: new Date().toISOString(),
-        isSimulated: false,
-      };
+      c.eligibilityReason = 'Area Sales Manager at HDFC Bank. No email provided in post.';
     }
   });
 
-  const linkedInOutreachRecords = candidates
-    .filter(c => c.linkedInOutreach)
-    .map(c => c.linkedInOutreach!);
+  const linkedInOutreachRecords: any[] = [];
 
   return {
     candidates,

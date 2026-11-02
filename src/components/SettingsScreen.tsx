@@ -25,6 +25,7 @@ import {
   RefreshCw,
   FileCheck2,
   AlertCircle,
+  Search,
 } from 'lucide-react';
 import { AppDatabase, CriteriaFilters, ScheduleSettings, OutreachSettings, ApifyDiagnostics } from '../types/index.ts';
 import { connectGmailWithOAuth, disconnectGmailSession } from '../lib/firebaseAuth.ts';
@@ -42,6 +43,7 @@ interface SettingsScreenProps {
   apifyConfigured?: boolean;
   apifyDiagnostics?: ApifyDiagnostics | null;
   onRefreshStatus?: () => Promise<void>;
+  onNavigateToQueries?: () => void;
   showToast?: (text: string, type?: 'success' | 'error' | 'info') => void;
 }
 
@@ -53,6 +55,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
   apifyConfigured,
   apifyDiagnostics,
   onRefreshStatus,
+  onNavigateToQueries,
   showToast = () => {},
 }) => {
   const { criteria, schedule, connections, outreachSettings } = data;
@@ -516,6 +519,16 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
           <Linkedin className="w-4 h-4" />
           <span>Apify Harvesting & Scheduler</span>
         </button>
+
+        {onNavigateToQueries && (
+          <button
+            onClick={onNavigateToQueries}
+            className="flex items-center space-x-2 px-4 py-2 rounded-xl text-xs font-semibold text-slate-400 hover:text-white hover:bg-slate-800 transition cursor-pointer"
+          >
+            <Search className="w-4 h-4 text-blue-400" />
+            <span>Advanced Queries</span>
+          </button>
+        )}
       </div>
 
       {/* SECTION 1: GMAIL API & OUTREACH SETTINGS */}

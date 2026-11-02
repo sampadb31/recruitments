@@ -47,7 +47,7 @@ interface DashboardScreenProps {
   data: AppDatabase;
   mode: 'demo' | 'live';
   onFindCandidates: (timeWindow: '24h' | '7d', limit: number, useSmallTestQuery?: boolean) => Promise<void>;
-  onNavigateTab: (tab: 'dashboard' | 'sources' | 'candidates' | 'settings') => void;
+  onNavigateTab: (tab: 'dashboard' | 'sources' | 'candidates' | 'outreach' | 'settings') => void;
   isScanning: boolean;
   activeRun: ActiveCollectionRun | null;
   geminiConfigured: boolean;
@@ -74,13 +74,16 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
   const [usageCap, setUsageCap] = useState<number>(20);
   const [selectedTagFilter, setSelectedTagFilter] = useState<'all' | CriteriaTag>('all');
   const [inspectingCandidate, setInspectingCandidate] = useState<Candidate | null>(null);
-  const [showErrorPanel, setShowErrorPanel] = useState<boolean>(true);
+  const [showErrorPanel, setShowErrorPanel] = useState<boolean>(false);
   const [copiedError, setCopiedError] = useState<boolean>(false);
 
   const matchesCount = candidates.filter(c => c.criteriaTag === 'Matches Criteria').length;
   const reviewCount = candidates.filter(c => c.criteriaTag === 'Needs Review').length;
   const outsideCount = candidates.filter(c => c.criteriaTag === 'Outside Target').length;
-  const recruiterAdsCount = posts.filter(p => p.extractionState === 'recruiter_ad').length;
+  const duplicatesPreventedCount = scanRuns.reduce((acc, r) => acc + (r.duplicatesFoundCount || 0), 0);
+  const outreachActivityCount = candidates.filter(c => c.outreachStatus === 'Sent' || c.outreachStatus === 'Applied' || c.outreachStatus === 'Responded').length;
+  const outreachSentCount = candidates.filter(c => c.outreachStatus === 'Sent').length;
+  const outreachEngagedCount = candidates.filter(c => c.outreachStatus === 'Responded' || c.outreachStatus === 'Applied').length;
 
   const isBusy = isScanning || (activeRun && activeRun.status !== 'completed' && activeRun.status !== 'failed');
 
@@ -148,45 +151,29 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
 
   return (
     <div className="space-y-6 pb-12">
-      {/* Mode Identification Banner */}
-      <div
-        className={`px-4 py-2.5 rounded-xl border flex items-center justify-between text-xs ${
-          mode === 'demo'
-            ? 'bg-amber-950/40 border-amber-800/60 text-amber-200'
-            : 'bg-emerald-950/40 border-emerald-800/60 text-emerald-200'
-        }`}
-      >
+      {/* Executive Environment Status */}
+      <div className="px-4 py-2.5 rounded-xl border border-slate-800 bg-slate-900/80 flex items-center justify-between text-xs">
         <div className="flex items-center space-x-2">
-          {mode === 'demo' ? (
-            <span className="px-2 py-0.5 rounded bg-amber-500 text-slate-950 font-bold uppercase tracking-wider text-[10px]">
-              Demo Sandbox
-            </span>
-          ) : (
-            <span className="px-2 py-0.5 rounded bg-emerald-500 text-slate-950 font-bold uppercase tracking-wider text-[10px] flex items-center space-x-1">
-              <Radio className="w-2.5 h-2.5 animate-pulse" />
-              <span>Live Mode</span>
-            </span>
-          )}
+          <span className="px-2 py-0.5 rounded bg-emerald-950 text-emerald-300 border border-emerald-800 font-semibold uppercase tracking-wider text-[10px] flex items-center space-x-1">
+            <Radio className="w-2.5 h-2.5 animate-pulse text-emerald-400" />
+            <span>Live Production</span>
+          </span>
           <span className="text-slate-300">
-            {mode === 'demo'
-              ? 'Using pre-loaded simulated candidates for 5-point evaluation testing. External Apify API calls are disabled in Demo mode.'
-              : 'Connected to Apify harvestapi/linkedin-post-search actor. Ingesting live LinkedIn posts and author profiles.'}
+            LinkedIn Post Sourcing &bull; Automated Gmail Outreach &bull; Real-Time Candidate Verification
           </span>
         </div>
 
-        {mode === 'live' && (
-          <div className="flex items-center space-x-2">
-            <span
-              className={`inline-flex items-center space-x-1 text-[11px] px-2 py-0.5 rounded ${
-                apifyConfigured
-                  ? 'bg-blue-900/60 text-blue-300 border border-blue-700/50'
-                  : 'bg-amber-900/60 text-amber-300 border border-amber-700/50'
-              }`}
-            >
-              <span>{apifyConfigured ? 'Apify Token Configured' : 'Setup Required'}</span>
-            </span>
-          </div>
-        )}
+        <div className="flex items-center space-x-2">
+          <span
+            className={`inline-flex items-center space-x-1 text-[11px] px-2.5 py-0.5 rounded-md border ${
+              apifyConfigured
+                ? 'bg-blue-950/60 text-blue-300 border-blue-800/60'
+                : 'bg-amber-950/60 text-amber-300 border-amber-800/60'
+            }`}
+          >
+            <span>{apifyConfigured ? 'Apify Actor Ready' : 'Apify Setup Required'}</span>
+          </span>
+        </div>
       </div>
 
       {/* Setup Required Banner if in Live mode and Apify token is missing or placeholder */}
@@ -424,40 +411,24 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
       )}
 
       {/* Hero: "Find Candidates" Panel with Controls */}
-      <div
-        className={`bg-gradient-to-r border rounded-2xl p-6 shadow-md space-y-5 ${
-          mode === 'demo'
-            ? 'from-slate-900 via-slate-900 to-amber-950/40 border-amber-900/40'
-            : 'from-slate-900 via-slate-900 to-indigo-950 border-indigo-900/40'
-        }`}
-      >
+      <div className="bg-gradient-to-r from-slate-900 via-slate-900 to-indigo-950/60 border border-slate-800 rounded-2xl p-6 shadow-md space-y-5">
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
           <div>
             <div className="flex items-center space-x-2">
-              <span
-                className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold border ${
-                  mode === 'demo'
-                    ? 'bg-amber-900/60 text-amber-300 border-amber-700/50'
-                    : 'bg-blue-900/60 text-blue-300 border-blue-700/50'
-                }`}
-              >
-                {mode === 'demo' ? 'Demo Sandbox' : 'Live LinkedIn Search'}
+              <span className="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-semibold border bg-blue-950/80 text-blue-300 border-blue-700/60">
+                Live LinkedIn Post Sourcing
               </span>
               <span className="text-xs text-slate-300 font-medium">
-                Target: Job Seekers (1–10 yrs exp) • Across Any Sector (Wealthtech, FMCG, Automotive, NBFC, BFSI, &amp; more)
+                Target: Sales Professionals (1–10 yrs experience) across India
               </span>
             </div>
 
             <h1 className="text-xl sm:text-2xl font-bold text-white mt-1">
-              {mode === 'demo'
-                ? 'Job-Seeking Candidates Across Any Sector'
-                : 'Find Job-Seekers Across Any Sector (1–10y Exp)'}
+              LinkedIn Candidate Sourcing &amp; Executive Intelligence
             </h1>
 
             <p className="text-slate-300 text-xs sm:text-sm mt-1 max-w-2xl leading-relaxed">
-              {mode === 'demo'
-                ? 'Demo Sandbox tests evidence-based verification and recruiter workflow across sectors (Wealthtech, FMCG, NBFC, Automotive, etc.) with 1–10 years experience.'
-                : 'Harvests posts from LinkedIn and verifies candidates looking out for jobs with 1–10 years experience across any sector in India. Rejects recruiter ads, customer complaints, and senior >10y profiles.'}
+              Harvests live posts from LinkedIn via Apify actor and extracts job-seeking candidates with 1–10 years experience. Automatically evaluates 5-point qualification criteria and dispatches 1st outreach emails via Gmail to validated candidates.
             </p>
           </div>
 
@@ -663,117 +634,143 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
           <div className="flex items-center space-x-2">
             <Clock className="w-4 h-4 text-blue-400" />
             <span>
-              Last Successful Run:{' '}
-              <strong>
-                {lastSuccessfulRun ? new Date(lastSuccessfulRun.runAt).toLocaleString() : 'None recorded'}
+              Last Collection Run:{' '}
+              <strong className="text-white">
+                {lastSuccessfulRun ? new Date(lastSuccessfulRun.runAt).toLocaleString() : 'Ready for initial run'}
               </strong>
             </span>
           </div>
           <div className="flex items-center space-x-2">
-            <ShieldAlert className="w-4 h-4 text-purple-400" />
+            <Mail className="w-4 h-4 text-emerald-400" />
             <span>
-              Outreach Policy: <strong>No automated messaging sent (intake only)</strong>
+              Gmail Automation: <strong className="text-emerald-300">Active (Auto-sends 1st outreach on match)</strong>
             </span>
           </div>
           <div className="flex items-center space-x-2">
-            <Sparkles className="w-4 h-4 text-emerald-400" />
+            <Sparkles className="w-4 h-4 text-indigo-400" />
             <span>
-              AI Extractor: <strong>Gemini 3.8 Flash (Expanded Two-Stage Validation + Contact Extraction)</strong>
+              AI Qualification: <strong className="text-white">Gemini 2.5 Flash (5-Point Verification)</strong>
             </span>
           </div>
         </div>
       </div>
 
-      {/* KPI Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-        {/* Retrieved Posts (Explicit: NOT counted as matched candidates) */}
+      {/* Senior Executive Overview KPI Cards (5 Pillars) */}
+      <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
+        {/* 1. Sourced Posts */}
         <div
           onClick={() => onNavigateTab('sources')}
-          className="bg-slate-900 border border-slate-800 hover:border-slate-700 rounded-xl p-4 transition cursor-pointer"
+          className="bg-slate-900 border border-slate-800 hover:border-slate-700 rounded-xl p-4 transition cursor-pointer shadow-sm group"
         >
           <div className="flex items-center justify-between">
-            <span className="text-xs font-medium text-slate-400">Retrieved Posts</span>
+            <span className="text-xs font-medium text-slate-400 group-hover:text-slate-200">Sourced Posts</span>
             <Inbox className="w-4 h-4 text-blue-400" />
           </div>
           <p className="text-2xl font-bold text-white mt-2">{posts.length}</p>
-          <p className="text-[11px] text-slate-500 mt-1 leading-tight">Total ingested • Not counted as candidates</p>
+          <p className="text-[11px] text-slate-500 mt-1 leading-tight">Harvested from LinkedIn</p>
         </div>
 
-        {/* Matches Criteria */}
+        {/* 2. Validated Matches */}
         <div
           onClick={() => {
             setSelectedTagFilter('Matches Criteria');
             onNavigateTab('candidates');
           }}
-          className={`bg-slate-900 border rounded-xl p-4 transition cursor-pointer ${
-            selectedTagFilter === 'Matches Criteria'
-              ? 'border-emerald-500'
-              : 'border-emerald-900/40 hover:border-emerald-700/60'
-          }`}
+          className="bg-slate-900 border border-emerald-900/40 hover:border-emerald-700/60 rounded-xl p-4 transition cursor-pointer shadow-sm group"
         >
           <div className="flex items-center justify-between">
-            <span className="text-xs font-medium text-emerald-400">Matches Criteria</span>
+            <span className="text-xs font-medium text-emerald-400">Validated Matches</span>
             <CheckCircle2 className="w-4 h-4 text-emerald-400" />
           </div>
           <p className="text-2xl font-bold text-emerald-400 mt-2">{matchesCount}</p>
-          <p className="text-[11px] text-slate-500 mt-1">All 6 checks verified</p>
+          <p className="text-[11px] text-slate-500 mt-1 leading-tight">100% 5-point criteria verified</p>
         </div>
 
-        {/* Needs Review */}
+        {/* 3. Candidates Needing Review */}
         <div
           onClick={() => {
             setSelectedTagFilter('Needs Review');
             onNavigateTab('candidates');
           }}
-          className={`bg-slate-900 border rounded-xl p-4 transition cursor-pointer ${
-            selectedTagFilter === 'Needs Review'
-              ? 'border-amber-500'
-              : 'border-amber-900/40 hover:border-amber-700/60'
-          }`}
+          className="bg-slate-900 border border-amber-900/40 hover:border-amber-700/60 rounded-xl p-4 transition cursor-pointer shadow-sm group"
         >
           <div className="flex items-center justify-between">
             <span className="text-xs font-medium text-amber-400">Needs Review</span>
             <AlertCircle className="w-4 h-4 text-amber-400" />
           </div>
           <p className="text-2xl font-bold text-amber-400 mt-2">{reviewCount}</p>
-          <p className="text-[11px] text-slate-500 mt-1">Seeking confirmed, facts unconfirmed</p>
+          <p className="text-[11px] text-slate-500 mt-1 leading-tight">Seeking confirmed, facts partial</p>
         </div>
 
-        {/* Outside Target */}
-        <div
-          onClick={() => {
-            setSelectedTagFilter('Outside Target');
-            onNavigateTab('candidates');
-          }}
-          className={`bg-slate-900 border rounded-xl p-4 transition cursor-pointer ${
-            selectedTagFilter === 'Outside Target'
-              ? 'border-rose-500'
-              : 'border-slate-800 hover:border-slate-700'
-          }`}
-        >
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-medium text-rose-400">Outside Target</span>
-            <XCircle className="w-4 h-4 text-rose-400" />
-          </div>
-          <p className="text-2xl font-bold text-rose-400 mt-2">{outsideCount}</p>
-          <p className="text-[11px] text-slate-500 mt-1">&gt;10y, outside India, non-sales</p>
-        </div>
-
-        {/* Rejected Posts (Recruiter Ads & Unrelated) */}
+        {/* 4. Duplicates Prevented */}
         <div
           onClick={() => onNavigateTab('candidates')}
-          className="bg-slate-900 border border-slate-800 hover:border-slate-700 rounded-xl p-4 transition cursor-pointer"
+          className="bg-slate-900 border border-slate-800 hover:border-slate-700 rounded-xl p-4 transition cursor-pointer shadow-sm group"
         >
           <div className="flex items-center justify-between">
-            <span className="text-xs font-medium text-purple-400">Rejected Posts</span>
-            <ShieldAlert className="w-4 h-4 text-purple-400" />
+            <span className="text-xs font-medium text-purple-400">Duplicates Prevented</span>
+            <Layers className="w-4 h-4 text-purple-400" />
           </div>
-          <p className="text-2xl font-bold text-purple-400 mt-2">
-            {posts.filter(p => p.extractionState === 'recruiter_ad' || p.extractionState === 'rejected_post' || (p.authorIntent && p.authorIntent !== 'SELF_JOB_SEEKING')).length}
+          <p className="text-2xl font-bold text-purple-400 mt-2">{duplicatesPreventedCount}</p>
+          <p className="text-[11px] text-slate-500 mt-1 leading-tight">Identical profiles / posts merged</p>
+        </div>
+
+        {/* 5. Gmail Outreach Activity */}
+        <div
+          onClick={() => onNavigateTab('outreach')}
+          className="bg-slate-900 border border-blue-900/40 hover:border-blue-700/60 rounded-xl p-4 transition cursor-pointer shadow-sm group"
+        >
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-medium text-blue-400">Gmail Outreach</span>
+            <Mail className="w-4 h-4 text-blue-400" />
+          </div>
+          <p className="text-2xl font-bold text-blue-400 mt-2">{outreachActivityCount}</p>
+          <p className="text-[11px] text-slate-500 mt-1 leading-tight">
+            {outreachSentCount} delivered &bull; {outreachEngagedCount} engaged
           </p>
-          <p className="text-[11px] text-slate-500 mt-1">Recruiter ads &amp; unrelated</p>
         </div>
       </div>
+
+      {/* Latest Collection Run Plain-Language Overview */}
+      {scanRuns.length > 0 && (
+        <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4.5 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+          <div className="flex items-center space-x-3">
+            <div className="w-8 h-8 rounded-lg bg-blue-950/80 border border-blue-800/60 flex items-center justify-center shrink-0">
+              <Clock className="w-4 h-4 text-blue-400" />
+            </div>
+            <div>
+              <span className="font-semibold text-white block">
+                Latest Sourcing &amp; Intake Run ({new Date(scanRuns[0].runAt).toLocaleDateString()} at {new Date(scanRuns[0].runAt).toLocaleTimeString()})
+              </span>
+              <p className="text-slate-400 text-xs mt-0.5">
+                {scanRuns[0].message || `${scanRuns[0].receivedPostsCount} posts retrieved from LinkedIn, ${scanRuns[0].extractedCandidatesCount} candidates validated, and ${scanRuns[0].duplicatesFoundCount} duplicates merged.`}
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-center space-x-3 shrink-0">
+            <span
+              className={`px-2.5 py-1 rounded-md text-[11px] font-semibold flex items-center space-x-1.5 ${
+                scanRuns[0].status === 'success'
+                  ? 'bg-emerald-950 text-emerald-300 border border-emerald-800'
+                  : scanRuns[0].status === 'warning'
+                  ? 'bg-amber-950 text-amber-300 border border-amber-800'
+                  : 'bg-rose-950 text-rose-300 border border-rose-800'
+              }`}
+            >
+              {scanRuns[0].status === 'success' ? (
+                <CheckCircle2 className="w-3 h-3 text-emerald-400" />
+              ) : (
+                <AlertCircle className="w-3 h-3 text-amber-400" />
+              )}
+              <span className="capitalize">{scanRuns[0].status}</span>
+            </span>
+            <span className="text-slate-400 text-[11px] font-mono">
+              Duration: {((scanRuns[0].durationMs || 0) / 1000).toFixed(1)}s
+            </span>
+          </div>
+        </div>
+      )}
 
       {/* Main Candidate Verification Table / Grid */}
       <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5 space-y-4">
